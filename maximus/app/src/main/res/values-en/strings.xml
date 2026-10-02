@@ -12,8 +12,7 @@
     <string name="module_nutrition">Nutrition</string>
     <string name="module_dnd">Dungeons &amp; Dragons</string>
     <string name="module_trainer">Physics and maths lab</string>
-    <string name="module_simlab">Simulation lab</string>
-    <string name="module_chat">Local AI chat "Maximus"</string>
+    <string name="module_chat">Maximus</string>
 
     <string name="settings_language">Language</string>
     <string name="language_system">System language</string>
@@ -255,8 +254,7 @@
     <string name="module_nutrition_desc">Goals, weekly plan with recipes, weight model, calculators</string>
     <string name="module_dnd_desc">Characters, builds, monsters, dice with exact distributions</string>
     <string name="module_trainer_desc">Compendium, 60+ calculators and simulations, XP training, flashcards (in German)</string>
-    <string name="module_simlab_desc">Pendulums, Ising model, quantum oscillator, N-body</string>
-    <string name="module_chat_desc">Local language model with tools, fully offline</string>
+    <string name="module_chat_desc">On-device AI: strongman, D&amp;D, code, maths and physics, with tools</string>
     <string name="core_tab_vault">Vault</string>
     <string name="core_tab_calendar">Calendar</string>
     <string name="core_tab_notes">Notes</string>

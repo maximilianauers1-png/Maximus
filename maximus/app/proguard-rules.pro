@@ -10,3 +10,12 @@
     public static int e(...);
     public static int wtf(...);
 }
+
+# P6 Maximus: MediaPipe LLM Inference calls Java classes from native code (JNI) and parses
+# protobuf-lite metadata reflectively; keep both. AutoValue/annotation references are optional.
+-keep class com.google.mediapipe.** { *; }
+-keep class com.google.protobuf.** { *; }
+-dontwarn com.google.mediapipe.**
+-dontwarn com.google.protobuf.**
+-dontwarn com.google.auto.value.**
+-dontwarn javax.lang.model.**

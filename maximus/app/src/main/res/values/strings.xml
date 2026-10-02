@@ -13,8 +13,7 @@
     <string name="module_nutrition">Ernährung</string>
     <string name="module_dnd">Dungeons &amp; Dragons</string>
     <string name="module_trainer">Physik- und Mathe-Labor</string>
-    <string name="module_simlab">Simulationslabor</string>
-    <string name="module_chat">Lokaler KI-Chat „Maximus“</string>
+    <string name="module_chat">Maximus</string>
 
     <string name="settings_language">Sprache</string>
     <string name="language_system">Systemsprache</string>
@@ -256,8 +255,7 @@
     <string name="module_nutrition_desc">Ziele, Wochenplan mit Rezepten, Gewichtsmodell, Rechner</string>
     <string name="module_dnd_desc">Charaktere, Builds, Monster, Würfel mit exakten Verteilungen (auf Englisch)</string>
     <string name="module_trainer_desc">Kompendium, 60+ Rechner und Simulationen, Training mit XP, Karteikarten</string>
-    <string name="module_simlab_desc">Pendel, Ising-Modell, Quantenoszillator, N-Körper</string>
-    <string name="module_chat_desc">Lokales Sprachmodell mit Werkzeugen, ohne Netz</string>
+    <string name="module_chat_desc">Lokale KI auf dem Gerät: Strongman, D&amp;D, Code, Mathe und Physik, mit Werkzeugen</string>
     <string name="core_tab_vault">Tresor</string>
     <string name="core_tab_calendar">Kalender</string>
     <string name="core_tab_notes">Notizen</string>

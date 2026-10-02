@@ -22,9 +22,18 @@
 | junit:junit | 4.13.2 | [U] | – |
 | androidx.test.ext:junit | 1.3.0 | [U] | – |
 | androidx.test:runner | 1.7.0 | [U] | – |
+| com.google.mediapipe:tasks-genai | 0.10.24 | [U] Google Maven; auf neueste 0.10.x anheben | MediaPipe-Releases |
+| kotlinx-coroutines-test (nur Tests) | 1.10.2 | [U] | – |
 
-Später (nicht in P0 eingebunden): Vico 3.3.1 [V], ONNX Runtime 1.30.0 [V], KaTeX 0.18.9 [V];
-llama.cpp wird als Git-Submodul auf einen festen Commit gepinnt (keine SemVer-Releases).
+Später (nicht in P0 eingebunden): Vico 3.3.1 [V], ONNX Runtime 1.30.0 [V], KaTeX 0.18.9 [V].
+
+P6 (lokale KI): MediaPipe LLM Inference statt des ursprünglich geplanten llama.cpp-Submoduls.
+Gründe: (1) GitHub-ZIP-Downloads enthalten keine Submodule, (2) kein NDK/CMake-Build mit tiefen
+Objektpfaden (Windows-260-Zeichen-Grenze), (3) vorkompilierte XNNPACK-int4/int8-Kerne für CPU plus
+GPU-Delegate. Die Laufzeit ist in einer einzigen Datei gekapselt (chat/engine/MediaPipeLlm.kt) hinter
+dem Interface LocalLlm; ein Wechsel auf LiteRT-LM oder llama.cpp betrifft nur diese Datei.
+Die genaue API (setPreferredBackend, cancelGenerateResponseAsync, sizeInTokens) ist gegen
+Signatur-Stubs geprüft, nicht gegen das echte AAR (Google Maven war in der Build-Umgebung gesperrt).
 
 Bewusste Entscheidungen:
 - Room 2.8.x statt Room3 3.0.x: Room3 ist auf SQLiteDriver umgestellt; der dokumentierte

@@ -1,4 +1,4 @@
-MAXIMUS - Gesamtpaket (Version 0.6.0-p5, Datenbankversion 5)
+MAXIMUS - Gesamtpaket (Version 0.7.0-p6, Datenbankversion 5)
 
 Dieses Paket enthaelt das KOMPLETTE Projekt in einem Stueck. Es ersetzt alle
 frueheren Teilpakete (p2, p1-update, p3-update, ritterbild, p4-update,
@@ -24,3 +24,24 @@ So geht es:
 Hinweis zu Daten: Die App nicht deinstallieren. Wenn schon eine aeltere
 Version auf dem Handy ist, installiert Run darueber und die Datenbank wird
 automatisch bis Version 5 migriert. Auf einem frischen Handy beginnt alles leer.
+
+NEU in P6: Reiter "Maximus" (lokale KI)
+- Das Simulationslabor ist entfernt; an seiner Stelle steht "Maximus".
+- Die KI laeuft komplett auf dem Handy (MediaPipe LLM Inference). Die App hat
+  KEINE Internet-Berechtigung, auch nicht durch die neue Bibliothek (im Manifest entfernt).
+- Beim ersten Gradle-Sync laedt Android Studio die Bibliothek com.google.mediapipe:tasks-genai
+  (Google Maven). Falls die Version 0.10.24 nicht gefunden wird: in gradle/libs.versions.toml
+  "mediapipeGenai" auf die neueste 0.10.x-Version setzen.
+- Modell besorgen (einmalig, am PC oder im Handy-Browser):
+  Empfohlen fuer das Galaxy A55: Gemma 3n E2B (Datei gemma-3n-E2B-it-int4.task, ca. 3 GB)
+  von huggingface.co/google/gemma-3n-E2B-it-litert-preview (Gemma-Lizenz dort akzeptieren).
+  Schneller, aber schwaecher: Gemma 3 1B (gemma3-1b-it-int4.task, ca. 0,5 GB),
+  huggingface.co/litert-community/Gemma3-1B-IT.
+- In der App: Maximus > Chip-Symbol oben rechts > "Modelldatei (.task) importieren".
+  Oder die Datei per USB nach Android/data/app.maximus/files/models kopieren und
+  "Ordner neu einlesen" tippen.
+- Danach im selben Bildschirm "Leistungstest" starten: Er misst GPU und CPU und
+  uebernimmt auf Wunsch die schnellere Einheit.
+- Werkzeuge ohne Modell: /w 2d20kh1+5, /1rm 180x5 @8, /scheiben 182,5, /rechne ...,
+  /zauber Eldritch Blast, /formel Fermi-Dirac, /konstante Boltzmann, /hilfe.
+

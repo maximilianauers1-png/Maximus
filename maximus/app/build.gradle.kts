@@ -16,8 +16,8 @@ android {
         applicationId = "app.maximus"
         minSdk = 29
         targetSdk = 36
-        versionCode = 7
-        versionName = "0.6.0-p5"
+        versionCode = 8
+        versionName = "0.7.0-p6"
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
 
@@ -69,7 +69,11 @@ dependencies {
     implementation(libs.hilt.android)
     ksp(libs.hilt.compiler)
 
+    // P6 Maximus: on-device LLM runtime (native, no network access; the manifest removes INTERNET).
+    implementation(libs.mediapipe.tasks.genai)
+
     testImplementation(libs.junit)
+    testImplementation(libs.kotlinx.coroutines.test)
     androidTestImplementation(libs.androidx.test.ext.junit)
     androidTestImplementation(libs.androidx.test.runner)
 }

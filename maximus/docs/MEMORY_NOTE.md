@@ -148,3 +148,37 @@ Dispatchers.Default. Debye-Entropietabelle 2001 Doubles ≈ 16 KB pro Θ_D (einm
 Teuerste Rechnung: Magnetokalorik-Kurven 3 × 71 Temperaturen × Brent (≈ 40 Iterationen) mit
 Molekularfeld-Lösung je Auswertung → ≈ 100 ms (JVM-Messung), kein Speicherproblem.
 Builds-Tab: 3 × 20 Charakterbögen (je < 10 KB) für die DPR-Kurven. Erwartung: + < 10 MB gegenüber P4b.
+
+---
+
+# Speichernotiz – Phase P6 (Maximus, lokale KI)
+
+Status: **NICHT GEMESSEN.** Protokoll wie P0, zusätzlich:
+
+8. Modell laden (Chat öffnen, erste Frage), dreimal `dumpsys meminfo`.
+9. Chat verlassen und die Keep-alive-Zeit abwarten (Standard 5 min) oder „Jetzt aus dem Speicher
+   entfernen“ tippen; erneut messen (prüft den Freigabepfad).
+
+| Zustand                                   | TOTAL PSS (dumpsys) | Native Heap |
+|-------------------------------------------|---------------------|-------------|
+| Gemma 3n E2B geladen, nach erster Antwort | –                   | –           |
+| Nach Freigabe                             | –                   | –           |
+
+## Analytische Abschätzung
+
+  M ≈ M_Gewichte + M_KV + M_Arbeitspuffer,   M_KV = 2 · n_layer · n_kv_head · d_head · n_ctx · b.
+
+Die Gewichte werden gemappt (int4: ≈ 0,5 Byte/Parameter plus Embeddings); Gemma 3n E2B hat effektiv
+≈ 2·10⁹ Parameter im Speicher → Größenordnung 2–3 GB, Gemma 3 1B ≈ 0,6 GB. Für n_ctx = 4096 und
+fp16-KV-Cache liegt M_KV je nach Architektur im Bereich 50–150 MB. Architekturwerte aus den
+Modellmetadaten verifizieren. Ein 8-GB-Gerät hat typisch 3–4 GB frei: Gemma 3n E2B passt,
+E4B (≈ 4,4 GB) ist grenzwertig (Warnung im Modellbildschirm ab 50 % des RAM).
+
+C4 bleibt erfüllt: Das Modell ist die einzige Schwerkomponente (HeavyResourceGovernor), wird bei
+TRIM_MEMORY_BACKGROUND freigegeben und nach Verlassen des Chats nach der Keep-alive-Zeit.
+
+Rechenzeit: Folgefragen nutzen den KV-Cache der Sitzung weiter, Prefill kostet also nur die neuen
+Token (O(n_neu) statt O(Σ Verlauf)); der Verlauf wird nur bei neuer Sitzung oder Kontextüberlauf
+(used + prompt + reserve > n_ctx) gekürzt neu eingespielt (≤ 40 % von n_ctx). UI-Aktualisierungen
+beim Streamen sind auf ≈ 25/s gedrosselt.
+

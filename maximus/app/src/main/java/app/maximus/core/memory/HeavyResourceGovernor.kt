@@ -48,7 +48,7 @@ class HeavyResourceGovernor @Inject constructor() {
     /**
      * Levels >= TRIM_MEMORY_BACKGROUND (40) mean the process is on the LRU list and becomes an
      * LMK candidate; releasing gigabyte-scale state there maximises survival. TRIM_MEMORY_UI_HIDDEN
-     * (20) alone does not release: the 60-s idle rule for the chat screen is handled in phase P7.
+     * (20) alone does not release; the chat applies its own keep-alive time after leaving the screen (ChatController.onHidden).
      */
     fun onTrimMemory(level: Int) {
         if (level >= TRIM_MEMORY_BACKGROUND) releaseAll()

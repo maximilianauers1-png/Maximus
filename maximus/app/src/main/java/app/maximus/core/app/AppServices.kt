@@ -1,6 +1,7 @@
 package app.maximus.core.app
 
 import app.maximus.calendar.data.CalendarRepository
+import app.maximus.chat.data.ChatService
 import app.maximus.core.backup.BackupManager
 import app.maximus.diagnostics.DiagnosticsRepository
 import app.maximus.dnd.data.DndRepository
@@ -25,5 +26,6 @@ class AppServices @Inject constructor(
     val backup: BackupManager,
     val nutrition: NutritionRepository,
     val dnd: DndRepository,
-    val lab: LabRepository
+    val lab: LabRepository,
+    val chat: ChatService
 )

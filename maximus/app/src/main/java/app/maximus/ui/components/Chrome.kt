@@ -55,7 +55,7 @@ fun SteelRule(modifier: Modifier = Modifier, lozenge: Boolean = true) {
     }
 }
 
-enum class Glyph { BACK, GEAR, PULSE, LOCK, PLUS, CHEVRON_LEFT, CHEVRON_RIGHT, STAR, STAR_FILLED, EYE, COPY, SHIELD }
+enum class Glyph { BACK, GEAR, PULSE, LOCK, PLUS, CHEVRON_LEFT, CHEVRON_RIGHT, STAR, STAR_FILLED, EYE, COPY, SHIELD, SEND, STOP, HISTORY, TRASH, REFRESH, PIN, CHIP }
 
 /** Small line icons drawn on a 24-unit grid (no icon library needed). */
 @Composable
@@ -121,6 +121,40 @@ fun GlyphIcon(glyph: Glyph, modifier: Modifier = Modifier, tint: Color = Materia
             Glyph.COPY -> {
                 drawPath(p(8f, 8f, 19f, 8f, 19f, 20f, 8f, 20f, closed = true), tint, style = stroke)
                 drawPath(p(5f, 16f, 5f, 4f, 15f, 4f), tint, style = stroke)
+            }
+            Glyph.SEND -> {
+                // Lance head pointing up: the send action of the chat.
+                drawPath(p(12f, 3f, 18.5f, 12f, 14f, 12f, 14f, 21f, 10f, 21f, 10f, 12f, 5.5f, 12f, closed = true), tint)
+            }
+            Glyph.STOP -> drawRoundRect(tint, topLeft = Offset(6.5f * u, 6.5f * u), size = androidx.compose.ui.geometry.Size(11f * u, 11f * u),
+                cornerRadius = androidx.compose.ui.geometry.CornerRadius(2.2f * u))
+            Glyph.HISTORY -> {
+                drawPath(p(4f, 7f, 20f, 7f), tint, style = stroke)
+                drawPath(p(4f, 12f, 20f, 12f), tint, style = stroke)
+                drawPath(p(4f, 17f, 14f, 17f), tint, style = stroke)
+            }
+            Glyph.TRASH -> {
+                drawPath(p(4.5f, 6.5f, 19.5f, 6.5f), tint, style = stroke)
+                drawPath(p(9.5f, 6.5f, 9.5f, 4f, 14.5f, 4f, 14.5f, 6.5f), tint, style = stroke)
+                drawPath(p(6.5f, 6.5f, 7.5f, 20f, 16.5f, 20f, 17.5f, 6.5f), tint, style = stroke)
+            }
+            Glyph.REFRESH -> {
+                drawArc(tint, startAngle = -60f, sweepAngle = 290f, useCenter = false, topLeft = Offset(5f * u, 5f * u),
+                    size = androidx.compose.ui.geometry.Size(14f * u, 14f * u), style = stroke)
+                drawPath(p(15.5f, 3.5f, 16.5f, 7.6f, 12.4f, 8.4f), tint, style = stroke)
+            }
+            Glyph.PIN -> {
+                drawPath(p(9f, 4f, 15f, 4f, 14f, 10f, 17f, 13.5f, 7f, 13.5f, 10f, 10f, closed = true), tint, style = stroke)
+                drawPath(p(12f, 13.5f, 12f, 20.5f), tint, style = stroke)
+            }
+            Glyph.CHIP -> {
+                drawPath(p(7f, 7f, 17f, 7f, 17f, 17f, 7f, 17f, closed = true), tint, style = stroke)
+                drawPath(p(10f, 10f, 14f, 10f, 14f, 14f, 10f, 14f, closed = true), tint)
+                for (k in 0 until 3) {
+                    val o = 9.5f + 2.5f * k
+                    drawPath(p(o, 3.5f, o, 7f), tint, style = stroke); drawPath(p(o, 17f, o, 20.5f), tint, style = stroke)
+                    drawPath(p(3.5f, o, 7f, o), tint, style = stroke); drawPath(p(17f, o, 20.5f, o), tint, style = stroke)
+                }
             }
         }
     }
