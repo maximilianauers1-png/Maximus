@@ -11,7 +11,8 @@ enum class Topic(val title: String, val short: String, val blurb: String) {
     SEMICONDUCTOR("Halbleiterphysik", "Halbleiter", "Bänder, Ladungsträger, pn-Übergang, Diode, Solarzelle, MOSFET"),
     CALORIC("Kalorik", "Kalorik", "Elektro-, elasto-, magneto-, baro- und multikalorische Effekte, Festkörperkühlung"),
     QFT("Quantenfeldtheorie", "QFT", "Natürliche Einheiten, Klein-Gordon, Dirac, QED, Feynman-Regeln, Renormierung"),
-    MATH("Mathematik", "Mathe", "Analysis, lineare Algebra, DGL, Fourier, Komplexe Analysis, Wahrscheinlichkeit");
+    MECHANICS("Mechanik und Relativität", "Mechanik", "Newton, Lagrange, Hamilton, starrer Körper, Schwingungen, SRT, ART, Kontinua"),
+    MATH("Mathematik", "Mathe", "Analysis I–III, lineare Algebra, DGL, Funktionentheorie, Funktionalanalysis, Tensoren, Stochastik");
 }
 
 data class Param(
@@ -84,7 +85,7 @@ fun logGrid(a: Double, b: Double, n: Int = 200): List<Double> {
 object Calculators {
     val all: List<Calculator> by lazy {
         ThermoPhysics.calculators + ElectroPhysics.calculators + QuantumPhysics.calculators +
-            SemiconductorPhysics.calculators + CaloricPhysics.calculators + QftPhysics.calculators + MathTools.calculators
+            SemiconductorPhysics.calculators + CaloricPhysics.calculators + QftPhysics.calculators + MechanicsPhysics.calculators + MathTools.calculators
     }
     val byKey: Map<String, Calculator> by lazy { all.associateBy { it.key } }
     fun forTopic(t: Topic) = all.filter { it.topic == t }

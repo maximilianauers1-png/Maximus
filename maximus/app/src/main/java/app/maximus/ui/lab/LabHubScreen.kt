@@ -32,7 +32,15 @@ import java.time.LocalDate
 import kotlinx.coroutines.launch
 
 /** What a quiz run should contain. [daily] runs the fixed daily challenge of [epochDay]. */
-data class QuizConfig(val topic: Topic?, val difficulty: Int, val count: Int, val daily: Boolean = false, val seed: Long = System.nanoTime())
+data class QuizConfig(
+    val topic: Topic?,
+    val difficulty: Int,
+    val count: Int,
+    val daily: Boolean = false,
+    val seed: Long = System.nanoTime(),
+    /** Restricts the round to one lecture of the topic, e.g. "Analysis III". */
+    val course: String? = null
+)
 
 /** Everything the lab tabs need from the hub: current progress and the navigation/update callbacks. */
 class LabContext(

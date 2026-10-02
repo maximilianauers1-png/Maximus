@@ -46,6 +46,7 @@ import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import app.maximus.lab.domain.Compendium
 import app.maximus.lab.domain.LabEvent
 import app.maximus.lab.domain.Topic
 import app.maximus.ui.theme.Palette
@@ -59,6 +60,7 @@ fun topicColor(t: Topic): Color = when (t) {
     Topic.SEMICONDUCTOR -> Color(0xFF8CC7B3)  // verdigris
     Topic.CALORIC -> Palette.Heraldic         // heraldic red
     Topic.QFT -> Color(0xFFE3C77A)            // gold
+    Topic.MECHANICS -> Color(0xFF9CC0E8)      // pale sky
     Topic.MATH -> Palette.Steel               // polished steel
 }
 
@@ -129,6 +131,20 @@ fun TopicChips(selected: Topic?, onSelect: (Topic?) -> Unit, allowAll: Boolean =
         if (allowAll) FilterChip(selected == null, { onSelect(null) }, label = { Text("Alle") })
         Topic.entries.forEach { t ->
             FilterChip(selected == t, { onSelect(t) }, label = { Text(t.short, color = if (selected == t) MaterialTheme.colorScheme.onSurface else topicColor(t)) })
+        }
+    }
+}
+
+/** Lecture filter ("Vorlesung") for topics organised in courses, e.g. Analysis I–III; hidden when the topic has none. */
+@Composable
+fun CourseChips(topic: Topic?, selected: String?, onSelect: (String?) -> Unit) {
+    val courses = topic?.let { Compendium.courses(it) }.orEmpty()
+    if (courses.isEmpty()) return
+    Column {
+        Text("Vorlesung", style = MaterialTheme.typography.labelLarge, modifier = Modifier.padding(top = 4.dp))
+        FlowRow(horizontalArrangement = Arrangement.spacedBy(6.dp), verticalArrangement = Arrangement.spacedBy(4.dp)) {
+            FilterChip(selected == null, { onSelect(null) }, label = { Text("Alle") })
+            courses.forEach { c -> FilterChip(selected == c, { onSelect(c) }, label = { Text(c) }) }
         }
     }
 }

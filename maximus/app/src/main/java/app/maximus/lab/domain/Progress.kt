@@ -79,6 +79,7 @@ object LabRules {
         Topic.SEMICONDUCTOR to ("Shockleys Erbe" to "Halbleiterphysik zu 80 % gemeistert"),
         Topic.CALORIC to ("Kühlkünstler" to "Kalorik zu 80 % gemeistert"),
         Topic.QFT to ("Feynmans Diagramm" to "Quantenfeldtheorie zu 80 % gemeistert"),
+        Topic.MECHANICS to ("Newtons Apfel" to "Mechanik und Relativität zu 80 % gemeistert"),
         Topic.MATH to ("Gauß' Zögling" to "Mathematik zu 80 % gemeistert")
     )
 

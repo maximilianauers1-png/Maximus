@@ -139,9 +139,10 @@ Klassenmerkmale. Erwartung: + < 3 MB gegenüber P4.
 
 ## Analytische Obergrenze
 
-Inhalte als Kotlin-Konstanten, erst beim ersten Zugriff geladen (`by lazy`): Kompendium 46 Kapitel
-≈ 120 KB Text + 390 Formelkarten, 92 Konzeptfragen, 52 Aufgabengeneratoren, 63 Rechner → < 1 MB Heap.
-Fortschritt: ein Text-Datensatz in app_meta (Zeile pro Karteikarte), bei 390 Karten ≈ 12 KB.
+Inhalte als Kotlin-Konstanten, erst beim ersten Zugriff geladen (`by lazy`): Kompendium 75 Kapitel
+(8 Gebiete, Mathe in 11 Vorlesungen bis Analysis III/Funktionalanalysis) ≈ 200 KB Text (UTF-16) + 718 Formelkarten,
+144 Konzeptfragen, 90 Aufgabengeneratoren, 69 Rechner → < 1 MB Heap.
+Fortschritt: ein Text-Datensatz in app_meta (Zeile pro Karteikarte), bei 718 Karten ≈ 22 KB.
 Rechnerkurven: ≤ 6 Reihen × ≤ 600 Punkte × 2 Doubles ≈ 60 KB pro Ergebnis, kurzlebig; Rechnung auf
 Dispatchers.Default. Debye-Entropietabelle 2001 Doubles ≈ 16 KB pro Θ_D (einmalig, gecacht).
 Teuerste Rechnung: Magnetokalorik-Kurven 3 × 71 Temperaturen × Brent (≈ 40 Iterationen) mit

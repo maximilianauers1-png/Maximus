@@ -55,18 +55,30 @@ object QuizEngine {
     val generators: Map<Topic, List<QuestionGenerator>> by lazy { QuizGenerators.all }
     val bank: List<Question> by lazy { QuizBank.all }
 
+    /** Chapter of each generator, read from a sample question (a generator always stays within one chapter). */
+    private val generatorChapter: Map<QuestionGenerator, String?> by lazy {
+        generators.values.flatten().associateWith { it.make(Random(0)).chapterKey }
+    }
+
+    /** Number of available questions (bank + generators) for a course; used to hide empty course filters. */
+    fun courseSize(topic: Topic, course: String): Int =
+        bank.count { it.topic == topic && Compendium.byKey[it.chapterKey]?.course == course } +
+            generators[topic].orEmpty().count { Compendium.byKey[generatorChapter[it]]?.course == course }
+
     /** Adaptive difficulty: mastery 0..1 → difficulty 1..3. */
     fun difficultyFor(mastery: Double): Int = when { mastery < 0.4 -> 1; mastery < 0.75 -> 2; else -> 3 }
 
     /**
      * A session of [count] questions for one topic (or all topics when null). Roughly half the
      * questions are generated calculations; difficulty is centred on [difficulty] but varies by ±1.
+     * With a [course] (e.g. "Analysis II") only questions on that lecture's chapters are used.
      */
-    fun session(topic: Topic?, difficulty: Int, count: Int, r: Random): List<Question> {
+    fun session(topic: Topic?, difficulty: Int, count: Int, r: Random, course: String? = null): List<Question> {
         val topics = topic?.let { listOf(it) } ?: Topic.entries
         val out = ArrayList<Question>()
-        val pool = bank.filter { it.topic in topics }.shuffled(r)
-        val gens = topics.flatMap { t -> generators[t].orEmpty() }.shuffled(r)
+        fun inCourse(chapterKey: String?) = course == null || Compendium.byKey[chapterKey]?.course == course
+        val pool = bank.filter { it.topic in topics && inCourse(it.chapterKey) }.shuffled(r)
+        val gens = topics.flatMap { t -> generators[t].orEmpty() }.filter { course == null || inCourse(generatorChapter[it]) }.shuffled(r)
         var gi = 0
         val wanted = pool.sortedBy { abs(it.difficulty - difficulty) + r.nextDouble() }.toMutableList()
         while (out.size < count && (wanted.isNotEmpty() || gens.isNotEmpty())) {

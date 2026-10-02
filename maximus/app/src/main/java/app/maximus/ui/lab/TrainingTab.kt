@@ -51,13 +51,15 @@ fun TrainingTab(ctx: LabContext) {
     var topic by rememberSaveable { mutableStateOf<Topic?>(null) }
     var difficulty by rememberSaveable { mutableIntStateOf(0) } // 0 = adaptive
     var count by rememberSaveable { mutableIntStateOf(10) }
+    var course by rememberSaveable { mutableStateOf<String?>(null) }
     val mastery = topic?.let { ctx.progress.topic(it).mastery } ?: (Topic.entries.map { ctx.progress.topic(it).mastery }.average())
     val effective = if (difficulty == 0) QuizEngine.difficultyFor(mastery) else difficulty
     LazyColumn(contentPadding = PaddingValues(16.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
         item {
             SectionCard("Trainingsrunde") {
                 Text("Gebiet", style = MaterialTheme.typography.labelLarge)
-                TopicChips(topic, { topic = it })
+                TopicChips(topic, { topic = it; course = null })
+                CourseChips(topic, course) { course = it }
                 Text("Schwierigkeit", style = MaterialTheme.typography.labelLarge, modifier = Modifier.padding(top = 8.dp))
                 FlowRow(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
                     FilterChip(difficulty == 0, { difficulty = 0 }, label = { Text("Adaptiv (${stars(QuizEngine.difficultyFor(mastery))})") })
@@ -67,7 +69,7 @@ fun TrainingTab(ctx: LabContext) {
                 FlowRow(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
                     listOf(5, 10, 20).forEach { n -> FilterChip(count == n, { count = n }, label = { Text("$n") }) }
                 }
-                Button(onClick = { ctx.startQuiz(QuizConfig(topic, effective, count)) }, modifier = Modifier.fillMaxWidth().padding(top = 10.dp)) {
+                Button(onClick = { ctx.startQuiz(QuizConfig(topic, effective, count, course = course)) }, modifier = Modifier.fillMaxWidth().padding(top = 10.dp)) {
                     Text("Runde starten")
                 }
                 Text(
@@ -103,7 +105,7 @@ private fun stars(d: Int) = "◆".repeat(d) + "◇".repeat(3 - d)
 fun QuizRunner(ctx: LabContext, config: QuizConfig, onClose: () -> Unit) {
     var seed by remember { mutableLongStateOf(config.seed) }
     val questions = remember(config, seed) {
-        if (config.daily) QuizEngine.daily(ctx.today) else QuizEngine.session(config.topic, config.difficulty, config.count, Random(seed))
+        if (config.daily) QuizEngine.daily(ctx.today) else QuizEngine.session(config.topic, config.difficulty, config.count, Random(seed), config.course)
     }
     var index by remember(questions) { mutableIntStateOf(0) }
     var correct by remember(questions) { mutableIntStateOf(0) }

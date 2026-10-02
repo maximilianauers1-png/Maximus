@@ -359,8 +359,242 @@ internal object QuizGenerators {
         }
     )
 
+    private val mechanics = listOf(
+        QuestionGenerator { r ->
+            val a = r.pick(0.39, 0.72, 1.52, 2.77, 5.2, 9.54, 30.1)
+            val t = a.pow(1.5)
+            q(Topic.MECHANICS, 1, "Ein Himmelskörper umläuft die Sonne mit großer Halbachse a = ${n(a)} AE. Wie lang ist seine Umlaufzeit in Jahren?",
+                t, "a", "Kepler III mit Erdbahn als Einheit: T/1 a = (a/1 AE)^{3/2} = ${n(a)}^{1,5} = ${n(t)} a.", "me_newton")
+        },
+        QuestionGenerator { r ->
+            val (name, m, rad) = listOf(Triple("Erde", 5.972e24, 6.371e6), Triple("Mond", 7.342e22, 1.737e6), Triple("Mars", 6.417e23, 3.39e6), Triple("Jupiter", 1.898e27, 6.991e7))[r.nextInt(4)]
+            val v = sqrt(2 * Phys.G * m / rad) / 1e3
+            q(Topic.MECHANICS, 1, "Fluchtgeschwindigkeit von der Oberfläche: $name (M = ${n(m, 4)} kg, R = ${n(rad / 1e3, 4)} km), in km/s?",
+                v, "km/s", "½mv² = GMm/R ⇒ v = √(2GM/R) = ${n(v)} km/s (das √2-fache der Kreisbahngeschwindigkeit).", "me_newton")
+        },
+        QuestionGenerator { r ->
+            val m1 = r.int(2, 9).toDouble(); val m2 = r.int(1, m1.toInt() - 1).toDouble()
+            val a = 9.81 * (m1 - m2) / (m1 + m2)
+            q(Topic.MECHANICS, 1, "Atwoodsche Fallmaschine (masselose Rolle): m₁ = ${n(m1)} kg, m₂ = ${n(m2)} kg. Beschleunigung in m/s² (g = 9,81)?",
+                a, "m/s²", "L = ½(m₁ + m₂)ẋ² + (m₁ − m₂)gx ⇒ ẍ = g(m₁ − m₂)/(m₁ + m₂) = ${n(a)} m/s². Eine einzige generalisierte Koordinate, die Seilkraft taucht nicht auf.", "me_lagrange")
+        },
+        QuestionGenerator { r ->
+            val e = r.pick(2.0, 3.0, 5.0, 8.0); val w = r.pick(0.5, 1.0, 2.0, 4.0)
+            val j = 2 * PI * e / w
+            q(Topic.MECHANICS, 2, "Harmonischer Oszillator mit Energie E = ${n(e)} J und ω = ${n(w)} s⁻¹: Wie groß ist die Wirkungsvariable J = ∮ p dq (in J s)?",
+                j, "J s", "Die Phasenraumbahn ist eine Ellipse mit Halbachsen √(2mE) und √(2E/(mω²)); Fläche π·2E/ω ⇒ J = 2πE/ω = ${n(j)} J s.", "me_hamilton")
+        },
+        QuestionGenerator { r ->
+            val m = r.pick(1.0, 2.0, 3.0, 5.0); val l = r.pick(0.5, 1.0, 1.5, 2.0)
+            val i = m * l * l / 3
+            q(Topic.MECHANICS, 1, "Trägheitsmoment eines dünnen Stabes (m = ${n(m)} kg, L = ${n(l)} m) um eine Achse durch ein Ende (in kg m²)?",
+                i, "kg m²", "Steiner: I = ML²/12 + M(L/2)² = ML²/3 = ${n(i)} kg m².", "me_rigid")
+        },
+        QuestionGenerator { r ->
+            val h = r.pick(0.5, 1.0, 2.0, 5.0); val kind = r.nextInt(3)
+            val (name, f) = listOf("Vollzylinder" to 0.5, "Vollkugel" to 0.4, "dünnwandiger Hohlzylinder" to 1.0)[kind]
+            val v = sqrt(2 * 9.81 * h / (1 + f))
+            q(Topic.MECHANICS, 2, "Ein $name rollt ohne zu gleiten eine Höhe h = ${n(h)} m hinab (Start aus Ruhe). Endgeschwindigkeit in m/s (g = 9,81)?",
+                v, "m/s", "mgh = ½mv² + ½Iω² mit I = ${n(f)} mR², ω = v/R ⇒ v = √(2gh/(1 + ${n(f)})) = ${n(v)} m/s.", "me_rigid")
+        },
+        QuestionGenerator { r ->
+            val l = r.pick(0.25, 0.5, 1.0, 2.0, 9.81)
+            val t = 2 * PI * sqrt(l / 9.81)
+            q(Topic.MECHANICS, 1, "Periode eines Fadenpendels der Länge ${n(l)} m bei kleinen Ausschlägen (g = 9,81 m/s²)?",
+                t, "s", "Lagrange: θ̈ = −(g/l) sin θ ≈ −(g/l)θ ⇒ T = 2π√(l/g) = ${n(t)} s.", "me_oscillation")
+        },
+        QuestionGenerator { r ->
+            val w0 = r.pick(10.0, 50.0, 100.0, 628.0); val g = r.pick(0.1, 0.5, 1.0, 2.0)
+            val qq = w0 / (2 * g)
+            q(Topic.MECHANICS, 1, "Gedämpfter Oszillator ẍ + 2γẋ + ω₀²x = 0 mit ω₀ = ${n(w0)} s⁻¹ und γ = ${n(g)} s⁻¹: Güte Q?",
+                qq, "", "Q = ω₀/(2γ) = ${n(qq)}; die Resonanzbreite ist Δω ≈ 2γ = ω₀/Q.", "me_oscillation")
+        },
+        QuestionGenerator { r ->
+            val l = r.pick(0.5, 1.0, 2.0); val k = r.pick(0.05, 0.1, 0.2)
+            val w0 = sqrt(9.81 / l); val w2 = sqrt(9.81 / l + 2 * k)
+            val tb = 2 * PI / (w2 - w0)
+            q(Topic.MECHANICS, 2, "Zwei gleiche Pendel (l = ${n(l)} m) sind schwach gekoppelt, κ = k/m = ${n(k)} s⁻². Schwebungsperiode 2π/(ω₂ − ω₁) in s?",
+                tb, "s", "ω₁ = √(g/l) = ${n(w0)}, ω₂ = √(g/l + 2κ) = ${n(w2)} ⇒ T_S = 2π/(ω₂ − ω₁) = ${n(tb)} s.", "me_oscillation")
+        },
+        QuestionGenerator { r ->
+            val b = r.pick(0.6, 0.8, 0.9, 0.99, 0.995, 0.999)
+            val t = 2.197 / sqrt(1 - b * b)
+            q(Topic.MECHANICS, 1, "Ein Myon (Eigenlebensdauer τ = 2,197 μs) fliegt mit β = ${n(b)}. Mittlere Lebensdauer im Laborsystem in μs?",
+                t, "μs", "γ = 1/√(1 − β²) = ${n(1 / sqrt(1 - b * b))} ⇒ t = γτ = ${n(t)} μs.", "me_sr")
+        },
+        QuestionGenerator { r ->
+            val u = r.pick(0.5, 0.6, 0.8, 0.9); val v = r.pick(0.5, 0.7, 0.8, 0.9)
+            val w = (u + v) / (1 + u * v)
+            q(Topic.MECHANICS, 2, "Rakete mit β = ${n(v)} feuert in Flugrichtung ein Projektil mit β' = ${n(u)} relativ zur Rakete. Geschwindigkeit im Ruhesystem (in c)?",
+                w, "c", "u = (u' + v)/(1 + u'v/c²) = ${n(u + v)}/${n(1 + u * v)} = ${n(w)} c < 1. Rapiditäten addieren sich: artanh ${n(w)} = artanh ${n(u)} + artanh ${n(v)}.", "me_sr", tol = 0.005)
+        },
+        QuestionGenerator { r ->
+            val m = r.pick(1.0, 1.4, 3.0, 10.0, 4.3e6)
+            val rs = 2 * Phys.G * m * MechanicsPhysics.M_SUN / (Phys.c * Phys.c) / 1e3
+            q(Topic.MECHANICS, 1, "Schwarzschild-Radius eines Objekts mit ${n(m)} Sonnenmassen in km?",
+                rs, "km", "r_s = 2GM/c² ≈ 2,95 km · M/M_☉ = ${n(rs)} km.", "me_gr")
+        },
+        QuestionGenerator { r ->
+            val h = r.pick(0.8, 1.25, 2.0, 5.0, 20.0)
+            val v = sqrt(2 * 9.81 * h)
+            q(Topic.MECHANICS, 1, "Wasser strömt aus einer kleinen Öffnung ${n(h)} m unter dem Wasserspiegel eines großen Behälters. Ausflussgeschwindigkeit in m/s?",
+                v, "m/s", "Bernoulli zwischen Spiegel und Öffnung: ρgh = ½ρv² ⇒ Torricelli v = √(2gh) = ${n(v)} m/s.", "me_continuum")
+        },
+        QuestionGenerator { r ->
+            val v = r.pick(0.1, 0.5, 1.0, 2.0); val d = r.pick(0.01, 0.02, 0.05)
+            val re = 1000 * v * d / 1.0e-3
+            q(Topic.MECHANICS, 2, "Wasser (ρ = 1000 kg/m³, η = 1,0 mPa s) strömt mit ${n(v)} m/s durch ein Rohr mit ${n(d * 100)} cm Durchmesser. Reynolds-Zahl?",
+                re, "", "Re = ρvd/η = ${n(re)} — ${if (re < 2300) "laminar" else "oberhalb ≈ 2300 typischerweise turbulent"}.", "me_continuum")
+        }
+    )
+
+    /** Analysis I–III, LA II, DGL, Fourier: one generator per standard skill of a physics maths curriculum. */
+    private val mathCourse = listOf(
+        QuestionGenerator { r ->
+            val nn = r.int(5, 40)
+            val v = nn * (nn + 1) * (2.0 * nn + 1) / 6
+            q(Topic.MATH, 1, "Vollständige Induktion: Σ_{k=1}^{$nn} k² = ?",
+                v, "", "Σk² = n(n + 1)(2n + 1)/6 (Induktionsschritt: addiere (n + 1)²) = ${n(v, 8)}.", "ma_basics", tol = 1e-9)
+        },
+        QuestionGenerator { r ->
+            val nn = r.int(3, 9); val k = r.int(1, nn - 1)
+            val v = Stats.binomial(nn, k, 0.5) * 2.0.pow(nn)
+            q(Topic.MATH, 1, "Wie viele $k-elementige Teilmengen hat eine $nn-elementige Menge?",
+                Math.rint(v), "", "Binomialkoeffizient C($nn, $k) = $nn!/($k!·${nn - k}!) = ${n(Math.rint(v), 6)}.", "ma_basics", tol = 1e-9)
+        },
+        QuestionGenerator { r ->
+            val a = r.int(1, 3); val x = r.pick(0.5, 1.0, 1.5)
+            val d = 2.0 * a * x * kotlin.math.cos(a * x * x)
+            q(Topic.MATH, 1, "Kettenregel: Ableitung von f(x) = sin(${a}x²) an der Stelle x = ${n(x)}?",
+                d, "", "f'(x) = cos(${a}x²) · ${2 * a}x ⇒ f'(${n(x)}) = ${n(d)}.", "ma_analysis")
+        },
+        QuestionGenerator { r ->
+            val k = r.int(1, 4); val b = r.int(-2, 2)
+            val d = exp(b.toDouble()) * (k + b)
+            q(Topic.MATH, 1, "Produktregel: f(x) = x^$k · e^{${b}x}. Wert von f'(1)?",
+                d, "", "f' = (${k}x^${k - 1} + ${b}x^$k) e^{${b}x} ⇒ f'(1) = ($k + $b)e^$b = ${n(d)}.", "ma_analysis")
+        },
+        QuestionGenerator { r ->
+            val a = r.int(1, 3).toDouble()
+            val v = exp(a) * (a - 1) / (a * a) + 1 / (a * a)
+            q(Topic.MATH, 1, "Partielle Integration: ∫₀¹ x e^{${n(a)}x} dx = ?",
+                v, "", "∫x e^{ax} = x e^{ax}/a − ∫e^{ax}/a = e^{ax}(x/a − 1/a²) ⇒ [ ]₀¹ = e^a(a − 1)/a² + 1/a² = ${n(v)}.", "ma_integral")
+        },
+        QuestionGenerator { r ->
+            val c = r.int(1, 5).toDouble()
+            val v = ln(1 + c * c)
+            q(Topic.MATH, 1, "Substitution: ∫₀^${n(c)} 2x/(1 + x²) dx = ?",
+                v, "", "u = 1 + x², du = 2x dx ⇒ ∫ du/u = ln(1 + x²) |₀^${n(c)} = ln ${n(1 + c * c)} = ${n(v)}.", "ma_integral")
+        },
+        QuestionGenerator { r ->
+            val a = r.int(1, 6); val b = r.int(1, 6)
+            q(Topic.MATH, 1, "Grenzwert: lim_{x→0} sin(${a}x)/(${b}x) = ?",
+                a.toDouble() / b, "", "sin(ax) ≈ ax für x → 0 (oder l'Hospital): a/b = ${n(a.toDouble() / b)}.", "ma_continuity")
+        },
+        QuestionGenerator { r ->
+            val a = r.pick(1.0, 2.0, 0.5, 3.0)
+            q(Topic.MATH, 1, "Grenzwert der Folge aₙ = (1 + ${n(a)}/n)ⁿ für n → ∞?",
+                exp(a), "", "(1 + x/n)ⁿ → eˣ (monoton, beschränkt) ⇒ e^${n(a)} = ${n(exp(a))}.", "ma_seq")
+        },
+        QuestionGenerator { r ->
+            val k = r.int(2, 9); val p = r.int(0, 3)
+            q(Topic.MATH, 2, "Konvergenzradius der Potenzreihe Σ n^$p xⁿ/${k}ⁿ?",
+                k.toDouble(), "", "Cauchy-Hadamard: 1/R = limsup |aₙ|^{1/n} = lim n^{$p/n}/$k = 1/$k ⇒ R = $k. Polynomiale Faktoren ändern den Radius nicht.", "ma_series", tol = 1e-6)
+        },
+        QuestionGenerator { r ->
+            val a = r.int(1, 3); val nn = r.int(2, 5)
+            var f = 1.0; for (i in 2..nn) f *= i
+            val v = a.toDouble().pow(nn) / f
+            q(Topic.MATH, 1, "Taylor-Koeffizient von x^$nn in der Entwicklung von e^{${a}x} um 0?",
+                v, "", "e^{ax} = Σ aⁿxⁿ/n! ⇒ $a^$nn/$nn! = ${n(v)}.", "ma_taylor")
+        },
+        QuestionGenerator { r ->
+            val a = r.int(1, 3); val x = r.int(-2, 2); val y = r.int(-2, 2)
+            val v = (x * x + 3.0 * a * y * y)
+            q(Topic.MATH, 1, "f(x, y) = x²y + ${a}y³. Partielle Ableitung ∂f/∂y im Punkt ($x, $y)?",
+                v, "", "∂f/∂y = x² + ${3 * a}y² ⇒ ${n(v)}.", "ma_multidiff", tol = 1e-6)
+        },
+        QuestionGenerator { r ->
+            val b = r.int(-4, 4); val c = r.int(1, 4)
+            val det = 4.0 * c - b * b
+            val kind = when { det > 0 -> "Minimum"; det < 0 -> "Sattelpunkt"; else -> "keine Aussage (degeneriert)" }
+            q(Topic.MATH, 2, "f(x, y) = x² + ${b}xy + ${c}y² hat in (0, 0) einen kritischen Punkt. Wert von det H_f(0, 0)?",
+                det, "", "H = [[2, $b], [$b, ${2 * c}]] ⇒ det H = ${4 * c} − ${b * b} = ${n(det)} ⇒ $kind (f_xx = 2 > 0).", "ma_multidiff", tol = 1e-6)
+        },
+        QuestionGenerator { r ->
+            val a = r.int(1, 6).toDouble(); val b = r.int(1, 6).toDouble()
+            val v = sqrt(a * a + b * b)
+            q(Topic.MATH, 2, "Maximum von f(x, y) = ${n(a)}x + ${n(b)}y unter der Nebenbedingung x² + y² = 1?",
+                v, "", "Lagrange: (${n(a)}, ${n(b)}) = 2λ(x, y) ⇒ (x, y) ∥ (a, b) ⇒ f_max = √(a² + b²) = ${n(v)} (Cauchy-Schwarz).", "ma_implicit")
+        },
+        QuestionGenerator { r ->
+            val rr = r.pick(0.5, 1.0, 1.5, 2.0)
+            val v = PI * (1 - exp(-rr * rr))
+            q(Topic.MATH, 2, "∬_{x² + y² ≤ ${n(rr)}²} e^{−(x² + y²)} dx dy = ?",
+                v, "", "Polarkoordinaten, dx dy = r dr dφ: 2π ∫₀^R r e^{−r²} dr = π(1 − e^{−R²}) = ${n(v)}. Für R → ∞: π, also ∫e^{−x²}dx = √π.", "ma_fubini")
+        },
+        QuestionGenerator { r ->
+            val a = r.int(1, 3); val b = r.int(1, 3); val c = r.int(0, 3); val rr = r.pick(1.0, 2.0)
+            val v = (a + b + c) * 4.0 / 3 * PI * rr.pow(3)
+            q(Topic.MATH, 2, "Fluss von F = (${a}x, ${b}y, ${c}z) durch die Sphäre vom Radius ${n(rr)} (äußere Normale)?",
+                v, "", "Gauß: ∮F·dA = ∫ div F dV = ${a + b + c} · (4/3)π·${n(rr)}³ = ${n(v)}.", "ma_vector")
+        },
+        QuestionGenerator { r ->
+            val p = r.int(-3, 3); val qq = r.int(-3, 3); val s = r.int(-3, 3)
+            val v = (p * p * qq + s).toDouble()
+            q(Topic.MATH, 2, "F = ∇φ mit φ = x²y + z. Kurvenintegral ∫ F · dx längs irgendeines Weges von (0, 0, 0) nach ($p, $qq, $s)?",
+                v, "", "Gradientenfeld ⇒ wegunabhängig: φ(Ende) − φ(Anfang) = ${p * p}·$qq + $s = ${n(v)}.", "ma_curves", tol = 1e-6)
+        },
+        QuestionGenerator { r ->
+            val rr = r.pick(1.0, 2.0, 3.0); val h = r.pick(0.5, 1.0, 2.0)
+            val v = 2 * PI * sqrt(rr * rr + h * h)
+            q(Topic.MATH, 1, "Bogenlänge einer Windung der Helix γ(t) = (${n(rr)} cos t, ${n(rr)} sin t, ${n(h)} t), t ∈ [0, 2π]?",
+                v, "", "|γ'| = √(R² + h²) konstant ⇒ L = 2π√(R² + h²) = ${n(v)}.", "ma_curves")
+        },
+        QuestionGenerator { r ->
+            val a = r.pick(1.0, 2.0, 4.0, 0.5, PI)
+            q(Topic.MATH, 1, "Gauß-Integral: ∫_{−∞}^{∞} e^{−${n(a)}x²} dx = ?",
+                sqrt(PI / a), "", "Quadrieren und Polarkoordinaten: (∫e^{−ax²})² = π/a ⇒ √(π/a) = ${n(sqrt(PI / a))}.", "ma_lebesgue")
+        },
+        QuestionGenerator { r ->
+            val a = r.int(-2, 2); val b = r.int(-3, 3); val c = r.int(-3, 3); val d = r.int(-2, 2)
+            val v = exp((a + d).toDouble())
+            q(Topic.MATH, 2, "A = ($a $b; $c $d). Wert von det(e^A)?",
+                v, "", "det e^A = e^{tr A} (Eigenwerte λᵢ ↦ e^{λᵢ}) = e^${a + d} = ${n(v)}.", "ma_linalg2")
+        },
+        QuestionGenerator { r ->
+            val k = r.pick(-0.5, -0.2, 0.1, 0.3); val y0 = r.pick(1.0, 2.0, 5.0); val t = r.pick(1.0, 2.0, 5.0)
+            val v = y0 * exp(k * t)
+            q(Topic.MATH, 1, "Anfangswertproblem y' = ${n(k)} y, y(0) = ${n(y0)}. Wert von y(${n(t)})?",
+                v, "", "Trennung der Variablen: y = y₀ e^{kt} = ${n(v)}.", "ma_ode")
+        },
+        QuestionGenerator { r ->
+            val w = r.pick(1.0, 2.0, 3.0); val v0 = r.pick(1.0, 2.0); val t = r.pick(0.5, 1.0, 2.0)
+            val v = kotlin.math.cos(w * t) + v0 / w * kotlin.math.sin(w * t)
+            q(Topic.MATH, 1, "y'' + ${n(w * w)} y = 0 mit y(0) = 1, y'(0) = ${n(v0)}. Wert von y(${n(t)})?",
+                v, "", "y = cos(ωt) + (y'(0)/ω) sin(ωt) mit ω = ${n(w)} ⇒ ${n(v)}.", "ma_ode")
+        },
+        QuestionGenerator { r ->
+            val nn = r.int(1, 6)
+            val v = 2.0 * (if (nn % 2 == 1) 1 else -1) / nn
+            q(Topic.MATH, 2, "Fourier-Reihe von f(x) = x auf (−π, π): Koeffizient b_$nn vor sin(${nn}x)?",
+                v, "", "f ungerade ⇒ aₙ = 0; bₙ = (1/π)∫x sin(nx) dx = 2(−1)^{n+1}/n = ${n(v)}.", "ma_fourier", tol = 1e-6)
+        },
+        QuestionGenerator { r ->
+            val a = r.pick(1.0, 2.0, 3.0, 0.5)
+            q(Topic.MATH, 2, "Residuensatz: ∫_{−∞}^{∞} dx/(x² + ${n(a * a)}) = ?",
+                PI / a, "", "Pol in der oberen Halbebene bei z = ${n(a)}i, Residuum 1/(2·${n(a)}i) ⇒ 2πi · Res = π/${n(a)} = ${n(PI / a)}.", "ma_complex")
+        },
+        QuestionGenerator { r ->
+            val nn = r.int(2, 7)
+            var f = 1.0; for (i in 2 until nn) f *= i
+            q(Topic.MATH, 1, "Wert der Gammafunktion Γ($nn)?",
+                f, "", "Γ(n) = (n − 1)! (Γ(x + 1) = xΓ(x), Γ(1) = 1) ⇒ ${n(f)}.", "ma_special", tol = 1e-9)
+        }
+    )
+
     val all: Map<Topic, List<QuestionGenerator>> = mapOf(
         Topic.THERMO to thermo, Topic.ELECTRO to electro, Topic.QUANTUM to quantum, Topic.SEMICONDUCTOR to semiconductor,
-        Topic.CALORIC to caloric, Topic.QFT to qft, Topic.MATH to math
+        Topic.CALORIC to caloric, Topic.QFT to qft, Topic.MECHANICS to mechanics, Topic.MATH to math + mathCourse
     )
 }

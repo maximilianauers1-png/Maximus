@@ -47,6 +47,7 @@ app/src/main/java/app/maximus/lab/domain/Compendium.kt
 app/src/main/java/app/maximus/lab/domain/CompendiumCaloric.kt
 app/src/main/java/app/maximus/lab/domain/CompendiumElectro.kt
 app/src/main/java/app/maximus/lab/domain/CompendiumMath.kt
+app/src/main/java/app/maximus/lab/domain/CompendiumMechanics.kt
 app/src/main/java/app/maximus/lab/domain/CompendiumQft.kt
 app/src/main/java/app/maximus/lab/domain/CompendiumQuantum.kt
 app/src/main/java/app/maximus/lab/domain/CompendiumSemiconductor.kt
@@ -55,8 +56,12 @@ app/src/main/java/app/maximus/lab/domain/Constants.kt
 app/src/main/java/app/maximus/lab/domain/ElectroPhysics.kt
 app/src/main/java/app/maximus/lab/domain/Expr.kt
 app/src/main/java/app/maximus/lab/domain/LabModel.kt
+app/src/main/java/app/maximus/lab/domain/MathAnalysis2.kt
+app/src/main/java/app/maximus/lab/domain/MathAnalysis3.kt
+app/src/main/java/app/maximus/lab/domain/MathCourses.kt
 app/src/main/java/app/maximus/lab/domain/MathTools.kt
 app/src/main/java/app/maximus/lab/domain/MathWorkbench.kt
+app/src/main/java/app/maximus/lab/domain/MechanicsPhysics.kt
 app/src/main/java/app/maximus/lab/domain/Numerics.kt
 app/src/main/java/app/maximus/lab/domain/Progress.kt
 app/src/main/java/app/maximus/lab/domain/QftPhysics.kt
@@ -179,6 +184,7 @@ app/src/test/java/app/maximus/dnd/domain/CharacterTest.kt
 app/src/test/java/app/maximus/dnd/domain/DiceTest.kt
 app/src/test/java/app/maximus/dnd/domain/MonsterTest.kt
 app/src/test/java/app/maximus/lab/domain/LabGameTest.kt
+app/src/test/java/app/maximus/lab/domain/LabMechanicsTest.kt
 app/src/test/java/app/maximus/lab/domain/LabPhysicsTest.kt
 app/src/test/java/app/maximus/notes/domain/MarkdownLiteTest.kt
 app/src/test/java/app/maximus/nutrition/domain/MealPlannerTest.kt

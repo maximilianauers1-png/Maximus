@@ -34,16 +34,22 @@ import app.maximus.ui.strongman.SectionCard
 @Composable
 fun CompendiumTab(ctx: LabContext) {
     var topic by rememberSaveable { mutableStateOf<Topic?>(null) }
+    var course by rememberSaveable { mutableStateOf<String?>(null) }
     var search by rememberSaveable { mutableStateOf("") }
-    val chapters = remember(topic, search) {
+    val chapters = remember(topic, course, search) {
         Compendium.all.filter { ch ->
-            (topic == null || ch.topic == topic) && (search.isBlank() ||
+            (topic == null || ch.topic == topic) && (course == null || ch.course == course) && (search.isBlank() ||
                 ch.title.contains(search, true) || ch.summary.contains(search, true) ||
                 ch.sections.any { s -> s.title.contains(search, true) || s.body.contains(search, true) || s.formulas.any { it.name.contains(search, true) } })
         }
     }
     LazyColumn(contentPadding = PaddingValues(16.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) {
-        item { TopicChips(topic, { topic = it }) }
+        item {
+            Column {
+                TopicChips(topic, { topic = it; course = null })
+                CourseChips(topic, course) { course = it }
+            }
+        }
         item {
             OutlinedTextField(search, { search = it }, label = { Text("Suche in Texten und Formeln") }, singleLine = true, modifier = Modifier.fillMaxWidth())
         }
@@ -53,7 +59,10 @@ fun CompendiumTab(ctx: LabContext) {
             PlateCard(onClick = { ctx.openChapter(ch.key) }) {
                 Column(modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 12.dp)) {
                     Row(verticalAlignment = Alignment.CenterVertically) {
-                        Text(ch.topic.title, style = MaterialTheme.typography.labelMedium, color = topicColor(ch.topic), modifier = Modifier.weight(1f))
+                        Text(
+                            ch.topic.title + if (ch.course.isNotEmpty()) " · ${ch.course}" else "",
+                            style = MaterialTheme.typography.labelMedium, color = topicColor(ch.topic), modifier = Modifier.weight(1f)
+                        )
                         Text(
                             Compendium.levelLabel(ch.level) + if (read) "  ✓" else "",
                             style = MaterialTheme.typography.labelMedium,
@@ -111,9 +120,11 @@ fun ChapterScreen(ctx: LabContext, key: String) {
                     }
                 }
                 OutlinedButton(
-                    onClick = { ctx.startQuiz(QuizConfig(ch.topic, QuizEngine.difficultyFor(ctx.progress.topic(ch.topic).mastery), 8)) },
+                    onClick = {
+                        ctx.startQuiz(QuizConfig(ch.topic, QuizEngine.difficultyFor(ctx.progress.topic(ch.topic).mastery), 8, course = ch.course.ifEmpty { null }))
+                    },
                     modifier = Modifier.fillMaxWidth()
-                ) { Text("Wissen prüfen: Training ${ch.topic.title}") }
+                ) { Text("Wissen prüfen: Training ${ch.course.ifEmpty { ch.topic.title }}") }
             }
         }
     }
