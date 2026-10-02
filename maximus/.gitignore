@@ -1,0 +1,11 @@
+# Build-Ausgaben und Caches: werden von Gradle/Android Studio neu erzeugt.
+# Sie gehoeren nicht ins Repository (lange Pfade sprengen sonst das Windows-Limit von 260 Zeichen).
+build/
+app/build/
+.gradle/
+.kotlin/
+.idea/caches/
+.idea/workspace.xml
+.idea/deploymentTargetSelector.xml
+*.iml
+captures/

@@ -5,6 +5,10 @@ frueheren Teilpakete (p2, p1-update, p3-update, ritterbild, p4-update,
 dnd-update und die Einzelkorrekturen fix1 bis fix5). Nichts davon wird
 zusaetzlich gebraucht.
 
+Hinweis: Build-Ausgaben (Ordner build, .gradle) sind nicht mehr im Paket. Android Studio
+erzeugt sie beim ersten Build neu. Damit bleiben alle Pfade kurz (Windows-Grenze 260 Zeichen).
+Tipp: Das ZIP in einen kurzen Ordner entpacken, z. B. C:\m\
+
 So geht es:
 1. Android Studio schliessen.
 2. Einen NEUEN, LEEREN Ordner anlegen, zum Beispiel C:\Users\maxim\maximus-neu
