@@ -61,6 +61,10 @@ object DndCodec {
         o.put("currency", JSONObject().put("cp", b.currency.cp).put("sp", b.currency.sp)
             .put("ep", b.currency.ep).put("gp", b.currency.gp).put("pp", b.currency.pp))
         o.put("feats", strings(b.featKeys))
+        o.put("invocations", strings(b.invocationKeys))
+        o.put("metamagic", strings(b.metamagicKeys))
+        o.put("pactBoon", b.pactBoon ?: JSONObject.NULL)
+        o.put("styles", strings(b.fightingStyles))
         o.put("spells", strings(b.spellKeys))
         o.put("prepared", strings(b.preparedKeys))
         o.put("homebrew", JSONArray().apply {
@@ -155,6 +159,10 @@ object DndCodec {
                 gp = cur?.optInt("gp") ?: 0, pp = cur?.optInt("pp") ?: 0
             ),
             featKeys = stringSet(o.optJSONArray("feats")),
+            invocationKeys = stringSet(o.optJSONArray("invocations")),
+            metamagicKeys = stringSet(o.optJSONArray("metamagic")),
+            pactBoon = if (o.isNull("pactBoon")) null else o.optString("pactBoon").ifBlank { null },
+            fightingStyles = stringSet(o.optJSONArray("styles")),
             spellKeys = stringSet(o.optJSONArray("spells")),
             preparedKeys = stringSet(o.optJSONArray("prepared")),
             homebrew = homebrew,

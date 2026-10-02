@@ -1,4 +1,4 @@
-MAXIMUS - Gesamtpaket (Version 0.5.1-p4b, Datenbankversion 5)
+MAXIMUS - Gesamtpaket (Version 0.6.0-p5, Datenbankversion 5)
 
 Dieses Paket enthaelt das KOMPLETTE Projekt in einem Stueck. Es ersetzt alle
 frueheren Teilpakete (p2, p1-update, p3-update, ritterbild, p4-update,

@@ -49,6 +49,8 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextMeasurer
 import androidx.compose.ui.text.rememberTextMeasurer
 import androidx.compose.ui.unit.IntOffset
+import androidx.compose.ui.unit.IntSize
+import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import app.maximus.R
@@ -109,6 +111,8 @@ fun ChartFrame(
     var scale by remember { mutableFloatStateOf(1f) }
     var offset by remember { mutableStateOf(Offset.Zero) }
     var tooltip by remember { mutableStateOf<HitPoint?>(null) }
+    var boxSize by remember { mutableStateOf(IntSize.Zero) }
+    var tipSize by remember { mutableStateOf(IntSize.Zero) }
     val scope = rememberCoroutineScope()
     val context = LocalContext.current
     val tapRadiusPx = with(LocalDensity.current) { 32.dp.toPx() }
@@ -140,6 +144,7 @@ fun ChartFrame(
                     .fillMaxWidth()
                     .height(height)
                     .clipToBounds()
+                    .onSizeChanged { boxSize = it }
                     .pointerInput(Unit) {
                         awaitEachGesture {
                             awaitFirstDown(requireUnconsumed = false)
@@ -189,9 +194,19 @@ fun ChartFrame(
                         tonalElevation = 6.dp,
                         shadowElevation = 4.dp,
                         shape = MaterialTheme.shapes.small,
-                        modifier = Modifier.offset {
-                            IntOffset((t.x * scale + offset.x).roundToInt() + 8, (t.y * scale + offset.y).roundToInt() - 40)
-                        }
+                        modifier = Modifier
+                            .onSizeChanged { tipSize = it }
+                            .offset {
+                                // Keep the tooltip inside the chart: flip below the point when there is no room above,
+                                // and slide it left when it would leave the right edge.
+                                val px = (t.x * scale + offset.x).roundToInt()
+                                val py = (t.y * scale + offset.y).roundToInt()
+                                val gap = 8.dp.roundToPx()
+                                val x = (px + gap).coerceAtMost(boxSize.width - tipSize.width).coerceAtLeast(0)
+                                val above = py - gap - tipSize.height
+                                val y = (if (above >= 0) above else py + gap).coerceIn(0, (boxSize.height - tipSize.height).coerceAtLeast(0))
+                                IntOffset(x, y)
+                            }
                     ) {
                         Text(t.label, style = MaterialTheme.typography.labelSmall, modifier = Modifier.padding(6.dp))
                     }

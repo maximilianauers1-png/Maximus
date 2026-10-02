@@ -28,6 +28,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
@@ -45,6 +46,10 @@ import app.maximus.dnd.domain.Ability
 import app.maximus.dnd.domain.CharacterBuild
 import app.maximus.dnd.domain.CharacterBuilder
 import app.maximus.dnd.domain.CharacterSheet
+import app.maximus.dnd.domain.EldritchInvocations
+import app.maximus.dnd.domain.FightingStyles
+import app.maximus.dnd.domain.MetamagicOptions
+import app.maximus.dnd.domain.PactBoons
 import app.maximus.dnd.domain.Spell
 import app.maximus.dnd.domain.Spells
 import app.maximus.ui.components.MaximusTopBar
@@ -95,7 +100,9 @@ fun CharacterSheetScreen(services: AppServices, characterId: Long, onBack: () ->
             return@Scaffold
         }
         val sheet = remember(b) { CharacterBuilder.build(b) }
-        Column(modifier = Modifier.fillMaxSize().padding(padding)) {
+        val bubble by services.dnd.bubbleEnabled.collectAsState(initial = true)
+        Box(Modifier.fillMaxSize().padding(padding)) {
+        Column(modifier = Modifier.fillMaxSize()) {
             ScrollableTabRow(
                 selectedTabIndex = tab, edgePadding = 12.dp,
                 containerColor = MaterialTheme.colorScheme.background, contentColor = MaterialTheme.colorScheme.primary
@@ -111,6 +118,8 @@ fun CharacterSheetScreen(services: AppServices, characterId: Long, onBack: () ->
                 5 -> FeaturesTab(sheet)
                 else -> StoryTab(sheet)
             }
+        }
+        if (bubble) QuickRollBubble(services)
         }
     }
 
@@ -326,6 +335,47 @@ private fun CombatTab(s: CharacterSheet, onRoll: (RollRequest) -> Unit, update: 
                             Text(a.properties, style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.outline)
                         }
                     }
+                }
+            }
+        }
+        if (s.spellAttacks.isNotEmpty()) {
+            item {
+                DndCard("Spell attacks — tap to roll") {
+                    s.spellAttacks.forEach { a ->
+                        Column(
+                            modifier = Modifier.fillMaxWidth()
+                                .clickable {
+                                    onRoll(
+                                        RollRequest(
+                                            label = a.name, modifier = a.attackBonus,
+                                            damageExpression = a.damage.replace(" ", ""),
+                                            damageLabel = "Damage (${a.damageType})"
+                                        )
+                                    )
+                                }
+                                .padding(vertical = 8.dp)
+                        ) {
+                            Row(verticalAlignment = Alignment.CenterVertically) {
+                                Text(a.name, style = MaterialTheme.typography.titleMedium, modifier = Modifier.weight(1f))
+                                Text(sign(a.attackBonus), style = MaterialTheme.typography.titleMedium, color = MaterialTheme.colorScheme.primary)
+                            }
+                            Text(
+                                "${a.damage} ${a.damageType}   average ${fmt1(a.averageDamage)}   range ${a.range}",
+                                style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant
+                            )
+                            if (a.properties.isNotBlank()) {
+                                Text(a.properties, style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.outline)
+                            }
+                        }
+                    }
+                    BodyText("Eldritch blast: roll once per beam; the average already counts every beam.", muted = true)
+                }
+            }
+        }
+        if (s.resources.isNotEmpty()) {
+            item {
+                DndCard("Class resources") {
+                    s.resources.forEach { (name, value) -> StatRow(name, value) }
                 }
             }
         }
@@ -572,6 +622,22 @@ private fun FeaturesTab(s: CharacterSheet) {
                             Text("Prerequisite: ${feat.prerequisite}", style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.outline)
                         }
                         BodyText(feat.text, muted = true)
+                    }
+                }
+            }
+        }
+        val b = s.build
+        val options = b.invocationKeys.mapNotNull { EldritchInvocations.byKey[it] }.map { "Invocation" to it } +
+            b.metamagicKeys.mapNotNull { MetamagicOptions.byKey[it] }.map { "Metamagic" to it } +
+            listOfNotNull(b.pactBoon?.let { PactBoons.byKey[it] }).map { "Pact boon" to it } +
+            b.fightingStyles.mapNotNull { FightingStyles.byKey[it] }.map { "Fighting style" to it }
+        if (options.isNotEmpty()) {
+            item {
+                DndCard("Class options") {
+                    options.forEach { (kind, o) ->
+                        Text(o.name, style = MaterialTheme.typography.titleMedium, modifier = Modifier.fillMaxWidth().padding(top = 8.dp))
+                        Text("$kind · ${o.source.label}", style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.outline)
+                        BodyText(o.text, muted = true)
                     }
                 }
             }

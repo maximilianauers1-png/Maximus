@@ -7,6 +7,7 @@ import androidx.room.Insert
 import androidx.room.PrimaryKey
 import androidx.room.Query
 import androidx.room.Update
+import app.maximus.data.db.AppMetaEntity
 import app.maximus.data.db.MaximusDatabase
 import dagger.Lazy
 import javax.inject.Inject
@@ -16,6 +17,7 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.emitAll
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOn
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.withContext
 
 /** Characters and monsters are stored as JSON so that the schema does not change with every rule addition. */
@@ -107,7 +109,18 @@ class DndRepository @Inject constructor(private val database: Lazy<MaximusDataba
     private val io = Dispatchers.IO
     private fun dao() = database.get().dndDao()
 
-    companion object { const val HISTORY_LIMIT = 300 }
+    companion object {
+        const val HISTORY_LIMIT = 300
+        const val KEY_BUBBLE = "dnd.quick_roll_bubble"
+    }
+
+    /** Whether the floating quick-roll bubble is shown in the D&D hub (default on). */
+    val bubbleEnabled: Flow<Boolean> = flow { emitAll(database.get().appMetaDao().observe(KEY_BUBBLE)) }
+        .map { it != "0" }.flowOn(io)
+
+    suspend fun setBubbleEnabled(on: Boolean) = withContext(io) {
+        database.get().appMetaDao().upsert(AppMetaEntity(KEY_BUBBLE, if (on) "1" else "0"))
+    }
 
     val characters: Flow<List<DndCharacterEntity>> = flow { emitAll(dao().observeCharacters()) }.flowOn(io)
     val monsters: Flow<List<DndMonsterEntity>> = flow { emitAll(dao().observeMonsters()) }.flowOn(io)

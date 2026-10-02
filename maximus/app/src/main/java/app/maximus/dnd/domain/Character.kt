@@ -74,6 +74,11 @@ data class CharacterBuild(
     val inventory: List<InventoryItem> = emptyList(),
     val currency: Currency = Currency(),
     val featKeys: Set<String> = emptySet(),
+    /** Eldritch invocations ([EldritchInvocations]), metamagic ([MetamagicOptions]), pact boon, fighting styles. */
+    val invocationKeys: Set<String> = emptySet(),
+    val metamagicKeys: Set<String> = emptySet(),
+    val pactBoon: String? = null,
+    val fightingStyles: Set<String> = emptySet(),
     val spellKeys: Set<String> = emptySet(),
     val preparedKeys: Set<String> = emptySet(),
     val homebrew: List<HomebrewEntry> = emptyList(),
@@ -148,6 +153,10 @@ data class CharacterSheet(
     val passiveInvestigation: Int,
     val passiveInsight: Int,
     val attacks: List<AttackLine>,
+    /** Attack-roll cantrips the character knows (eldritch blast, fire bolt, booming blade …), scaled by level. */
+    val spellAttacks: List<AttackLine>,
+    /** Limited-use class resources, e.g. "Sorcery points" to "14". */
+    val resources: List<Pair<String, String>>,
     val spellcasting: List<SpellcastingBlock>,
     val spellSlots: IntArray,
     val pactSlots: Pair<Int, Int>,
@@ -186,6 +195,7 @@ object SpellSlots {
         val single = classes.size == 1
         return classes.sumOf { cl ->
             val c = SrdClasses.byKey[cl.classKey] ?: return@sumOf 0
+            if (cl.subclassKey == "eldritch_knight") return@sumOf cl.level / 3
             when (c.casterDivisor) {
                 1 -> cl.level
                 // A lone half-caster uses its own table, which starts at level 2; in a multiclass it is level/2.
@@ -278,6 +288,7 @@ object CharacterBuilder {
         val barbarian = b.levelOf("barbarian") > 0
         val monk = b.levelOf("monk") > 0
         val draconic = b.classes.any { it.subclassKey == "draconic" }
+        val hexblade = b.classes.any { it.subclassKey == "hexblade" }
         var ac: Int
         var acNote: String
         when {
@@ -290,6 +301,7 @@ object CharacterBuilder {
             }
         }
         if (b.shield) { ac += SrdEquipment.shield.baseAc; acNote += " + shield" }
+        if ("defense" in b.fightingStyles && !unarmoured) { ac += 1; acNote += " + Defense style" }
         ac += effectValue(b, "ac")
         if (armor.strRequired > 0 && scores.getValue(Ability.STR) < armor.strRequired) {
             warnings += "${armor.name} requires Strength ${armor.strRequired}; your speed drops by 10 ft."
@@ -299,7 +311,11 @@ object CharacterBuilder {
 
         // ----- saves, skills -----
         val saveProfs = if (b.saveProficiencyOverride.isNotEmpty()) b.saveProficiencyOverride
-        else classPairs.firstOrNull()?.first?.savingThrows?.toSet().orEmpty()
+        else classPairs.firstOrNull()?.first?.savingThrows?.toSet().orEmpty() +
+            listOfNotNull(
+                if ("resilient_con" in b.featKeys) Ability.CON else null,
+                if ("resilient_wis" in b.featKeys) Ability.WIS else null
+            )
         val saves = Ability.entries.associateWith { a -> mods.getValue(a) + if (a in saveProfs) prof else 0 }
 
         val profSkills = (race.skills + background.skills + b.chosenSkills + homebrewSkills(b)).toSet()
@@ -331,11 +347,16 @@ object CharacterBuilder {
                 monk && (w.category == "Unarmed" || w.name == "Shortsword" || (w.category.startsWith("Simple") && !w.twoHanded && !w.heavy)) && dexMod > mods.getValue(Ability.STR) -> Ability.DEX
                 else -> Ability.STR
             }
-            val mod = mods.getValue(ability)
+            // Hex Warrior (Hexblade): a one-handed weapon may use CHA instead of STR or DEX.
+            val hexWarrior = a.useAbility == null && hexblade && !w.twoHanded && !(a.twoHanded && w.versatile != null) &&
+                mods.getValue(Ability.CHA) > mods.getValue(ability)
+            val usedAbility = if (hexWarrior) Ability.CHA else ability
+            val mod = mods.getValue(usedAbility)
             val baseDice = if (a.twoHanded && w.versatile != null) w.versatile else w.damage
             val monkDie = if (monk && (w.category == "Unarmed" || w.name == "Shortsword")) monkMartialArtsDie(b.levelOf("monk")) else null
             val dice = monkDie ?: baseDice
-            val flat = mod + a.magicBonus
+            val dueling = "dueling" in b.fightingStyles && !w.ranged && !w.twoHanded && !a.twoHanded
+            val flat = mod + a.magicBonus + if (dueling) 2 else 0
             val damage = buildString {
                 append(dice)
                 if (flat != 0) append(if (flat > 0) "+$flat" else "$flat")
@@ -351,10 +372,11 @@ object CharacterBuilder {
                 if (w.twoHanded) "two-handed" else null,
                 w.versatile?.let { "versatile ($it)" },
                 w.thrown?.let { "thrown $it" }
-            ).joinToString(", ")
+            ).joinToString(", ") + if (hexWarrior) " · CHA (Hex Warrior)" else ""
             AttackLine(
                 name = a.customName.ifBlank { w.name } + if (a.magicBonus != 0) " +${a.magicBonus}" else "",
-                attackBonus = mod + a.magicBonus + if (a.proficient) prof else 0,
+                attackBonus = mod + a.magicBonus + (if (a.proficient) prof else 0) +
+                    (if (w.ranged && "archery" in b.fightingStyles) 2 else 0),
                 damage = damage,
                 damageType = w.type + if (a.extraDamageType.isNotBlank()) " + ${a.extraDamageType}" else "",
                 averageDamage = mean,
@@ -387,13 +409,21 @@ object CharacterBuilder {
         // ----- multiclass prerequisites -----
         if (classPairs.size > 1) {
             for ((c, _) in classPairs) {
-                val unmet = c.multiclassRequirement.filter { (a, v) -> scores.getValue(a) < v }
+                // Fighters need STR 13 *or* DEX 13; every other listed requirement must all be met.
+                val unmet = if (c.key == "fighter") {
+                    if (scores.getValue(Ability.STR) >= 13 || scores.getValue(Ability.DEX) >= 13) emptyMap() else mapOf(Ability.STR to 13)
+                } else c.multiclassRequirement.filter { (a, v) -> scores.getValue(a) < v }
                 if (unmet.isNotEmpty()) {
                     warnings += "${c.name} multiclassing needs ${unmet.entries.joinToString(" and ") { "${it.key.short} ${it.value}" }}."
                 }
             }
         }
         if (level > Rules.MAX_LEVEL) warnings += "Total level is capped at 20."
+        val invocationLimit = EldritchInvocations.known(b.levelOf("warlock")) + if ("eldritch_adept" in b.featKeys) 1 else 0
+        if (b.invocationKeys.size > invocationLimit) warnings += "${b.invocationKeys.size} invocations chosen, $invocationLimit allowed."
+        val metamagicLimit = MetamagicOptions.known(b.levelOf("sorcerer")) + if ("metamagic_adept" in b.featKeys) 2 else 0
+        if (b.metamagicKeys.size > metamagicLimit) warnings += "${b.metamagicKeys.size} metamagic options chosen, $metamagicLimit allowed."
+        if ("agonizing_blast" in b.invocationKeys && "eldritch_blast" !in b.spellKeys) warnings += "Agonizing Blast needs the eldritch blast cantrip."
 
         val features = classPairs.flatMap { (c, cl) ->
             val own = c.features.filter { it.level <= cl.level }.map { c.name to it }
@@ -417,7 +447,10 @@ object CharacterBuilder {
             saves = saves, saveProficiencies = saveProfs, skills = skills,
             passivePerception = passive(Skill.PERCEPTION), passiveInvestigation = passive(Skill.INVESTIGATION),
             passiveInsight = passive(Skill.INSIGHT),
-            attacks = attackLines, spellcasting = casting,
+            attacks = attackLines,
+            spellAttacks = SpellAttacks.lines(b, mods, prof, casting, attackLines),
+            resources = ClassResources.of(b, mods, prof),
+            spellcasting = casting,
             spellSlots = SpellSlots.slots(b.classes), pactSlots = SpellSlots.pactSlots(b.levelOf("warlock")),
             carryCapacityLb = 15.0 * scores.getValue(Ability.STR) * sizeFactor(race.size),
             carriedLb = carried,

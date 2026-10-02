@@ -18,6 +18,8 @@ const val SRD_ATTRIBUTION =
 enum class ContentSource(val label: String) {
     SRD51("SRD 5.1"),
     SRD52("SRD 5.2"),
+    /** Non-SRD book content, summarised in our own words (see SupplementContent.kt). */
+    SUPPLEMENT("Supplement"),
     HOMEBREW("Homebrew")
 }
 
@@ -726,7 +728,7 @@ object SrdSubclasses {
             f(6, "Projected Ward", "Spend the ward to absorb damage for a creature within 30 ft."),
             f(10, "Spell Breaker", "Dispel magic and counterspell are always prepared and cast at a higher level for free."),
             f(14, "Spell Resistance", "Advantage on saving throws against spells and resistance to their damage."))
-    )
+    ) + SupplementSubclasses.all
 
     val byClass: Map<String, List<Subclass>> = all.groupBy { it.classKey }
     val byKey = all.associateBy { it.key }
@@ -807,7 +809,7 @@ object SrdFeats {
         Feat("ability_score_improvement", "Ability Score Improvement", "Level 4+",
             "Increase one ability score by 2, or two scores by 1 each, to a maximum of 20.",
             abilityChoice = Ability.entries.toList(), abilityAmount = 2, source = ContentSource.SRD51)
-    )
+    ) + SupplementFeats.all
 
     val byKey = all.associateBy { it.key }
 }

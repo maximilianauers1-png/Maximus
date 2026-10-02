@@ -12,7 +12,7 @@
     <string name="module_strongman">Strongman</string>
     <string name="module_nutrition">Ernährung</string>
     <string name="module_dnd">Dungeons &amp; Dragons</string>
-    <string name="module_trainer">Physik- &amp; Mathetrainer</string>
+    <string name="module_trainer">Physik- und Mathe-Labor</string>
     <string name="module_simlab">Simulationslabor</string>
     <string name="module_chat">Lokaler KI-Chat „Maximus“</string>
 
@@ -254,8 +254,8 @@
     <string name="module_core_desc">Passwörter mit Biometrie, Termine mit Serien und Feiertagen, Notizen in Markdown</string>
     <string name="module_strongman_desc">1RM, RPE, Programme, Trainingslog, Rekorde und Trainingslast</string>
     <string name="module_nutrition_desc">Ziele, Wochenplan mit Rezepten, Gewichtsmodell, Rechner</string>
-    <string name="module_dnd_desc">Charaktere, Monster, Würfel mit exakten Verteilungen (auf Englisch)</string>
-    <string name="module_trainer_desc">Lektionen, Wiederholung nach SM-2, adaptive Aufgaben</string>
+    <string name="module_dnd_desc">Charaktere, Builds, Monster, Würfel mit exakten Verteilungen (auf Englisch)</string>
+    <string name="module_trainer_desc">Kompendium, 60+ Rechner und Simulationen, Training mit XP, Karteikarten</string>
     <string name="module_simlab_desc">Pendel, Ising-Modell, Quantenoszillator, N-Körper</string>
     <string name="module_chat_desc">Lokales Sprachmodell mit Werkzeugen, ohne Netz</string>
     <string name="core_tab_vault">Tresor</string>

@@ -52,6 +52,11 @@ import app.maximus.dnd.domain.CharacterBuild
 import app.maximus.dnd.domain.CharacterBuilder
 import app.maximus.dnd.domain.CharacterSheet
 import app.maximus.dnd.domain.ClassLevel
+import app.maximus.dnd.domain.ClassOption
+import app.maximus.dnd.domain.EldritchInvocations
+import app.maximus.dnd.domain.FightingStyles
+import app.maximus.dnd.domain.MetamagicOptions
+import app.maximus.dnd.domain.PactBoons
 import app.maximus.dnd.domain.HomebrewEntry
 import app.maximus.dnd.domain.HomebrewKind
 import app.maximus.dnd.domain.HpMethod
@@ -70,7 +75,7 @@ import app.maximus.ui.components.MaximusTopBar
 import kotlin.random.Random
 import kotlinx.coroutines.launch
 
-private val EDITOR_TABS = listOf("Basics", "Classes", "Abilities", "Skills", "Gear", "Spells", "Feats", "Homebrew", "Story")
+private val EDITOR_TABS = listOf("Basics", "Classes", "Abilities", "Skills", "Gear", "Spells", "Feats", "Options", "Homebrew", "Story")
 
 fun skillName(s: Skill): String = s.name.split('_').joinToString(" ") { part ->
     part.lowercase().replaceFirstChar { it.uppercase() }
@@ -133,7 +138,8 @@ fun CharacterEditorScreen(services: AppServices, characterId: Long, onBack: () -
                 4 -> GearSection(b, sheet, set)
                 5 -> SpellsSection(b, set)
                 6 -> FeatsSection(b, sheet, set)
-                7 -> HomebrewSection(b, set)
+                7 -> OptionsSection(b, set)
+                8 -> HomebrewSection(b, set)
                 else -> StorySection(b, set)
             }
         }
@@ -316,8 +322,8 @@ private fun ClassesSection(b: CharacterBuild, set: ((CharacterBuild) -> Characte
                         }
                     }
                     BodyText(
-                        "Only the subclasses released under the open licences are listed. Add any other subclass as a " +
-                            "homebrew entry; its features then appear on the sheet.", muted = true
+                        "SRD subclasses plus supplement subclasses (Hexblade, Divine Soul, Shadow, Vengeance, Tempest …) summarised in our own words. " +
+                            "Anything else goes in as a homebrew entry; its features then appear on the sheet.", muted = true
                     )
                 }
                 Text("Features up to level ${cl.level}", style = MaterialTheme.typography.titleMedium,
@@ -781,7 +787,7 @@ private fun SpellsSection(b: CharacterBuild, set: ((CharacterBuild) -> Character
             val prepared = spell.key in b.preparedKeys
             DndCard(spell.name) {
                 Text(
-                    "${spell.levelLabel} · ${spell.school.label} · ${spell.classes.joinToString(", ")}",
+                    "${spell.levelLabel} · ${spell.school.label} · ${spell.classes.joinToString(", ")} · ${spell.source.label}",
                     style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
                 Text(
@@ -810,8 +816,8 @@ private fun SpellsSection(b: CharacterBuild, set: ((CharacterBuild) -> Character
         item {
             DndCard("Missing a spell?") {
                 BodyText(
-                    "This list holds the spells from the open licences. Anything else you can add on the Homebrew tab " +
-                        "as a spell entry; it then shows up in the spell section of the sheet.", muted = true
+                    "This list holds the SRD spells plus supplement spells (booming blade, silvery barbs, the smites, shadow blade …). " +
+                        "Anything else you can add on the Homebrew tab as a spell entry; it then shows up in the spell section of the sheet.", muted = true
                 )
             }
         }
@@ -839,6 +845,90 @@ private fun FeatsSection(b: CharacterBuild, s: CharacterSheet, set: ((CharacterB
                     label = { Text(if (on) "Taken" else "Take") }, modifier = Modifier.padding(top = 8.dp))
             }
         }
+    }
+}
+
+// ---------------------------------------------------------------- Class options
+
+@Composable
+private fun OptionsSection(b: CharacterBuild, set: ((CharacterBuild) -> CharacterBuild) -> Unit) {
+    val wl = b.levelOf("warlock")
+    val sorc = b.levelOf("sorcerer")
+    val styleClass = b.levelOf("fighter") >= 1 || b.levelOf("paladin") >= 2 || b.levelOf("ranger") >= 2
+    val invLimit = EldritchInvocations.known(wl) + if ("eldritch_adept" in b.featKeys) 1 else 0
+    val mmLimit = MetamagicOptions.known(sorc) + if ("metamagic_adept" in b.featKeys) 2 else 0
+    LazyColumn(contentPadding = PaddingValues(16.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
+        item {
+            DndCard("Class options") {
+                StatRow("Eldritch invocations", "${b.invocationKeys.size} of $invLimit", emphasise = invLimit > 0)
+                StatRow("Metamagic options", "${b.metamagicKeys.size} of $mmLimit", emphasise = mmLimit > 0)
+                StatRow("Pact boon", b.pactBoon?.let { PactBoons.byKey[it]?.name } ?: if (wl >= 3) "choose one" else "from warlock 3")
+                StatRow("Fighting styles", "${b.fightingStyles.size}")
+                BodyText(
+                    "Counts follow the class tables: invocations 2/3/4/5/6/7/8 at warlock 2/5/7/9/12/15/18, metamagic 2/3/4 at sorcerer 3/10/17. " +
+                        "Eldritch Adept and Metamagic Adept add to them. Options above the level limit are greyed out but can still be picked for planning.",
+                    muted = true
+                )
+            }
+        }
+        if (wl > 0 || "eldritch_adept" in b.featKeys) {
+            item { Text("Eldritch invocations", style = MaterialTheme.typography.titleLarge, color = MaterialTheme.colorScheme.primary) }
+            items(EldritchInvocations.all) { o ->
+                OptionCard(o, o.key in b.invocationKeys, available = o.minLevel <= maxOf(wl, 2)) {
+                    set { bb -> bb.copy(invocationKeys = if (o.key in bb.invocationKeys) bb.invocationKeys - o.key else bb.invocationKeys + o.key) }
+                }
+            }
+        }
+        if (wl > 0) {
+            item { Text("Pact boon", style = MaterialTheme.typography.titleLarge, color = MaterialTheme.colorScheme.primary) }
+            items(PactBoons.all) { o ->
+                OptionCard(o, b.pactBoon == o.key, available = wl >= 3) {
+                    set { bb -> bb.copy(pactBoon = if (bb.pactBoon == o.key) null else o.key) }
+                }
+            }
+        }
+        if (sorc > 0 || "metamagic_adept" in b.featKeys) {
+            item { Text("Metamagic", style = MaterialTheme.typography.titleLarge, color = MaterialTheme.colorScheme.primary) }
+            items(MetamagicOptions.all) { o ->
+                OptionCard(o, o.key in b.metamagicKeys, available = sorc >= 3 || "metamagic_adept" in b.featKeys) {
+                    set { bb -> bb.copy(metamagicKeys = if (o.key in bb.metamagicKeys) bb.metamagicKeys - o.key else bb.metamagicKeys + o.key) }
+                }
+            }
+        }
+        if (styleClass) {
+            item { Text("Fighting styles", style = MaterialTheme.typography.titleLarge, color = MaterialTheme.colorScheme.primary) }
+            items(FightingStyles.all) { o ->
+                OptionCard(o, o.key in b.fightingStyles, available = true) {
+                    set { bb -> bb.copy(fightingStyles = if (o.key in bb.fightingStyles) bb.fightingStyles - o.key else bb.fightingStyles + o.key) }
+                }
+            }
+        }
+        if (wl == 0 && sorc == 0 && !styleClass && "eldritch_adept" !in b.featKeys && "metamagic_adept" !in b.featKeys) {
+            item {
+                DndCard("Nothing to choose yet") {
+                    BodyText("Invocations need a warlock level, metamagic a sorcerer level, fighting styles a fighter, paladin or ranger level. " +
+                        "Eldritch Adept and Metamagic Adept (feats) unlock them for any caster.", muted = true)
+                }
+            }
+        }
+    }
+}
+
+@Composable
+private fun OptionCard(o: ClassOption, selected: Boolean, available: Boolean, onToggle: () -> Unit) {
+    DndCard(o.name) {
+        Text(
+            listOfNotNull(
+                o.source.label,
+                if (o.minLevel > 1) "level ${o.minLevel}+" else null,
+                o.prerequisite.takeIf { it != "—" }?.let { "requires $it" }
+            ).joinToString(" · "),
+            style = MaterialTheme.typography.labelSmall,
+            color = if (available) MaterialTheme.colorScheme.onSurfaceVariant else MaterialTheme.colorScheme.tertiary
+        )
+        BodyText(o.text, modifier = Modifier.padding(top = 4.dp), muted = !available && !selected)
+        FilterChip(selected, onToggle, label = { Text(if (selected) "Chosen" else if (available) "Choose" else "Choose (level too low)") },
+            modifier = Modifier.padding(top = 8.dp))
     }
 }
 

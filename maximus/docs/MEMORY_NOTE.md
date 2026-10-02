@@ -127,3 +127,23 @@ Konstantenpool, einmalig geladen. Der Zauberfilter arbeitet auf der Liste ohne K
 eine Filterung erzeugt höchstens 177 Referenzen. Ein Charakter als JSON ≈ 2–6 KB. Der Bogen hält
 nur eine CharacterSheet-Instanz; deren Listen umfassen 18 Fertigkeiten, ≤ 10 Angriffe und ≤ 80
 Klassenmerkmale. Erwartung: + < 3 MB gegenüber P4.
+
+# P5 – Physik- und Mathe-Labor (+ D&D-Builds, Würfel-Bubble, Diagramm-Ränder)
+
+| Zustand                                         | TOTAL PSS | In-App-PSS | Java-Heap | Native Heap |
+|-------------------------------------------------|-----------|------------|-----------|-------------|
+| Labor, Übersicht                                | –         | –          | –         | –           |
+| Rechner „Magnetokalorik“ mit drei Kurven        | –         | –          | –         | –           |
+| Funktionsplotter mit drei Funktionen            | –         | –          | –         | –           |
+| D&D Builds-Tab (60 DPR-Charaktere berechnet)    | –         | –          | –         | –           |
+
+## Analytische Obergrenze
+
+Inhalte als Kotlin-Konstanten, erst beim ersten Zugriff geladen (`by lazy`): Kompendium 46 Kapitel
+≈ 120 KB Text + 390 Formelkarten, 92 Konzeptfragen, 52 Aufgabengeneratoren, 63 Rechner → < 1 MB Heap.
+Fortschritt: ein Text-Datensatz in app_meta (Zeile pro Karteikarte), bei 390 Karten ≈ 12 KB.
+Rechnerkurven: ≤ 6 Reihen × ≤ 600 Punkte × 2 Doubles ≈ 60 KB pro Ergebnis, kurzlebig; Rechnung auf
+Dispatchers.Default. Debye-Entropietabelle 2001 Doubles ≈ 16 KB pro Θ_D (einmalig, gecacht).
+Teuerste Rechnung: Magnetokalorik-Kurven 3 × 71 Temperaturen × Brent (≈ 40 Iterationen) mit
+Molekularfeld-Lösung je Auswertung → ≈ 100 ms (JVM-Messung), kein Speicherproblem.
+Builds-Tab: 3 × 20 Charakterbögen (je < 10 KB) für die DPR-Kurven. Erwartung: + < 10 MB gegenüber P4b.

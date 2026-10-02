@@ -50,7 +50,7 @@ private val MODULES = listOf(
     ModuleEntry(R.string.module_strongman, R.string.module_strongman_desc, 2, Routes.STRONGMAN),
     ModuleEntry(R.string.module_nutrition, R.string.module_nutrition_desc, 3, Routes.NUTRITION),
     ModuleEntry(R.string.module_dnd, R.string.module_dnd_desc, 4, Routes.DND),
-    ModuleEntry(R.string.module_trainer, R.string.module_trainer_desc, 5),
+    ModuleEntry(R.string.module_trainer, R.string.module_trainer_desc, 5, Routes.LAB),
     ModuleEntry(R.string.module_simlab, R.string.module_simlab_desc, 6),
     ModuleEntry(R.string.module_chat, R.string.module_chat_desc, 7)
 )

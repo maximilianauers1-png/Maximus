@@ -12,6 +12,7 @@ import app.maximus.ui.core.NoteEditorScreen
 import app.maximus.ui.dnd.CharacterEditorScreen
 import app.maximus.ui.dnd.CharacterSheetScreen
 import app.maximus.ui.dnd.DndHubScreen
+import app.maximus.ui.lab.LabHubScreen
 import app.maximus.ui.nutrition.NutritionHubScreen
 import app.maximus.ui.screens.DiagnosticsScreen
 import app.maximus.ui.screens.HomeScreen
@@ -31,6 +32,7 @@ object Routes {
     const val DND_EDIT = "dnd/edit/{id}"
     const val STRONGMAN = "strongman"
     const val PROGRAM = "strongman/program/{id}"
+    const val LAB = "lab"
     fun note(id: Long) = "core/note/$id"
     fun dndSheet(id: Long) = "dnd/sheet/$id"
     fun dndEdit(id: Long) = "dnd/edit/$id"
@@ -104,6 +106,9 @@ fun MaximusNavHost(services: AppServices) {
                 onBack = { navController.popBackStack() },
                 onOpenProgram = { id -> navController.navigate(Routes.program(id)) }
             )
+        }
+        composable(Routes.LAB) {
+            LabHubScreen(services = services, onBack = { navController.popBackStack() })
         }
         composable(Routes.PROGRAM, arguments = listOf(navArgument("id") { type = NavType.LongType })) { entry ->
             ProgramEditorScreen(

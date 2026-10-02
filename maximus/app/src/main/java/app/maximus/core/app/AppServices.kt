@@ -4,6 +4,7 @@ import app.maximus.calendar.data.CalendarRepository
 import app.maximus.core.backup.BackupManager
 import app.maximus.diagnostics.DiagnosticsRepository
 import app.maximus.dnd.data.DndRepository
+import app.maximus.lab.data.LabRepository
 import app.maximus.notes.data.NotesRepository
 import app.maximus.nutrition.data.NutritionRepository
 import app.maximus.strongman.data.StrongmanRepository
@@ -23,5 +24,6 @@ class AppServices @Inject constructor(
     val notes: NotesRepository,
     val backup: BackupManager,
     val nutrition: NutritionRepository,
-    val dnd: DndRepository
+    val dnd: DndRepository,
+    val lab: LabRepository
 )

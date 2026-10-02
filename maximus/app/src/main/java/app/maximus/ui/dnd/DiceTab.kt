@@ -18,6 +18,7 @@ import androidx.compose.material3.FilterChip
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
@@ -123,6 +124,18 @@ fun DiceTab(services: AppServices) {
         item {
             FlowRow(horizontalArrangement = Arrangement.spacedBy(6.dp), verticalArrangement = Arrangement.spacedBy(4.dp)) {
                 PRESETS.forEach { p -> AssistChip(onClick = { expression = p }, label = { Text(p, fontFamily = FontFamily.Monospace) }) }
+            }
+        }
+        item {
+            val bubble by services.dnd.bubbleEnabled.collectAsState(initial = true)
+            PlateCard {
+                Row(modifier = Modifier.fillMaxWidth().padding(horizontal = 14.dp, vertical = 8.dp), verticalAlignment = Alignment.CenterVertically) {
+                    Column(modifier = Modifier.weight(1f)) {
+                        Text("Floating dice bubble", style = MaterialTheme.typography.titleMedium)
+                        Text("A draggable d20 on every D&D screen; tap it to open or close the quick-roll window.", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                    }
+                    Switch(checked = bubble, onCheckedChange = { on -> scope.launch { services.dnd.setBubbleEnabled(on) } })
+                }
             }
         }
         if (lastRolls.isNotEmpty()) item { ResultCard(lastRolls) }

@@ -65,7 +65,7 @@ fun ReferenceTab() {
         }
         item {
             SectionCard("Licence and scope") {
-                Text("This module contains rules content from the System Reference Document 5.1 under the CC BY 4.0 licence. Material from other books is deliberately absent because it is not freely licensed. Anything beyond that you enter yourself as a monster, note or character note.", style = MaterialTheme.typography.bodySmall)
+                Text("This module contains rules content from the System Reference Documents 5.1 and 5.2 under the CC BY 4.0 licence. Entries marked \"Supplement\" (Hexblade, Divine Soul, booming blade, invocations and similar) come from other books; they are short summaries of the mechanics in our own words for private use, not the book text. Anything beyond that you enter yourself as homebrew.", style = MaterialTheme.typography.bodySmall)
                 Text(SRD_ATTRIBUTION, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.padding(top = 8.dp))
             }
         }

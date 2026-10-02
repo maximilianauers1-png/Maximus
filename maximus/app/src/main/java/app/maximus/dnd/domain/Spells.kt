@@ -426,7 +426,7 @@ object Spells {
             "Transform a creature into another creature or an object, permanently if you concentrate for the full duration.", conc = true),
         sp("wish", "Wish", 9, C, "1 action", "Self", "V", "Instantaneous", "$SORCERER,$WIZARD",
             "Duplicate any spell of 8th level or lower, or alter reality at the risk of never casting wish again.")
-    )
+    ) + SupplementSpells.all
 
     val byKey = all.associateBy { it.key }
 
