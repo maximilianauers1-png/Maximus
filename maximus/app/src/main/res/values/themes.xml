@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Always dark: the window background matches the Compose background, so there is no white flash at cold start. -->
+    <style name="Theme.Maximus" parent="Theme.AppCompat.NoActionBar">
+        <item name="android:windowBackground">@color/iron</item>
+        <item name="android:statusBarColor">@android:color/transparent</item>
+        <item name="android:navigationBarColor">@android:color/transparent</item>
+        <item name="android:windowLightStatusBar">false</item>
+    </style>
+</resources>

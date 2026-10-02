@@ -1,0 +1,22 @@
+MAXIMUS - Gesamtpaket (Version 0.5.1-p4b, Datenbankversion 5)
+
+Dieses Paket enthaelt das KOMPLETTE Projekt in einem Stueck. Es ersetzt alle
+frueheren Teilpakete (p2, p1-update, p3-update, ritterbild, p4-update,
+dnd-update und die Einzelkorrekturen fix1 bis fix5). Nichts davon wird
+zusaetzlich gebraucht.
+
+So geht es:
+1. Android Studio schliessen.
+2. Einen NEUEN, LEEREN Ordner anlegen, zum Beispiel C:\Users\maxim\maximus-neu
+   und das ZIP dort hinein entpacken. Es entsteht der Unterordner "maximus".
+   Wichtig: NICHT in einen alten Projektordner entpacken, damit keine
+   uebriggebliebenen Dateien stoeren.
+3. Optional: im Ordner "maximus" das Skript PRUEFEN.ps1 ausfuehren. Es muss
+   "Alles vorhanden" melden.
+4. Android Studio: File > Open > den Ordner "maximus" waehlen (der, in dem
+   settings.gradle.kts direkt liegt).
+5. File > Sync Project with Gradle Files, dann Run.
+
+Hinweis zu Daten: Die App nicht deinstallieren. Wenn schon eine aeltere
+Version auf dem Handy ist, installiert Run darueber und die Datenbank wird
+automatisch bis Version 5 migriert. Auf einem frischen Handy beginnt alles leer.

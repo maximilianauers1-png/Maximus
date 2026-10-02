@@ -1,0 +1,19 @@
+{
+    "logs": [
+        {
+            "outputFile": "app.maximus.app-mergeDebugResources-43:/values-land/values-land.xml",
+            "map": [
+                {
+                    "source": "C:\\Users\\maxim\\.gradle\\caches\\9.8.0\\transforms\\a39d20a8c55e90162ff257d8ff6bab3f\\transformed\\appcompat-1.8.0\\res\\values-land\\values-land.xml",
+                    "from": {
+                        "startLines": "2,3,4",
+                        "startColumns": "4,4,4",
+                        "startOffsets": "55,125,196",
+                        "endColumns": "69,70,67",
+                        "endOffsets": "120,191,259"
+                    }
+                }
+            ]
+        }
+    ]
+}

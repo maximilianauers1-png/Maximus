@@ -1,0 +1,43 @@
+MAXIMUS – D&D-Modul: Herkunft und Lizenz der Regelinhalte
+
+Dieses Modul enthält Regelinhalte aus dem System Reference Document 5.1 ("SRD 5.1",
+Regeln von 2014) und dem System Reference Document 5.2 ("SRD 5.2", Regeln von 2024)
+von Wizards of the Coast LLC. Beide stehen unter der Creative Commons Attribution
+4.0 International License (CC BY 4.0).
+
+Pflichtangabe (Attribution), wie von der Lizenz gefordert:
+
+  This work includes material from the System Reference Document 5.1 and the
+  System Reference Document 5.2 by Wizards of the Coast LLC, available at
+  https://dnd.wizards.com/resources/systems-reference-document, licensed under
+  the Creative Commons Attribution 4.0 International License, available at
+  https://creativecommons.org/licenses/by/4.0/legalcode.
+
+Diese Angabe erscheint auch in der App selbst, im Reiter "Referenz" des D&D-Moduls.
+
+Umfang und bewusste Grenzen
+---------------------------
+Enthalten sind ausschließlich Inhalte aus den beiden SRDs: 27 Völker und Linien,
+12 Klassen mit je zwei Unterklassen (eine aus SRD 5.1, eine aus SRD 5.2), 13
+Hintergründe, 12 Talente, 177 Zauber, Waffen, Rüstungen, Ausrüstung und die
+Regelmathematik.
+
+Das D&D-Modul ist bewusst durchgehend englisch und rechnet in Fuß, weil die
+Regelbegriffe nur so eindeutig bleiben. Der Rest der App bleibt zweisprachig.
+
+NICHT enthalten sind Inhalte aus anderen Publikationen (zum Beispiel Xanathar's Guide
+to Everything, Tasha's Cauldron of Everything, Monsterhandbuch, Abenteuerbände). Diese
+sind urheberrechtlich geschützt und nicht frei lizenziert; sie dürfen hier weder
+mitgeliefert noch nachgebaut werden. Wer solche Inhalte nutzen möchte, trägt sie selbst
+über den Monster-Editor oder als Notiz ein. Die so eingetragenen Daten bleiben wie alle
+anderen Daten der App lokal und verschlüsselt auf dem Gerät.
+
+Hinweis zu Begriffen: "Dungeons & Dragons" und "D&D" sind Marken von Wizards of the
+Coast LLC. Diese App steht in keiner Verbindung zu Wizards of the Coast und ist von
+dort weder unterstützt noch geprüft.
+
+Berechnungen aus dem Spielleiterhandbuch
+----------------------------------------
+Die Tabelle "Monster Statistics by Challenge Rating" und die Schwellenwerte für die
+Begegnungsschwierigkeit sind Zahlentabellen, die als solche nicht schutzfähig sind.
+Sie werden hier als Rechenreferenz verwendet, ohne begleitenden Text zu übernehmen.
