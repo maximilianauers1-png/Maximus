@@ -11,6 +11,7 @@ import androidx.compose.material3.ScrollableTabRow
 import androidx.compose.material3.Tab
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
@@ -23,6 +24,10 @@ import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import app.maximus.R
+import app.maximus.chat.domain.Focus
+import app.maximus.ui.chat.AskMaximusButton
+import app.maximus.ui.chat.AskMaximusSheet
+import app.maximus.ui.chat.AskRequest
 import app.maximus.core.app.AppServices
 import app.maximus.nutrition.data.NutritionLogEntity
 import app.maximus.nutrition.data.toPoint
@@ -42,7 +47,8 @@ fun Recipe.steps(de: Boolean) = if (de) stepsDe else stepsEn
 
 @Suppress("DEPRECATION")
 @Composable
-fun NutritionHubScreen(services: AppServices, onBack: () -> Unit) {
+fun NutritionHubScreen(services: AppServices, onBack: () -> Unit, onOpenChat: () -> Unit = {}) {
+    var ask by remember { mutableStateOf(false) }
     val repo = services.nutrition
     val profile by repo.profile.collectAsState(initial = null)
     val log by repo.log.collectAsState(initial = emptyList<NutritionLogEntity>())
@@ -50,7 +56,9 @@ fun NutritionHubScreen(services: AppServices, onBack: () -> Unit) {
     val today = remember { LocalDate.now().toEpochDay() }
     val titles = listOf(R.string.nu_tab_goals, R.string.nu_tab_plan, R.string.nu_tab_recipes, R.string.nu_tab_journal, R.string.nu_tab_tools)
 
-    Scaffold(topBar = { MaximusTopBar(stringResource(R.string.module_nutrition), onBack) }) { padding ->
+    Scaffold(topBar = {
+        MaximusTopBar(stringResource(R.string.module_nutrition), onBack) { AskMaximusButton(onClick = { ask = true }) }
+    }) { padding ->
         Column(modifier = Modifier.fillMaxSize().padding(padding)) {
             ScrollableTabRow(
                 selectedTabIndex = tab, edgePadding = 12.dp,
@@ -74,5 +82,17 @@ fun NutritionHubScreen(services: AppServices, onBack: () -> Unit) {
             }
         }
     }
+    if (ask) {
+        AskMaximusSheet(
+            services.chat,
+            AskRequest(
+                "Ernährung", Focus.NUTRITION,
+                listOf("Passt meine Proteinmenge zu meinen Zielen?", "Wie esse ich am Wettkampftag?", "Bewerte meinen Gewichtsverlauf",
+                    "Wie schaffe ich meine Kalorien ohne Völlegefühl?", "Lohnt sich Kreatin für mich?"),
+                context = { services.chat.nutritionContext() }
+            ),
+            onDismiss = { ask = false },
+            onOpenChat = { ask = false; onOpenChat() }
+        )
+    }
 }
-

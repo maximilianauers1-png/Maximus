@@ -21,12 +21,19 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import app.maximus.chat.domain.Focus
+import app.maximus.chat.domain.ModuleContext
 import app.maximus.core.app.AppServices
 import app.maximus.lab.domain.Calculators
+import app.maximus.lab.domain.Chapter
 import app.maximus.lab.domain.Compendium
 import app.maximus.lab.domain.LabEvent
 import app.maximus.lab.domain.LabProgress
+import app.maximus.lab.domain.QuizMode
 import app.maximus.lab.domain.Topic
+import app.maximus.ui.chat.AskMaximusButton
+import app.maximus.ui.chat.AskMaximusSheet
+import app.maximus.ui.chat.AskRequest
 import app.maximus.ui.components.MaximusTopBar
 import java.time.LocalDate
 import kotlinx.coroutines.launch
@@ -39,7 +46,8 @@ data class QuizConfig(
     val daily: Boolean = false,
     val seed: Long = System.nanoTime(),
     /** Restricts the round to one lecture of the topic, e.g. "Analysis III". */
-    val course: String? = null
+    val course: String? = null,
+    val mode: QuizMode = QuizMode.CONCEPT
 )
 
 /** Everything the lab tabs need from the hub: current progress and the navigation/update callbacks. */
@@ -49,14 +57,17 @@ class LabContext(
     val act: ((LabProgress) -> Pair<LabProgress, List<LabEvent>>) -> Unit,
     val openChapter: (String) -> Unit,
     val openCalculator: (String) -> Unit,
-    val startQuiz: (QuizConfig) -> Unit
+    val startQuiz: (QuizConfig) -> Unit,
+    /** Opens "Frag Maximus" with lab context (quiz explanation, chapter questions). */
+    val ask: (AskRequest) -> Unit = {}
 )
 
 private val TABS = listOf("Übersicht", "Kompendium", "Rechner", "Mathe-Werkzeuge", "Training", "Karteikarten", "Konstanten")
 
 @Suppress("DEPRECATION")
 @Composable
-fun LabHubScreen(services: AppServices, onBack: () -> Unit) {
+fun LabHubScreen(services: AppServices, onBack: () -> Unit, onOpenChat: () -> Unit = {}) {
+    var ask by remember { mutableStateOf<AskRequest?>(null) }
     var tab by rememberSaveable { mutableIntStateOf(0) }
     var chapterKey by rememberSaveable { mutableStateOf<String?>(null) }
     var calcKey by rememberSaveable { mutableStateOf<String?>(null) }
@@ -78,7 +89,8 @@ fun LabHubScreen(services: AppServices, onBack: () -> Unit) {
         progress, today, ::act,
         openChapter = { chapterKey = it },
         openCalculator = { calcKey = it },
-        startQuiz = { quiz = it }
+        startQuiz = { quiz = it },
+        ask = { ask = it }
     )
     val inDetail = quiz != null || calcKey != null || chapterKey != null
     fun closeDetail() {
@@ -97,7 +109,11 @@ fun LabHubScreen(services: AppServices, onBack: () -> Unit) {
         else -> "Physik- und Mathe-Labor"
     }
 
-    Scaffold(topBar = { MaximusTopBar(title, onBack = { if (inDetail) closeDetail() else onBack() }) }) { padding ->
+    Scaffold(topBar = {
+        MaximusTopBar(title, onBack = { if (inDetail) closeDetail() else onBack() }) {
+            AskMaximusButton(onClick = { ask = labRequest(Compendium.byKey[chapterKey]) })
+        }
+    }) { padding ->
         Box(Modifier.fillMaxSize().padding(padding)) {
             val q = quiz
             val ck = calcKey
@@ -127,4 +143,19 @@ fun LabHubScreen(services: AppServices, onBack: () -> Unit) {
             LabToastHost(toasts) { id -> toasts = toasts.filter { it.id != id } }
         }
     }
+
+    ask?.let { r -> AskMaximusSheet(services.chat, r, onDismiss = { ask = null }, onOpenChat = { ask = null; onOpenChat() }) }
 }
+
+/** "Frag Maximus" in the lab: about the open chapter, or general study help. */
+internal fun labRequest(chapter: Chapter?): AskRequest =
+    if (chapter != null) AskRequest(
+        "Kapitel „${chapter.title}“", Focus.SCIENCE,
+        listOf("Erkläre mir das Kapitel anschaulich", "Woher kommt die wichtigste Formel?", "Gib mir ein Anwendungsbeispiel aus der Forschung",
+            "Welche typischen Prüfungsfragen gibt es dazu?"),
+        context = { ModuleContext.chapter(chapter) }
+    ) else AskRequest(
+        "Physik- und Mathe-Labor", Focus.SCIENCE,
+        listOf("Erkläre mir anschaulich die Fermi-Dirac-Verteilung", "Was ist der Unterschied zwischen Lagrange und Hamilton?",
+            "Wie hängen Fourier-Reihen und Quantenmechanik zusammen?", "Stelle mir eine knifflige Verständnisfrage zur Thermodynamik")
+    )

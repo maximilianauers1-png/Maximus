@@ -125,6 +125,9 @@ fun ChapterScreen(ctx: LabContext, key: String) {
                     },
                     modifier = Modifier.fillMaxWidth()
                 ) { Text("Wissen prüfen: Training ${ch.course.ifEmpty { ch.topic.title }}") }
+                OutlinedButton(onClick = { ctx.ask(labRequest(ch)) }, modifier = Modifier.fillMaxWidth()) {
+                    Text("Maximus zu diesem Kapitel fragen")
+                }
             }
         }
     }

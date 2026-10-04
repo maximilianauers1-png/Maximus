@@ -227,6 +227,26 @@ class ChatControllerTest {
     }
 
     @Test
+    fun askFromAModuleStartsANewChatWithHiddenContext() = runTest {
+        val llm = FakeLlm(mutableListOf("Alt.", "Die Kraft ist konservativ."))
+        val store = MemoryStore()
+        val c = controller(llm, store)
+        c.send("Erste Unterhaltung")
+        advanceUntilIdle()
+        val first = c.state.value.conversation!!.id
+        val id = c.ask("Erkläre mir diese Frage", "Quizfrage: Ist F = −∇V konservativ? Richtige Antwort: ja", Focus.SCIENCE)!!
+        assertTrue(id != first)
+        advanceUntilIdle()
+        val conv = c.state.value.conversation!!
+        assertEquals(id, conv.id)
+        assertEquals(Focus.SCIENCE, conv.focusMode)
+        assertEquals("Erkläre mir diese Frage", conv.messages.first().text) // the context is not shown
+        assertTrue(llm.sessions.last().prompts.single().contains("Richtige Antwort: ja"))
+        assertEquals(2, store.saved.size)
+        assertNull(c.ask("", "", Focus.GENERAL))
+    }
+
+    @Test
     fun benchmarkMeasuresBothPhases() = runTest {
         val llm = FakeLlm(mutableListOf((1..200).joinToString(" ") { "t$it" }))
         val c = controller(llm)

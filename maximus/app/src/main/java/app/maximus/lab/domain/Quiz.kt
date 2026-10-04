@@ -18,7 +18,9 @@ data class Question(
     val answer: Double = Double.NaN,
     val unit: String = "",
     val tolerance: Double = 0.02,
-    val chapterKey: String? = null
+    val chapterKey: String? = null,
+    /** Formulas and constants that may be used (shown on request before answering). */
+    val hint: String = ""
 ) {
     val isChoice: Boolean get() = options.isNotEmpty()
 
@@ -48,12 +50,22 @@ data class Question(
     }
 }
 
+/**
+ * What a round contains. Understanding comes first: concept questions and formula multiple choice;
+ * calculations are optional and then come with the formulas and constants as a hint.
+ */
+enum class QuizMode(val label: String, val description: String) {
+    CONCEPT("Verständnis", "Konzeptfragen und Formel-Multiple-Choice"),
+    MIXED("Gemischt", "Dazu Rechenaufgaben als Multiple Choice, mit Formelhilfe"),
+    CALC("Rechnen", "Rechenaufgaben mit freier Eingabe, Formeln und Konstanten als Hilfe")
+}
+
 /** Generates a fresh numeric question from a random source. */
 fun interface QuestionGenerator { fun make(r: Random): Question }
 
 object QuizEngine {
     val generators: Map<Topic, List<QuestionGenerator>> by lazy { QuizGenerators.all }
-    val bank: List<Question> by lazy { QuizBank.all }
+    val bank: List<Question> by lazy { QuizBank.all + QuizConcepts.all }
 
     /** Chapter of each generator, read from a sample question (a generator always stays within one chapter). */
     private val generatorChapter: Map<QuestionGenerator, String?> by lazy {
@@ -69,38 +81,51 @@ object QuizEngine {
     fun difficultyFor(mastery: Double): Int = when { mastery < 0.4 -> 1; mastery < 0.75 -> 2; else -> 3 }
 
     /**
-     * A session of [count] questions for one topic (or all topics when null). Roughly half the
-     * questions are generated calculations; difficulty is centred on [difficulty] but varies by ±1.
-     * With a [course] (e.g. "Analysis II") only questions on that lecture's chapters are used.
+     * A session of [count] questions for one topic (or all topics when null). Difficulty is centred on
+     * [difficulty] (±1 by random tie-breaking). With a [course] (e.g. "Analysis II") only that lecture.
+     *
+     * CONCEPT: hand-written concept questions and generated formula questions, alternating (concept first).
+     * MIXED: as CONCEPT, every third question a calculation as multiple choice with formula hint.
+     * CALC: calculations with free input (hint available), concept questions in between.
      */
-    fun session(topic: Topic?, difficulty: Int, count: Int, r: Random, course: String? = null): List<Question> {
+    fun session(topic: Topic?, difficulty: Int, count: Int, r: Random, course: String? = null, mode: QuizMode = QuizMode.CONCEPT): List<Question> {
         val topics = topic?.let { listOf(it) } ?: Topic.entries
-        val out = ArrayList<Question>()
         fun inCourse(chapterKey: String?) = course == null || Compendium.byKey[chapterKey]?.course == course
-        val pool = bank.filter { it.topic in topics && inCourse(it.chapterKey) }.shuffled(r)
+        // Sort keys are drawn once per element: a random value inside a comparator would break the sort contract.
+        fun <T> byDifficulty(items: List<T>, level: (T) -> Int): List<T> =
+            items.map { it to abs(level(it) - difficulty) + r.nextDouble() }.sortedBy { it.second }.map { it.first }
+        val concept = byDifficulty(bank.filter { it.topic in topics && inCourse(it.chapterKey) }) { it.difficulty }.toMutableList()
+        val formulas = byDifficulty(FormulaQuiz.cards.filter { it.chapter.topic in topics && inCourse(it.chapter.key) }) { it.chapter.level }
+            .take(count * 4).shuffled(r).toMutableList()
         val gens = topics.flatMap { t -> generators[t].orEmpty() }.filter { course == null || inCourse(generatorChapter[it]) }.shuffled(r)
         var gi = 0
-        val wanted = pool.sortedBy { abs(it.difficulty - difficulty) + r.nextDouble() }.toMutableList()
-        while (out.size < count && (wanted.isNotEmpty() || gens.isNotEmpty())) {
-            val takeNumeric = gens.isNotEmpty() && (out.size % 2 == 1 || wanted.isEmpty())
-            if (takeNumeric) {
-                out += gens[gi % gens.size].make(r)
-                gi++
-            } else if (wanted.isNotEmpty()) {
-                out += wanted.removeAt(0)
+        fun calc(): Question? = if (gens.isEmpty()) null else gens[gi++ % gens.size].make(r).let { it.copy(hint = NumericChoice.hint(it)) }
+        val out = ArrayList<Question>()
+        var guard = 0
+        while (out.size < count && guard++ < count * 6) {
+            val slot = out.size
+            val q: Question? = when {
+                mode == QuizMode.CALC && slot % 3 != 2 -> calc()
+                mode == QuizMode.MIXED && slot % 3 == 2 -> calc()?.let { NumericChoice.toChoice(it, r) }
+                slot % 2 == 0 && concept.isNotEmpty() -> concept.removeAt(0)
+                formulas.isNotEmpty() -> FormulaQuiz.question(formulas.removeAt(0), r)
+                concept.isNotEmpty() -> concept.removeAt(0)
+                else -> calc()?.let { NumericChoice.toChoice(it, r) }
             }
+            if (q != null && out.none { it.id == q.id }) out += q
         }
-        return out.take(count).map { shuffleOptions(it, r) }
+        return out.map { shuffleOptions(it, r) }
     }
 
-    /** Daily challenge: the same five questions for everyone on a given day, one per rotating topic. */
+    /** Daily challenge: the same five questions for everyone on a given day — concept and formula questions, rotating topics. */
     fun daily(epochDay: Long): List<Question> {
         val r = Random(epochDay * 7919 + 17)
         val topics = Topic.entries.shuffled(r).take(5)
         return topics.mapIndexed { i, t ->
-            val gens = generators[t].orEmpty()
-            val q = if (i % 2 == 0 && gens.isNotEmpty()) gens[r.nextInt(gens.size)].make(r)
-            else bank.filter { it.topic == t }.let { b -> if (b.isEmpty()) gens[r.nextInt(gens.size)].make(r) else b[r.nextInt(b.size)] }
+            val bankT = bank.filter { it.topic == t }
+            val cardsT = FormulaQuiz.cardsFor(t)
+            val q = if ((i % 2 == 1 || bankT.isEmpty()) && cardsT.isNotEmpty()) FormulaQuiz.question(cardsT[r.nextInt(cardsT.size)], r)
+            else bankT[r.nextInt(bankT.size)]
             shuffleOptions(q, r).copy(id = "daily-$epochDay-$i-${q.id}")
         }
     }

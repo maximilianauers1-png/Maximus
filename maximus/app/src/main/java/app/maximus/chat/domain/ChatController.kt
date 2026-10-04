@@ -121,6 +121,21 @@ class ChatController(
         return true
     }
 
+    /**
+     * Starts a NEW conversation from another module ("Frag Maximus"): [question] is what the user sees,
+     * [context] (quiz question, training log, character sheet, …) goes only into the prompt. Returns the
+     * id of the new conversation, or null while another answer is running. The conversation is saved
+     * like any chat, so it can be continued in the chat screen.
+     */
+    fun ask(question: String, context: String, focus: Focus): Long? {
+        if (busy || question.isBlank()) return null
+        dropSession()
+        val conv = Conversation(nextId(), Conversation.titleFrom(question), emptyList(), now(), focusMode = focus)
+        _state.value = State(conv)
+        job = scope.launch { runTurn(question.trim(), context) }
+        return conv.id
+    }
+
     /** Stops the running generation; the partial answer is kept and marked. */
     fun stop() {
         job?.cancel()
@@ -178,7 +193,7 @@ class ChatController(
         _state.value = State(c, live, error)
     }
 
-    private suspend fun runTurn(text: String) {
+    private suspend fun runTurn(text: String, extraContext: String = "") {
         val start = _state.value.conversation
         val history = start?.messages.orEmpty()
         val previousFocus = history.lastOrNull { it.focus != null }?.focus
@@ -213,7 +228,8 @@ class ChatController(
             val key = "${model.path}|${info.backend}|${info.maxTokens}"
             if (session == null || sessionConversation != conv.id || sessionKey != key || sessionEngine !== info) dropSession()
             val personalText = if (routed.focus == Focus.STRONGMAN && settings.includeTraining) runCatching { personal() }.getOrNull() else null
-            val turn = PromptPlanner.turn(routed.query, routed.context, personalText)
+            val context = listOf(extraContext, routed.context).filter { it.isNotBlank() }.joinToString("\n\n")
+            val turn = PromptPlanner.turn(routed.query, context, personalText)
 
             var s = session ?: llm.newSession(routed.focus.sampling).also { session = it; sessionConversation = conv.id; sessionKey = key; sessionEngine = info }
             var prompt = if (sessionTurns == 0) PromptPlanner.opening(routed.focus, history, turn, info.maxTokens)

@@ -254,7 +254,7 @@
     <string name="module_strongman_desc">1RM, RPE, Programme, Trainingslog, Rekorde und Trainingslast</string>
     <string name="module_nutrition_desc">Ziele, Wochenplan mit Rezepten, Gewichtsmodell, Rechner</string>
     <string name="module_dnd_desc">Charaktere, Builds, Monster, Würfel mit exakten Verteilungen (auf Englisch)</string>
-    <string name="module_trainer_desc">Kompendium, 60+ Rechner und Simulationen, Training mit XP, Karteikarten</string>
+    <string name="module_trainer_desc">Kompendium, Formel- und Verständnisquiz mit Erklärungen, 60+ Rechner, Karteikarten</string>
     <string name="module_chat_desc">Lokale KI auf dem Gerät: Strongman, D&amp;D, Code, Mathe und Physik, mit Werkzeugen</string>
     <string name="core_tab_vault">Tresor</string>
     <string name="core_tab_calendar">Kalender</string>

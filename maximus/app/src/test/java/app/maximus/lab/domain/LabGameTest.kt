@@ -60,10 +60,19 @@ class LabGameTest {
     @Test
     fun sessionsAndDaily() {
         for (t in Topic.entries) {
+            // Default: understanding first — only multiple choice, concept and formula questions alternate.
             val s = QuizEngine.session(t, 2, 10, Random(3))
             assertEquals(10, s.size)
-            assertTrue(s.all { it.topic == t })
-            assertTrue(s.any { it.isChoice } && s.any { !it.isChoice })
+            assertTrue(s.all { it.topic == t && it.isChoice })
+            assertTrue(t.name, s.any { it.id.startsWith("fq:") } && s.any { !it.id.startsWith("fq:") })
+            // Mixed: calculations appear as multiple choice with formulas and constants as hint.
+            val mixed = QuizEngine.session(t, 2, 9, Random(4), mode = QuizMode.MIXED)
+            assertTrue(mixed.all { it.isChoice })
+            assertTrue(t.name, mixed.any { it.hint.contains("Konstanten") })
+            // Calculation mode keeps free input, always with a hint.
+            val calc = QuizEngine.session(t, 2, 9, Random(5), mode = QuizMode.CALC)
+            assertTrue(calc.any { !it.isChoice })
+            assertTrue(calc.filter { !it.isChoice }.all { it.hint.isNotEmpty() })
         }
         assertEquals(QuizEngine.daily(20000).map { it.prompt }, QuizEngine.daily(20000).map { it.prompt })
         assertEquals(5, QuizEngine.daily(20001).size)
@@ -156,5 +165,50 @@ class MathWorkbenchTest {
         val e = MathWorkbench.compile("-y", setOf("t", "y", "v")).getOrThrow()
         val sol = MathWorkbench.solveOde(e, 2, 1.0, 0.0, 0.0, Math.PI, 2000)
         assertEquals(-1.0, sol.y.last()[0], 1e-8)
+    }
+}
+
+class FormulaQuizTest {
+    @Test
+    fun everyFormulaCardYieldsWellFormedQuestions() {
+        assertTrue(FormulaQuiz.cards.size > 400)
+        for (t in Topic.entries) assertTrue(t.name, FormulaQuiz.cardsFor(t).size >= 20)
+        val r = Random(7)
+        for (card in FormulaQuiz.cards) {
+            for (q in listOf(FormulaQuiz.formulaQuestion(card, r), FormulaQuiz.nameQuestion(card, r))) {
+                assertEquals(q.prompt, 4, q.options.size)
+                assertEquals(q.prompt, 4, q.options.toSet().size)
+                assertEquals(0, q.correctIndex)
+                assertTrue(q.solution.contains(card.formula.expr))
+            }
+        }
+    }
+
+    @Test
+    fun nearMissChangesOnlyTheRightHandSide() {
+        val r = Random(1)
+        val m = FormulaQuiz.nearMiss("E = mc²", r)
+        assertEquals("E = mc³", m)
+        assertEquals(null, FormulaQuiz.nearMiss("a = b", r))
+    }
+
+    @Test
+    fun numericChoicesAreDistinct() {
+        for (v in listOf(0.0, 1.0, 3.7e-19, 42.0, -5.0)) {
+            val o = NumericChoice.options(v, Random(2))
+            assertEquals(4, o.toSet().size)
+            assertEquals(Fmt.num(v, 3), o[0])
+        }
+    }
+
+    @Test
+    fun conceptQuestionsAreWellFormed() {
+        assertTrue(QuizConcepts.all.size >= 90)
+        for (q in QuizConcepts.all) {
+            assertTrue(q.prompt, q.chapterKey in Compendium.byKey)
+            assertEquals(q.prompt, q.options.size, q.options.toSet().size)
+            assertTrue(q.prompt, q.solution.length > 40)
+        }
+        assertEquals(QuizEngine.bank.size, QuizEngine.bank.map { it.id }.toSet().size)
     }
 }

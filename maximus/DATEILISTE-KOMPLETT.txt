@@ -19,6 +19,7 @@ app/src/main/java/app/maximus/chat/domain/Engine.kt
 app/src/main/java/app/maximus/chat/domain/Focus.kt
 app/src/main/java/app/maximus/chat/domain/Knowledge.kt
 app/src/main/java/app/maximus/chat/domain/Markdown.kt
+app/src/main/java/app/maximus/chat/domain/ModuleContext.kt
 app/src/main/java/app/maximus/chat/domain/Prompting.kt
 app/src/main/java/app/maximus/chat/domain/Tools.kt
 app/src/main/java/app/maximus/chat/engine/MediaPipeLlm.kt
@@ -67,6 +68,7 @@ app/src/main/java/app/maximus/lab/domain/CompendiumThermo.kt
 app/src/main/java/app/maximus/lab/domain/Constants.kt
 app/src/main/java/app/maximus/lab/domain/ElectroPhysics.kt
 app/src/main/java/app/maximus/lab/domain/Expr.kt
+app/src/main/java/app/maximus/lab/domain/FormulaQuiz.kt
 app/src/main/java/app/maximus/lab/domain/LabModel.kt
 app/src/main/java/app/maximus/lab/domain/MathAnalysis2.kt
 app/src/main/java/app/maximus/lab/domain/MathAnalysis3.kt
@@ -80,6 +82,7 @@ app/src/main/java/app/maximus/lab/domain/QftPhysics.kt
 app/src/main/java/app/maximus/lab/domain/QuantumPhysics.kt
 app/src/main/java/app/maximus/lab/domain/Quiz.kt
 app/src/main/java/app/maximus/lab/domain/QuizBank.kt
+app/src/main/java/app/maximus/lab/domain/QuizConcepts.kt
 app/src/main/java/app/maximus/lab/domain/QuizGenerators.kt
 app/src/main/java/app/maximus/lab/domain/SemiconductorPhysics.kt
 app/src/main/java/app/maximus/lab/domain/ThermoPhysics.kt
@@ -116,6 +119,7 @@ app/src/main/java/app/maximus/strongman/domain/Statistics.kt
 app/src/main/java/app/maximus/strongman/domain/WarmupLadder.kt
 app/src/main/java/app/maximus/ui/charts/ChartDrawing.kt
 app/src/main/java/app/maximus/ui/charts/ChartFrame.kt
+app/src/main/java/app/maximus/ui/chat/AskMaximus.kt
 app/src/main/java/app/maximus/ui/chat/ChatMessages.kt
 app/src/main/java/app/maximus/ui/chat/ChatScreen.kt
 app/src/main/java/app/maximus/ui/chat/MarkdownView.kt
@@ -192,6 +196,7 @@ app/src/main/res/xml/locales_config.xml
 app/src/test/java/app/maximus/calendar/domain/CalendarMathTest.kt
 app/src/test/java/app/maximus/chat/domain/ChatControllerTest.kt
 app/src/test/java/app/maximus/chat/domain/ChatDomainTest.kt
+app/src/test/java/app/maximus/chat/domain/ModuleContextTest.kt
 app/src/test/java/app/maximus/core/crypto/CryptoPrimitivesTest.kt
 app/src/test/java/app/maximus/core/crypto/TotpTest.kt
 app/src/test/java/app/maximus/core/memory/HeavyResourceGovernorTest.kt

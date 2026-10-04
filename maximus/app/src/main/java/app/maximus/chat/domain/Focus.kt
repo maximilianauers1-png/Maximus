@@ -26,6 +26,12 @@ enum class Focus(val label: String, val instruction: String, val sampling: Sampl
             "(Hexblade, Sorlock, Sorcadin, Nuclear Wizard), Taktik, Abenteuerideen. Würfelergebnisse kommen nur aus dem Würfelwerkzeug.",
         Sampling(0.8f, 64, 0.95f)
     ),
+    NUTRITION(
+        "Ernährung",
+        "Fokus Ernährung für Kraftsportler: Energiebilanz, Makros (Protein 1,6–2,2 g/kg), Timing, Aufbau- und Diätphasen, " +
+            "Wettkampftag, Supplemente mit Evidenzlage (Kreatin, Koffein). Konkrete Mengen in Gramm; keine medizinischen Diagnosen.",
+        Sampling(0.5f, 40, 0.95f)
+    ),
     CODE(
         "Code",
         "Fokus Programmierung: korrekter, idiomatischer Code in Codeblöcken mit Sprachangabe (```kotlin), danach eine " +
@@ -56,7 +62,7 @@ object FocusDetector {
             "strongman", "kniebeug", "squat", "bankdrück", "bench", "kreuzheb", "deadlift", "log", "yoke", "atlas", "steine",
             "farmer", "rpe", "1rm", "e1rm", "einerwiederhol", "arbeitssätze", "wiederhol", "deload", "training", "trainier",
             "hypertroph", "maximalkraft", "conjugate", "westside", "prilepin", "aufwärm", "hantel", "langhantel", "griffkraft",
-            "overhead", "schulterdrück", "zughilfe", "gürtel", "regeneration", "protein", "muskel", "wettkampf", "sandbag", "keg"
+            "overhead", "schulterdrück", "zughilfe", "gürtel", "regeneration", "muskel", "wettkampf", "sandbag", "keg"
         ),
         Focus.DND to listOf(
             "d&d", "dnd", "d20", "w20", "zauber", "spell", "hexblade", "warlock", "sorcerer", "sorlock", "sorcadin", "paladin",
@@ -64,6 +70,11 @@ object FocusDetector {
             "kampagne", "dungeon", "spielleiter", "monster", "feat", "multiclass", "subclass", "cantrip", "slot", "rettungswurf",
             "saving", "concentration", "konzentration", "character", "charakter", "level", "stufe", "barbar", "druid", "cleric",
             "kleriker", "rogue", "schurke", "ranger", "bard", "barde", "fighter", "kämpfer", "goblin", "drache", "dragon", "hex"
+        ),
+        Focus.NUTRITION to listOf(
+            "ernährung", "kalorien", "kcal", "protein", "eiweiß", "makro", "kohlenhydrat", "fett", "diät", "defizit", "überschuss",
+            "mahlzeit", "essen", "rezept", "lebensmittel", "kreatin", "creatin", "koffein", "supplement", "abnehm", "zunehm",
+            "körperfett", "frühstück", "snack", "ballaststoff", "vitamin", "hydration", "trinken", "bulk", "cut"
         ),
         Focus.CODE to listOf(
             "kotlin", "python", "java", "c++", "cpp", "rust", "javascript", "typescript", "code", "programmier", "funktion",

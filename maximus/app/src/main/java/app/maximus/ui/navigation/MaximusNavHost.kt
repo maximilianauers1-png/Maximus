@@ -73,14 +73,15 @@ fun MaximusNavHost(services: AppServices) {
             )
         }
         composable(Routes.NUTRITION) {
-            NutritionHubScreen(services = services, onBack = { navController.popBackStack() })
+            NutritionHubScreen(services = services, onBack = { navController.popBackStack() }, onOpenChat = { navController.navigate(Routes.CHAT) })
         }
         composable(Routes.DND) {
             DndHubScreen(
                 services = services,
                 onBack = { navController.popBackStack() },
                 onOpenSheet = { id -> navController.navigate(Routes.dndSheet(id)) },
-                onEditCharacter = { id -> navController.navigate(Routes.dndEdit(id)) }
+                onEditCharacter = { id -> navController.navigate(Routes.dndEdit(id)) },
+                onOpenChat = { navController.navigate(Routes.CHAT) }
             )
         }
         composable(Routes.DND_SHEET, arguments = listOf(navArgument("id") { type = NavType.LongType })) { entry ->
@@ -88,7 +89,8 @@ fun MaximusNavHost(services: AppServices) {
                 services = services,
                 characterId = entry.arguments?.getLong("id") ?: 0L,
                 onBack = { navController.popBackStack() },
-                onEdit = { id -> navController.navigate(Routes.dndEdit(id)) }
+                onEdit = { id -> navController.navigate(Routes.dndEdit(id)) },
+                onOpenChat = { navController.navigate(Routes.CHAT) }
             )
         }
         composable(Routes.DND_EDIT, arguments = listOf(navArgument("id") { type = NavType.LongType })) { entry ->
@@ -106,11 +108,13 @@ fun MaximusNavHost(services: AppServices) {
             StrongmanHubScreen(
                 repository = services.strongman,
                 onBack = { navController.popBackStack() },
-                onOpenProgram = { id -> navController.navigate(Routes.program(id)) }
+                onOpenProgram = { id -> navController.navigate(Routes.program(id)) },
+                chat = services.chat,
+                onOpenChat = { navController.navigate(Routes.CHAT) }
             )
         }
         composable(Routes.LAB) {
-            LabHubScreen(services = services, onBack = { navController.popBackStack() })
+            LabHubScreen(services = services, onBack = { navController.popBackStack() }, onOpenChat = { navController.navigate(Routes.CHAT) })
         }
         composable(Routes.CHAT) {
             ChatScreen(service = services.chat, onBack = { navController.popBackStack() })

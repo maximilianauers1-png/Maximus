@@ -55,6 +55,7 @@ internal fun focusColor(f: Focus?): Color = when (f) {
     Focus.DND -> Color(0xFFB9A3E3)
     Focus.CODE -> Color(0xFF8FC9A3)
     Focus.SCIENCE -> Palette.Blued
+    Focus.NUTRITION -> Color(0xFFE6B57E)
     Focus.GENERAL, null -> Palette.Steel
 }
 

@@ -45,3 +45,15 @@ NEU in P6: Reiter "Maximus" (lokale KI)
 - Werkzeuge ohne Modell: /w 2d20kh1+5, /1rm 180x5 @8, /scheiben 182,5, /rechne ...,
   /zauber Eldritch Blast, /formel Fermi-Dirac, /konstante Boltzmann, /hilfe.
 
+
+NEU: Quiz im Labor und "Frag Maximus" in allen Bereichen
+- Training im Labor fragt jetzt standardmaessig nur Multiple Choice: Verstaendnisfragen
+  und Formelfragen ("Welche Formel gilt fuer ...?", "Was beschreibt diese Formel?").
+  Rechenaufgaben nur noch in den Modi "Gemischt" und "Rechnen", immer mit Formelhilfe
+  und Konstanten zum Aufklappen.
+- Nach jeder Antwort: Erklaerung, Formeln des Kapitels, "Maximus erklaert" (lokale KI,
+  erklaert auch, warum die gewaehlte Antwort falsch war). Am Ende: "Fehler wiederholen".
+- Oben rechts in Labor, Strongman, Ernaehrung, D&D und im Charakterbogen: Knopf
+  "Maximus". Maximus bekommt automatisch die passenden Daten mit (Trainingsprotokoll,
+  Ernaehrungsziele und Protokoll, Charakterbogen, Kapitel). Die Frage landet als Chat
+  im Verlauf und kann dort weitergefuehrt werden.

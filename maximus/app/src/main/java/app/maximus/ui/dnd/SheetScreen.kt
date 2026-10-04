@@ -52,13 +52,19 @@ import app.maximus.dnd.domain.MetamagicOptions
 import app.maximus.dnd.domain.PactBoons
 import app.maximus.dnd.domain.Spell
 import app.maximus.dnd.domain.Spells
+import app.maximus.chat.domain.Focus
+import app.maximus.chat.domain.ModuleContext
+import app.maximus.ui.chat.AskMaximusButton
+import app.maximus.ui.chat.AskMaximusSheet
+import app.maximus.ui.chat.AskRequest
 import app.maximus.ui.components.MaximusTopBar
 import kotlinx.coroutines.launch
 
 private val SHEET_TABS = listOf("Core", "Skills", "Combat", "Spells", "Gear", "Features", "Story")
 
 @Composable
-fun CharacterSheetScreen(services: AppServices, characterId: Long, onBack: () -> Unit, onEdit: (Long) -> Unit) {
+fun CharacterSheetScreen(services: AppServices, characterId: Long, onBack: () -> Unit, onEdit: (Long) -> Unit, onOpenChat: () -> Unit = {}) {
+    var ask by remember { mutableStateOf(false) }
     val scope = rememberCoroutineScope()
     var build by remember { mutableStateOf<CharacterBuild?>(null) }
     var loaded by remember { mutableStateOf(false) }
@@ -87,7 +93,10 @@ fun CharacterSheetScreen(services: AppServices, characterId: Long, onBack: () ->
             MaximusTopBar(
                 title = b?.name?.ifBlank { "Unnamed" } ?: "Character",
                 onBack = onBack,
-                actions = { TextButton(onClick = { onEdit(characterId) }) { Text("Edit") } }
+                actions = {
+                    if (build != null) AskMaximusButton(onClick = { ask = true })
+                    TextButton(onClick = { onEdit(characterId) }) { Text("Edit") }
+                }
             )
         }
     ) { padding ->
@@ -127,6 +136,21 @@ fun CharacterSheetScreen(services: AppServices, characterId: Long, onBack: () ->
         RollDialog(r, onDismiss = { roll = null }) { expr, total, detail ->
             scope.launch { services.dnd.addRoll(expr, r.label, total, detail) }
         }
+    }
+
+    val current = build
+    if (ask && current != null) {
+        AskMaximusSheet(
+            services.chat,
+            AskRequest(
+                current.name.ifBlank { "Charakter" }, Focus.DND,
+                listOf("Wie optimiere ich diesen Charakter bis Stufe 20?", "Welche Zauber sollte ich vorbereiten?", "Wie spiele ich ihn im Kampf am stärksten?",
+                    "Welche Feats oder Invocations passen?", "Schreib mir einen kurzen Hintergrund"),
+                context = { ModuleContext.dnd(CharacterBuilder.build(current)) }
+            ),
+            onDismiss = { ask = false },
+            onOpenChat = { ask = false; onOpenChat() }
+        )
     }
 }
 
