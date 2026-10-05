@@ -147,15 +147,20 @@ fun LabHubScreen(services: AppServices, onBack: () -> Unit, onOpenChat: () -> Un
     ask?.let { r -> AskMaximusSheet(services.chat, r, onDismiss = { ask = null }, onOpenChat = { ask = null; onOpenChat() }) }
 }
 
+/** Maximus plays the examiner of a doctoral defense on electrocaloric relaxor polymers. */
+internal const val DEFENSE_PROMPT = "Sei der Prüfer in meiner Promotionsverteidigung zu Elektrokalorik in P(VDF-TrFE-CFE): " +
+    "Stelle mir eine kritische Frage, warte auf meine Antwort, bewerte sie streng und stelle dann die nächste."
+
 /** "Frag Maximus" in the lab: about the open chapter, or general study help. */
 internal fun labRequest(chapter: Chapter?): AskRequest =
     if (chapter != null) AskRequest(
         "Kapitel „${chapter.title}“", Focus.SCIENCE,
-        listOf("Erkläre mir das Kapitel anschaulich", "Woher kommt die wichtigste Formel?", "Gib mir ein Anwendungsbeispiel aus der Forschung",
-            "Welche typischen Prüfungsfragen gibt es dazu?"),
+        (if (chapter.topic == Topic.CALORIC) listOf(DEFENSE_PROMPT) else emptyList()) +
+            listOf("Erkläre mir das Kapitel anschaulich", "Woher kommt die wichtigste Formel?", "Gib mir ein Anwendungsbeispiel aus der Forschung",
+                "Welche typischen Prüfungsfragen gibt es dazu?"),
         context = { ModuleContext.chapter(chapter) }
     ) else AskRequest(
         "Physik- und Mathe-Labor", Focus.SCIENCE,
-        listOf("Erkläre mir anschaulich die Fermi-Dirac-Verteilung", "Was ist der Unterschied zwischen Lagrange und Hamilton?",
+        listOf(DEFENSE_PROMPT, "Erkläre mir anschaulich die Fermi-Dirac-Verteilung", "Was ist der Unterschied zwischen Lagrange und Hamilton?",
             "Wie hängen Fourier-Reihen und Quantenmechanik zusammen?", "Stelle mir eine knifflige Verständnisfrage zur Thermodynamik")
     )

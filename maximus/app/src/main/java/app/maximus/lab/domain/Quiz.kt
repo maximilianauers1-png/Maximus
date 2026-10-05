@@ -65,7 +65,7 @@ fun interface QuestionGenerator { fun make(r: Random): Question }
 
 object QuizEngine {
     val generators: Map<Topic, List<QuestionGenerator>> by lazy { QuizGenerators.all }
-    val bank: List<Question> by lazy { QuizBank.all + QuizConcepts.all }
+    val bank: List<Question> by lazy { QuizBank.all + QuizConcepts.all + QuizConcepts2.all }
 
     /** Chapter of each generator, read from a sample question (a generator always stays within one chapter). */
     private val generatorChapter: Map<QuestionGenerator, String?> by lazy {

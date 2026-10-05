@@ -60,6 +60,9 @@ fun topicColor(t: Topic): Color = when (t) {
     Topic.SEMICONDUCTOR -> Color(0xFF8CC7B3)  // verdigris
     Topic.CALORIC -> Palette.Heraldic         // heraldic red
     Topic.QFT -> Color(0xFFE3C77A)            // gold
+    Topic.POLYMER -> Color(0xFF7FD6C2)        // jade
+    Topic.ELECTRICAL -> Color(0xFFF2C14E)     // copper-gold trace
+    Topic.AI -> Color(0xFFFF7EB6)             // neon magenta
     Topic.MECHANICS -> Color(0xFF9CC0E8)      // pale sky
     Topic.MATH -> Palette.Steel               // polished steel
 }

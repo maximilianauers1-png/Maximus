@@ -211,4 +211,24 @@ class FormulaQuizTest {
         }
         assertEquals(QuizEngine.bank.size, QuizEngine.bank.map { it.id }.toSet().size)
     }
+
+    @Test
+    fun newTopicsAndDeepCaloricContentAreComplete() {
+        assertTrue(QuizConcepts2.all.size >= 110)
+        for (q in QuizConcepts2.all) {
+            assertTrue(q.prompt, q.chapterKey in Compendium.byKey)
+            assertEquals(q.prompt, 4, q.options.toSet().size)
+            assertTrue(q.prompt, q.solution.length > 40)
+        }
+        for (t in listOf(Topic.POLYMER, Topic.ELECTRICAL, Topic.AI)) {
+            assertTrue(t.name, Compendium.forTopic(t).size >= 8)
+            assertTrue(t.name, QuizEngine.bank.count { it.topic == t } >= 20)
+            assertTrue(t.name, (QuizEngine.generators[t]?.size ?: 0) >= 10)
+        }
+        val caloric = Compendium.forTopic(Topic.CALORIC)
+        assertTrue(caloric.size >= 14)
+        assertTrue(caloric.any { it.key == "ca_defense" } && caloric.any { it.key == "ca_relaxor" })
+        assertTrue(QuizEngine.bank.count { it.topic == Topic.CALORIC } >= 40)
+        assertTrue(Compendium.courses(Topic.AI).first() == "AI-Grundlagen")
+    }
 }

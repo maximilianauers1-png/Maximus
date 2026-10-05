@@ -11,6 +11,9 @@ enum class Topic(val title: String, val short: String, val blurb: String) {
     SEMICONDUCTOR("Halbleiterphysik", "Halbleiter", "Bänder, Ladungsträger, pn-Übergang, Diode, Solarzelle, MOSFET"),
     CALORIC("Kalorik", "Kalorik", "Elektro-, elasto-, magneto-, baro- und multikalorische Effekte, Festkörperkühlung"),
     QFT("Quantenfeldtheorie", "QFT", "Natürliche Einheiten, Klein-Gordon, Dirac, QED, Feynman-Regeln, Renormierung"),
+    POLYMER("Polymerphysik", "Polymere", "Ketten, Lösungen, Gummielastizität, Reptation, Glasübergang, Kristallisation, elektroaktive Polymere"),
+    ELECTRICAL("Elektrotechnik und Chips", "E-Technik", "Netzwerke, Filter, OPV, Transistoren, CMOS-Logik, Chipfertigung und Chipentwurf"),
+    AI("AI Engineering", "AI", "Vom ersten Modell bis zu LLMs: Training, Transformer, Inferenz, RAG, Agenten, Betrieb"),
     MECHANICS("Mechanik und Relativität", "Mechanik", "Newton, Lagrange, Hamilton, starrer Körper, Schwingungen, SRT, ART, Kontinua"),
     MATH("Mathematik", "Mathe", "Analysis I–III, lineare Algebra, DGL, Funktionentheorie, Funktionalanalysis, Tensoren, Stochastik");
 }

@@ -38,7 +38,9 @@ internal fun fm(name: String, expr: String, note: String = "") = Formula(name, e
 object Compendium {
     val all: List<Chapter> by lazy {
         CompendiumThermo.chapters + CompendiumElectro.chapters + CompendiumQuantum.chapters + CompendiumSemiconductor.chapters +
-            CompendiumCaloric.chapters + CompendiumQft.chapters + CompendiumMechanics.chapters + CompendiumMath.chapters
+            CompendiumCaloric.chapters + CompendiumPvdf.chapters + CompendiumQft.chapters + CompendiumPolymer.chapters +
+            CompendiumElectrical.chapters + CompendiumAi.chapters + CompendiumMechanics.chapters + CompendiumMath.chapters +
+            CompendiumExtra.chapters
     }
     val byKey: Map<String, Chapter> by lazy { all.associateBy { it.key } }
     fun forTopic(t: Topic) = all.filter { it.topic == t }

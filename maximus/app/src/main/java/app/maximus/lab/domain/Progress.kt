@@ -79,6 +79,9 @@ object LabRules {
         Topic.SEMICONDUCTOR to ("Shockleys Erbe" to "Halbleiterphysik zu 80 % gemeistert"),
         Topic.CALORIC to ("Kühlkünstler" to "Kalorik zu 80 % gemeistert"),
         Topic.QFT to ("Feynmans Diagramm" to "Quantenfeldtheorie zu 80 % gemeistert"),
+        Topic.POLYMER to ("Flory-Schüler" to "Polymerphysik zu 80 % gemeistert"),
+        Topic.ELECTRICAL to ("Schaltkreis-Schmied" to "Elektrotechnik und Chips zu 80 % gemeistert"),
+        Topic.AI to ("Gradientenreiter" to "AI Engineering zu 80 % gemeistert"),
         Topic.MECHANICS to ("Newtons Apfel" to "Mechanik und Relativität zu 80 % gemeistert"),
         Topic.MATH to ("Gauß' Zögling" to "Mathematik zu 80 % gemeistert")
     )
