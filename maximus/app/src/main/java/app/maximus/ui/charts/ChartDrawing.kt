@@ -157,7 +157,8 @@ fun DrawScope.drawTrendChart(
 /** Vertical bars with category labels (every k-th label shown so that labels never overlap). */
 fun DrawScope.drawBarChart(
     hits: HitRegistry, m: TextMeasurer, c: ChartColors,
-    labels: List<String>, values: List<Double>, tooltips: List<String>
+    labels: List<String>, values: List<Double>, tooltips: List<String>,
+    highlight: Int? = null
 ) {
     if (values.isEmpty()) return
     val (rect, yAxis) = plotArea(m, c, 0.0, max(1e-9, values.maxOrNull()!!))
@@ -170,7 +171,7 @@ fun DrawScope.drawBarChart(
     values.forEachIndexed { i, v ->
         val x = rect.left + i * slot + (slot - barW) / 2f
         val top = yAxis.map(v)
-        drawRect(c.primary, topLeft = Offset(x, top), size = Size(barW, rect.bottom - top))
+        drawRect(if (i == highlight) c.secondary else c.primary, topLeft = Offset(x, top), size = Size(barW, rect.bottom - top))
         hits.add(x + barW / 2f, top, tooltips[i])
         if (i % every == 0) label(m, labels[i], Offset(x + barW / 2f, ly), c.onSurface, center = true)
     }
@@ -314,7 +315,9 @@ fun DrawScope.drawLineChart(
     val (rect, yAxis) = plotArea(m, c, yLo0, yHi0)
     val xTicks = niceTicks(xLo, xHi, 5)
     val xStep = if (xTicks.size > 1) xTicks[1] - xTicks[0] else 1.0
-    val xAxis = Axis(xLo, xHi, rect.left, rect.right)
+    // Markers are inset by their radius so that points on the plot edge are never cut off.
+    val inset = if (series.any { it.markers }) 4.dp.toPx() else 0f
+    val xAxis = Axis(xLo, xHi, rect.left + inset, rect.right - inset)
     val ly = xLabelY(m, rect)
     xTicks.filter { it >= xLo - 1e-9 && it <= xHi + 1e-9 }.forEach { t ->
         val px = xAxis.map(t)

@@ -14,6 +14,12 @@ import app.maximus.nutrition.domain.AdaptiveTdee
 import app.maximus.nutrition.domain.NutritionTargets
 import app.maximus.strongman.data.StrongmanRepository
 import java.time.LocalDate
+import app.maximus.lab.domain.Fmt
+import app.maximus.strongman.domain.Arena
+import app.maximus.strongman.domain.Coach
+import app.maximus.strongman.domain.Population
+import app.maximus.strongman.domain.ScoreMode
+import app.maximus.strongman.domain.StandardLift
 import javax.inject.Inject
 import javax.inject.Singleton
 import kotlinx.coroutines.CoroutineScope
@@ -79,8 +85,35 @@ class ChatService @Inject constructor(
         val sets = strongman.allSets.first().map { s ->
             ModuleContext.LoggedSet(s.epochDay, names[s.exerciseId] ?: "Übung ${s.exerciseId}", s.weightKg, s.reps, s.rpe)
         }
-        return ModuleContext.strongman(sets) ?: "Noch keine Trainingseinheiten protokolliert."
+        val log = ModuleContext.strongman(sets) ?: "Noch keine Trainingseinheiten protokolliert."
+        return log + "\n" + strongmanStanding()
     }
+
+    /** Best lifts, Arena rank against the strongman population and the planned contest, for the prompt. */
+    private suspend fun strongmanStanding(): String = runCatching {
+        val exercises = strongman.exercises.first()
+        val byId = exercises.associateBy { it.id }
+        val settings = strongman.settings.first()
+        val prefs = strongman.prefs.first()
+        val events = Arena.liftEvents(strongman.allSets.first(), strongman.historic.first()) { StandardLift.forSeedKey(byId[it]?.seedKey) }
+        val bests = Arena.bests(events)
+        if (bests.isEmpty()) return@runCatching ""
+        val mode = if (settings.bodyweightKg != null) ScoreMode.DOTS else ScoreMode.ABSOLUTE
+        val places = Arena.placements(bests, Population.STRONGMAN, settings.sex, settings.bodyweightKg, mode).associateBy { it.lift }
+        buildString {
+            append("Athlet: Naturalathlet, startet bei OSG")
+            settings.bodyweightKg?.let { append(", Körpergewicht ${Fmt.num(it, 4)} kg") }
+            append(".\nBestleistungen (e1RM) und Rang gegen Strongman-Population (${mode.title}):\n")
+            bests.values.sortedBy { it.lift.ordinal }.forEach { b ->
+                val p = places[b.lift]
+                append("- ${b.lift.title}: ${Fmt.num(b.e1rm, 4)} kg" + (p?.let { ", ${it.rank.title}, Perzentil ${Fmt.num(it.percentile, 3)}" } ?: "") + "\n")
+            }
+            prefs["meet.day"]?.toLongOrNull()?.let { day ->
+                val plan = Coach.meetPlan(LocalDate.now().toEpochDay(), day)
+                append("Nächster Wettkampf ${prefs["meet.name"].orEmpty()} in ${plan.daysOut} Tagen, Phase: ${plan.phase.title}.\n")
+            }
+        }
+    }.getOrDefault("")
 
     suspend fun nutritionContext(): String {
         val today = LocalDate.now().toEpochDay()

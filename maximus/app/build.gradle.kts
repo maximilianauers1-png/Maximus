@@ -16,8 +16,8 @@ android {
         applicationId = "app.maximus"
         minSdk = 29
         targetSdk = 36
-        versionCode = 9
-        versionName = "0.8.0-p7"
+        versionCode = 10
+        versionName = "0.9.0-p8"
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
 

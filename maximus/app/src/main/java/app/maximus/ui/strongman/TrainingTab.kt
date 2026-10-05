@@ -126,6 +126,7 @@ private fun SessionScreen(repository: StrongmanRepository, session: WorkoutSessi
     var time by rememberSaveable { mutableStateOf("") }
     var note by rememberSaveable(session.id) { mutableStateOf(session.note) }
     var editing by remember { mutableStateOf<SetLogEntity?>(null) }
+    var reporting by remember { mutableStateOf(false) }
     var restSeconds by rememberSaveable { mutableIntStateOf(180) }
     var restStartedAt by rememberSaveable { mutableLongStateOf(0L) }
     var now by remember { mutableLongStateOf(System.currentTimeMillis()) }
@@ -158,6 +159,9 @@ private fun SessionScreen(repository: StrongmanRepository, session: WorkoutSessi
                 TextButton(onClick = onClose) { Text(stringResource(R.string.nav_back)) }
                 Text(stringResource(R.string.sm_session_title, fmtDay(session.epochDay)), style = MaterialTheme.typography.titleMedium)
             }
+        }
+        if (sets.isNotEmpty()) item {
+            Button(onClick = { reporting = true }, modifier = Modifier.fillMaxWidth()) { Text("Training abschließen & auswerten") }
         }
         item {
             SectionCard(stringResource(R.string.sm_log_set)) {
@@ -244,6 +248,9 @@ private fun SessionScreen(repository: StrongmanRepository, session: WorkoutSessi
 
     if (picking) {
         ExercisePickerDialog(exercises, { picking = false }) { e -> exerciseId = e.id; picking = false }
+    }
+    if (reporting) {
+        SessionReportDialog(repository, session.epochDay, sets.map { it.id }.toSet(), onDismiss = { reporting = false })
     }
     editing?.let { set ->
         EditSetDialog(set, byId[set.exerciseId]?.displayName() ?: "", onDismiss = { editing = null }) { input ->

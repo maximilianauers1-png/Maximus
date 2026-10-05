@@ -78,3 +78,25 @@ Design umschalten: Startseite > Zahnrad (Einstellungen) > "Design".
 - Schwarz-Rot-Gold oder Blau-Weiss-Silber: ein Farbschema fuer alle Bereiche
   (D&D bleibt rot-schwarz, Maximus bleibt Terminal).
 - Klassisch: das urspruengliche Eisen-und-Silber-Design ohne Bereichsfarben.
+
+NEU in 0.9: Strongman mit Coach und Arena
+- Strongman hat drei Bereiche (oben waehlbar):
+  Training (Loggen, Programme, Rechner, Werkzeuge, Bibliothek),
+  Coach (Heute, Wettkampf, Systeme, Schwachstellen),
+  Arena (Rang, Vergleich, Ruhm, Progression, Statistik, Rekorde).
+- Arena: Bestleistungen und Wiederholungs-PRs gegen Gym-, Strongman- und
+  Powerlifting-Population, wahlweise DOTS (relativ zum Koerpergewicht) oder absolut.
+  Raenge vom Knappen bis zur Legende (je I-III), Kraftwert, Verteilungskurve,
+  "noch X kg bis zum naechsten Rang". Fuer DOTS: Koerpergewicht unter
+  Training > Werkzeuge > Einstellungen eintragen.
+- Ruhm: Level und XP, Wochen-Serie, Wochen-Quests, Bosskaempfe (dein Ich vor einem Jahr,
+  Torwaechter des naechsten Rangs, Allzeit-Rekord) und ueber 70 Abzeichen.
+- Progression: alte Rekorde aus vergangenen Jahren eintragen ("Rekord eintragen"),
+  Rekordtreppe, Progressionskurve mit 95-%-Band und Prognose (e1RM in 3/6/12/24 Monaten,
+  Zieldatum, Plateau-Schaetzung).
+- Nach dem Training: in der Einheit "Training abschliessen & auswerten" zeigt den
+  Trainingsbericht mit e1RM-Verlauf, Volumenvergleich, INOL, XP und Rangaufstiegen.
+- Coach: Bereitschafts-Check mit Laststeuerung und Top-Saetzen fuer heute,
+  Wettkampfplanung (Countdown, Phase, Checkliste, Versuchswahl, Gewichtsklasse),
+  Systeme (5/3/1, 5/3/1 BBB, Smolov Jr., RPE-Block, Event-Peaking) mit
+  "Als Programm anlegen", Schwachstellen-Analyse mit Kraftprofil und Verhaeltnissen.
