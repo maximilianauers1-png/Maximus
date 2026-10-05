@@ -49,11 +49,18 @@ import androidx.compose.ui.unit.dp
 import app.maximus.lab.domain.Compendium
 import app.maximus.lab.domain.LabEvent
 import app.maximus.lab.domain.Topic
+import app.maximus.ui.theme.Design
 import app.maximus.ui.theme.Palette
 import kotlinx.coroutines.delay
 
+/**
+ * Accent of a field. In the colour concepts the topics share a few tones of the lab palette (no rainbow);
+ * the classic design keeps one distinct accent per field. Reads snapshot state, so switching recomposes.
+ */
+fun topicColor(t: Topic): Color = Design.concept.topicTones?.let { it[t.ordinal % it.size] } ?: classicTopicColor(t)
+
 /** One accent per field, chosen to stay readable (≥ 7:1) on the iron ground. */
-fun topicColor(t: Topic): Color = when (t) {
+private fun classicTopicColor(t: Topic): Color = when (t) {
     Topic.THERMO -> Color(0xFFD9A066)        // glowing brass
     Topic.ELECTRO -> Palette.Blued            // blued steel
     Topic.QUANTUM -> Color(0xFFB3A2E0)        // violet

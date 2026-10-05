@@ -48,10 +48,22 @@ import app.maximus.lab.domain.Fmt
 import app.maximus.ui.components.Glyph
 import app.maximus.ui.components.GlyphButton
 import app.maximus.ui.components.GlyphIcon
+import app.maximus.ui.theme.Design
+import app.maximus.ui.theme.DesignConcept
 import app.maximus.ui.theme.KnightAvatar
 import app.maximus.ui.theme.Palette
 
-internal fun focusColor(f: Focus?): Color = when (f) {
+/**
+ * Focus accents. In the colour concepts only three heraldic tones are used (amber, red, silver-blue);
+ * the classic design keeps one colour per focus.
+ */
+internal fun focusColor(f: Focus?): Color = if (Design.concept == DesignConcept.KLASSISCH) classicFocusColor(f) else when (f) {
+    Focus.STRONGMAN, Focus.DND -> Color(0xFFE0565C)
+    Focus.SCIENCE, Focus.NUTRITION -> Color(0xFFA9C4EE)
+    Focus.CODE, Focus.GENERAL, null -> Color(0xFFFFB000)
+}
+
+private fun classicFocusColor(f: Focus?): Color = when (f) {
     Focus.STRONGMAN -> Palette.Heraldic
     Focus.DND -> Color(0xFFB9A3E3)
     Focus.CODE -> Color(0xFF8FC9A3)

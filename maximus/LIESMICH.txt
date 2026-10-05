@@ -71,3 +71,10 @@ NEU in 0.8: Labor-Ausbau und neues Design
 - Design: jedes Modul hat eigene Farben (D&D Landsknecht-Rot/Schwarz/Gold, Strongman
   Schmiedefeuer, Ernaehrung Kraeutergruen, Labor Plasma), Maximus ist ein Retro-Terminal
   mit dem Ritter als Gesicht.
+
+Design umschalten: Startseite > Zahnrad (Einstellungen) > "Design".
+- Ritterorden (Standard): D&D und Strongman Schwarz-Rot-Gold, Labor und Ernaehrung
+  Blau-Weiss-Silber, Maximus als Retro-Terminal.
+- Schwarz-Rot-Gold oder Blau-Weiss-Silber: ein Farbschema fuer alle Bereiche
+  (D&D bleibt rot-schwarz, Maximus bleibt Terminal).
+- Klassisch: das urspruengliche Eisen-und-Silber-Design ohne Bereichsfarben.

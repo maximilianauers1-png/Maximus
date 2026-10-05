@@ -59,6 +59,7 @@ import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.draw.drawWithCache
 import app.maximus.ui.theme.KnightAvatar
+import app.maximus.ui.theme.LocalModuleStyle
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.ui.draw.clip
@@ -171,7 +172,8 @@ fun ChatScreen(service: ChatService, onBack: () -> Unit) {
         }
     ) { padding ->
         Column(Modifier.fillMaxSize().padding(padding).imePadding()) {
-            Box(Modifier.weight(1f).fillMaxWidth().crtScanlines()) {
+            val terminal = LocalModuleStyle.current?.terminal == true
+            Box(Modifier.weight(1f).fillMaxWidth().then(if (terminal) Modifier.crtScanlines() else Modifier)) {
                 if (messages.isEmpty() && live == null) {
                     Welcome(hasModel = settings.model != null, onStarter = { send(it) }, onSetup = { showModel = true })
                 } else {
@@ -300,7 +302,7 @@ private fun Welcome(hasModel: Boolean, onStarter: (String) -> Unit, onSetup: () 
             Column(Modifier.padding(start = 16.dp)) {
                 Text(
                     "MAXIMUS",
-                    style = MaterialTheme.typography.headlineLarge.copy(brush = Brush.verticalGradient(listOf(MaterialTheme.colorScheme.primary, Color(0xFFB36B00))))
+                    style = MaterialTheme.typography.headlineLarge.copy(brush = Brush.verticalGradient(listOf(MaterialTheme.colorScheme.primary, MaterialTheme.colorScheme.primary.copy(alpha = 0.55f))))
                 )
                 Text("RITTER-TERMINAL · v2", style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.secondary)
             }
@@ -395,7 +397,7 @@ private fun Composer(
                 Modifier.padding(start = 8.dp, bottom = 4.dp).size(48.dp).clip(CircleShape)
                     .background(
                         if (busy) Brush.linearGradient(listOf(Palette.Heraldic, Color(0xFF8E4F4A)))
-                        else Brush.linearGradient(listOf(MaterialTheme.colorScheme.primary, Color(0xFFB36B00))),
+                        else Brush.linearGradient(listOf(MaterialTheme.colorScheme.primary, MaterialTheme.colorScheme.primary.copy(alpha = 0.55f))),
                         alpha = if (enabled) 1f else 0.35f
                     )
                     .clickable(enabled = enabled) { if (busy) onStop() else onSend() },

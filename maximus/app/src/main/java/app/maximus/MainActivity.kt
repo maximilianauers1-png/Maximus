@@ -6,6 +6,7 @@ import androidx.activity.SystemBarStyle
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
+import androidx.compose.runtime.LaunchedEffect
 import app.maximus.core.app.AppServices
 import app.maximus.ui.navigation.MaximusNavHost
 import app.maximus.ui.theme.MaximusTheme
@@ -27,6 +28,7 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContent {
             MaximusTheme {
+                LaunchedEffect(Unit) { services.design.load() }
                 MaximusNavHost(services = services)
             }
         }

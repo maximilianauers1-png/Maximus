@@ -48,6 +48,7 @@ import app.maximus.chat.data.ChatService
 import app.maximus.chat.domain.ChatController
 import app.maximus.chat.domain.Focus
 import app.maximus.chat.domain.Role
+import app.maximus.ui.theme.Design
 import app.maximus.ui.theme.KnightAvatar
 import app.maximus.ui.theme.ModuleStyle
 import app.maximus.ui.theme.ModuleTheme
@@ -71,15 +72,17 @@ data class AskRequest(
 /** Small steel pill for top bars: opens "Frag Maximus" for the current module. */
 @Composable
 fun AskMaximusButton(onClick: () -> Unit, label: String = "Maximus") {
+    val terminal = Design.concept.palette(ModuleStyle.MAXIMUS)
+    val accent = terminal?.primary ?: MaterialTheme.colorScheme.primary
     Row(
         Modifier.padding(end = 6.dp).clip(RoundedCornerShape(50))
-            .background(Color(0xFF0A0A08))
-            .border(1.dp, Brush.linearGradient(listOf(ModuleStyle.MAXIMUS.primary, ModuleStyle.MAXIMUS.secondary)), RoundedCornerShape(50))
+            .background(terminal?.ground ?: MaterialTheme.colorScheme.surfaceContainerHigh)
+            .border(1.dp, Brush.linearGradient(listOf(accent, terminal?.secondary ?: MaterialTheme.colorScheme.outline)), RoundedCornerShape(50))
             .clickable(onClick = onClick).padding(start = 3.dp, end = 12.dp, top = 3.dp, bottom = 3.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
-        KnightAvatar(24.dp)
-        Text(label, style = MaterialTheme.typography.labelLarge.copy(fontFamily = FontFamily.Monospace), color = ModuleStyle.MAXIMUS.primary,
+        KnightAvatar(24.dp, phosphor = terminal?.terminal == true)
+        Text(label, style = MaterialTheme.typography.labelLarge.copy(fontFamily = if (terminal != null) FontFamily.Monospace else null), color = accent,
             modifier = Modifier.padding(start = 6.dp))
     }
 }

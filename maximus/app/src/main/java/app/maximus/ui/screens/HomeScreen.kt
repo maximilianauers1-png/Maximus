@@ -40,6 +40,7 @@ import app.maximus.ui.components.GlyphIcon
 import app.maximus.ui.components.PlateCard
 import app.maximus.ui.components.SteelRule
 import app.maximus.ui.navigation.Routes
+import app.maximus.ui.theme.Design
 import app.maximus.ui.theme.KnightAvatar
 import app.maximus.ui.theme.ModuleStyle
 import app.maximus.ui.theme.Palette
@@ -52,7 +53,7 @@ private data class ModuleEntry(
     @StringRes val description: Int,
     val phase: Int,
     val route: String? = null,
-    /** Colour world of the module, previewed on the home screen as accent bar and icon colour. */
+    /** Module identity; its palette under the active design concept is previewed as accent bar and icon colour. */
     val style: ModuleStyle? = null
 )
 
@@ -127,12 +128,13 @@ private fun ModuleRow(module: ModuleEntry, onOpen: (String) -> Unit) {
     val route = module.route
     val active = route != null
     val content: @Composable () -> Unit = {
-        val accent = module.style?.primary ?: MaterialTheme.colorScheme.primary
+        val palette = module.style?.let { Design.concept.palette(it) }
+        val accent = palette?.primary ?: MaterialTheme.colorScheme.primary
         Row(modifier = Modifier.fillMaxWidth().height(IntrinsicSize.Min), verticalAlignment = Alignment.CenterVertically) {
             // Accent bar in the module's colour world (D&D shows its Landsknecht stripes).
-            Box(Modifier.width(4.dp).fillMaxHeight().background(module.style?.let { Brush.verticalGradient(it.stripe) } ?: Brush.verticalGradient(listOf(accent, accent))))
+            Box(Modifier.width(4.dp).fillMaxHeight().background(palette?.let { Brush.verticalGradient(it.stripe) } ?: Brush.verticalGradient(listOf(accent, accent))))
             Row(modifier = Modifier.weight(1f).padding(horizontal = 16.dp, vertical = 14.dp), verticalAlignment = Alignment.CenterVertically) {
-                if (module.style == ModuleStyle.MAXIMUS) KnightAvatar(34.dp, border = accent)
+                if (module.style == ModuleStyle.MAXIMUS) KnightAvatar(34.dp, phosphor = palette?.terminal == true, border = accent)
                 else GlyphIcon(Glyph.SHIELD, tint = if (active) accent else MaterialTheme.colorScheme.outline, size = 30.dp)
                 Column(modifier = Modifier.weight(1f).padding(start = 14.dp)) {
                     Text(

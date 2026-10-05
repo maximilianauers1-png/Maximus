@@ -27,5 +27,6 @@ class AppServices @Inject constructor(
     val nutrition: NutritionRepository,
     val dnd: DndRepository,
     val lab: LabRepository,
-    val chat: ChatService
+    val chat: ChatService,
+    val design: DesignRepository
 )

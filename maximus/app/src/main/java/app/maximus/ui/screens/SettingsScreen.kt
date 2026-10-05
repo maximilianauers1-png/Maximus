@@ -65,6 +65,7 @@ fun SettingsScreen(onBack: () -> Unit, services: AppServices) {
             modifier = Modifier.fillMaxSize().padding(padding).verticalScroll(rememberScrollState()).padding(16.dp),
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
+            DesignPicker(services.design)
             SectionCard(stringResource(R.string.settings_language)) {
                 LanguageChoice.entries.forEach { choice ->
                     val label = when (choice) {

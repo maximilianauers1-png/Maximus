@@ -24,6 +24,7 @@ app/src/main/java/app/maximus/chat/domain/Prompting.kt
 app/src/main/java/app/maximus/chat/domain/Tools.kt
 app/src/main/java/app/maximus/chat/engine/MediaPipeLlm.kt
 app/src/main/java/app/maximus/core/app/AppServices.kt
+app/src/main/java/app/maximus/core/app/DesignRepository.kt
 app/src/main/java/app/maximus/core/backup/BackupManager.kt
 app/src/main/java/app/maximus/core/crypto/Base32.kt
 app/src/main/java/app/maximus/core/crypto/PasswordGenerator.kt
@@ -166,6 +167,7 @@ app/src/main/java/app/maximus/ui/nutrition/NutritionHubScreen.kt
 app/src/main/java/app/maximus/ui/nutrition/PlanTab.kt
 app/src/main/java/app/maximus/ui/nutrition/RecipesTab.kt
 app/src/main/java/app/maximus/ui/nutrition/ToolsTab.kt
+app/src/main/java/app/maximus/ui/screens/DesignPicker.kt
 app/src/main/java/app/maximus/ui/screens/DiagnosticsScreen.kt
 app/src/main/java/app/maximus/ui/screens/HomeScreen.kt
 app/src/main/java/app/maximus/ui/screens/SettingsScreen.kt
