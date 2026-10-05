@@ -48,6 +48,7 @@ import app.maximus.lab.domain.Fmt
 import app.maximus.ui.components.Glyph
 import app.maximus.ui.components.GlyphButton
 import app.maximus.ui.components.GlyphIcon
+import app.maximus.ui.theme.KnightAvatar
 import app.maximus.ui.theme.Palette
 
 internal fun focusColor(f: Focus?): Color = when (f) {
@@ -56,20 +57,22 @@ internal fun focusColor(f: Focus?): Color = when (f) {
     Focus.CODE -> Color(0xFF8FC9A3)
     Focus.SCIENCE -> Palette.Blued
     Focus.NUTRITION -> Color(0xFFE6B57E)
-    Focus.GENERAL, null -> Palette.Steel
+    Focus.GENERAL, null -> Color(0xFFFFB000)
 }
 
-/** The user's message: right-aligned plate with a steel gradient edge. */
+/** The user's input as a terminal line: green phosphor prompt "> " on a dark plate, right-aligned. */
 @Composable
 fun UserBubble(message: ChatMessage, onCopy: (String) -> Unit) {
+    val green = MaterialTheme.colorScheme.secondary
     Box(Modifier.fillMaxWidth(), contentAlignment = Alignment.CenterEnd) {
-        Box(
-            Modifier.widthIn(max = 320.dp)
-                .background(MaterialTheme.colorScheme.surfaceContainerHigh, RoundedCornerShape(18.dp, 18.dp, 4.dp, 18.dp))
-                .border(1.dp, Brush.linearGradient(listOf(Palette.SteelDeep, Palette.Hairline)), RoundedCornerShape(18.dp, 18.dp, 4.dp, 18.dp))
+        Row(
+            Modifier.widthIn(max = 330.dp)
+                .background(MaterialTheme.colorScheme.surfaceContainerHigh, RoundedCornerShape(12.dp, 12.dp, 2.dp, 12.dp))
+                .border(1.dp, Brush.linearGradient(listOf(green.copy(alpha = 0.6f), MaterialTheme.colorScheme.outlineVariant)), RoundedCornerShape(12.dp, 12.dp, 2.dp, 12.dp))
                 .clickable { onCopy(message.text) }
-                .padding(horizontal = 14.dp, vertical = 10.dp)
+                .padding(horizontal = 12.dp, vertical = 9.dp)
         ) {
+            Text("> ", style = MaterialTheme.typography.bodyLarge, color = green)
             SelectionContainer { Text(message.text, style = MaterialTheme.typography.bodyLarge, color = Palette.Linen) }
         }
     }
@@ -108,10 +111,13 @@ fun LiveMessage(live: ChatController.Live, focus: Focus?, onCopy: (String) -> Un
         live.tools.forEach { ToolCardView(it, onCopy) }
         if (live.thinking.isNotBlank()) ThinkingPanel(live.thinking, live = live.text.isEmpty())
         when {
-            live.phase == ChatController.Phase.LOADING -> TypingIndicator("Modell wird geladen …")
-            live.phase == ChatController.Phase.PREFILL -> TypingIndicator("Liest die Frage …")
-            live.text.isEmpty() && live.thinking.isEmpty() -> TypingIndicator("Denkt nach …")
-            live.text.isNotEmpty() -> MarkdownView(blocks, onCopy)
+            live.phase == ChatController.Phase.LOADING -> TypingIndicator("lade modell")
+            live.phase == ChatController.Phase.PREFILL -> TypingIndicator("lese eingabe")
+            live.text.isEmpty() && live.thinking.isEmpty() -> TypingIndicator("denke nach")
+            live.text.isNotEmpty() -> {
+                MarkdownView(blocks, onCopy)
+                BlinkingCursor()
+            }
         }
     }
 }
@@ -119,11 +125,8 @@ fun LiveMessage(live: ChatController.Live, focus: Focus?, onCopy: (String) -> Un
 @Composable
 private fun AssistantHeader(focus: Focus?, note: String?) {
     Row(verticalAlignment = Alignment.CenterVertically) {
-        Box(
-            Modifier.size(26.dp).background(Brush.linearGradient(listOf(Palette.SteelLight, Palette.SteelDeep)), RoundedCornerShape(8.dp)),
-            contentAlignment = Alignment.Center
-        ) { GlyphIcon(Glyph.SHIELD, tint = Palette.Ground, size = 18.dp) }
-        Text("Maximus", style = MaterialTheme.typography.titleMedium, color = Palette.SteelLight, modifier = Modifier.padding(start = 8.dp))
+        KnightAvatar(30.dp, border = MaterialTheme.colorScheme.primary)
+        Text("MAXIMUS:", style = MaterialTheme.typography.titleMedium, color = MaterialTheme.colorScheme.primary, modifier = Modifier.padding(start = 8.dp))
         if (focus != null && focus != Focus.GENERAL) FocusBadge(focus, Modifier.padding(start = 8.dp))
         if (note != null) Text(note, style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.outline, modifier = Modifier.padding(start = 8.dp))
     }
@@ -202,11 +205,20 @@ private fun StatsLine(s: GenStats, modifier: Modifier) {
     Text(parts.joinToString("  ·  "), style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.outline, modifier = modifier)
 }
 
-/** Three steel lozenges pulsing in sequence, with a status text. */
+/** Block cursor of a retro terminal, blinking at ≈ 1 Hz at the end of the streaming answer. */
+@Composable
+fun BlinkingCursor() {
+    val t = rememberInfiniteTransition(label = "cursor")
+    val on by t.animateFloat(0f, 1f, infiniteRepeatable(tween(1000), RepeatMode.Restart), label = "blink")
+    Box(Modifier.size(width = 10.dp, height = 18.dp).background(MaterialTheme.colorScheme.primary.copy(alpha = if (on < 0.5f) 1f else 0f)))
+}
+
+/** Three phosphor lozenges pulsing in sequence, with a terminal status text. */
 @Composable
 fun TypingIndicator(label: String) {
     val t = rememberInfiniteTransition(label = "typing")
     val phase by t.animateFloat(0f, 3f, infiniteRepeatable(tween(1100), RepeatMode.Restart), label = "phase")
+    val amber = MaterialTheme.colorScheme.primary
     Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.padding(vertical = 6.dp)) {
         Canvas(Modifier.size(width = 46.dp, height = 14.dp)) {
             for (k in 0 until 3) {
@@ -215,9 +227,9 @@ fun TypingIndicator(label: String) {
                 val cx = size.height / 2 + k * (size.width - size.height) / 2
                 val r = size.height / 2 * (0.65f + 0.35f * a)
                 val p = Path().apply { moveTo(cx, size.height / 2 - r); lineTo(cx + r, size.height / 2); lineTo(cx, size.height / 2 + r); lineTo(cx - r, size.height / 2); close() }
-                drawPath(p, Palette.Steel.copy(alpha = a))
+                drawPath(p, amber.copy(alpha = a))
             }
         }
-        Text(label, style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.padding(start = 10.dp))
+        Text("$label …", style = MaterialTheme.typography.labelMedium, color = amber, modifier = Modifier.padding(start = 10.dp))
     }
 }

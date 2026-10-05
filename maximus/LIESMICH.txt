@@ -1,4 +1,4 @@
-MAXIMUS - Gesamtpaket (Version 0.7.0-p6, Datenbankversion 5)
+MAXIMUS - Gesamtpaket (Version 0.8.0-p7, Datenbankversion 5)
 
 Dieses Paket enthaelt das KOMPLETTE Projekt in einem Stueck. Es ersetzt alle
 frueheren Teilpakete (p2, p1-update, p3-update, ritterbild, p4-update,
@@ -57,3 +57,17 @@ NEU: Quiz im Labor und "Frag Maximus" in allen Bereichen
   "Maximus". Maximus bekommt automatisch die passenden Daten mit (Trainingsprotokoll,
   Ernaehrungsziele und Protokoll, Charakterbogen, Kapitel). Die Frage landet als Chat
   im Verlauf und kann dort weitergefuehrt werden.
+
+NEU in 0.8: Labor-Ausbau und neues Design
+- Kalorik: Vorlesung "P(VDF-TrFE-CFE) und Relaxor-Polymere" mit 8 neuen Kapiteln
+  (Struktur und Phasen, Relaxoren, Elektrokalorik im Terpolymer, Messmethoden,
+  Kuehlgeraete, Elektrostriktion/Elastokalorik, Multikalorik, Promotionsverteidigung)
+  und rund 30 Verstaendnisfragen auf Verteidigungsniveau. Im Kapitel: Knopf "Maximus"
+  > "Sei der Pruefer in meiner Promotionsverteidigung".
+- Neue Gebiete: Polymerphysik, Elektrotechnik und Chips, AI Engineering (vom Anfaenger
+  bis zu LLM-Training, Inferenz, RAG und Agenten). Weitere Kapitel: Optik,
+  Nichtgleichgewicht, Streutheorie, Heterostrukturen/QHE, Chaos, Gruppentheorie.
+- D&D: Monster-Editor entfernt; der Encounter-Planer arbeitet jetzt mit Herausforderungsgraden.
+- Design: jedes Modul hat eigene Farben (D&D Landsknecht-Rot/Schwarz/Gold, Strongman
+  Schmiedefeuer, Ernaehrung Kraeutergruen, Labor Plasma), Maximus ist ein Retro-Terminal
+  mit dem Ritter als Gesicht.

@@ -37,7 +37,7 @@ fun DndHubScreen(
 ) {
     var ask by remember { mutableStateOf(false) }
     var tab by rememberSaveable { mutableIntStateOf(0) }
-    val titles = listOf("Dice", "Characters", "Builds", "Monsters", "Encounter", "Reference")
+    val titles = listOf("Dice", "Characters", "Builds", "Encounter", "Reference")
     val bubble by services.dnd.bubbleEnabled.collectAsState(initial = true)
     Scaffold(topBar = {
         MaximusTopBar("Dungeons & Dragons", onBack) { AskMaximusButton(onClick = { ask = true }) }
@@ -54,8 +54,7 @@ fun DndHubScreen(
                     0 -> DiceTab(services)
                     1 -> CharactersTab(services, onOpenSheet, onEditCharacter)
                     2 -> BuildsTab(services, onEditCharacter)
-                    3 -> MonstersTab(services)
-                    4 -> EncounterTab(services)
+                    3 -> EncounterTab(services)
                     else -> ReferenceTab()
                 }
             }

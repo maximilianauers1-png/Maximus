@@ -56,6 +56,7 @@ import androidx.compose.ui.draw.scale
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.StrokeJoin
 import androidx.compose.ui.graphics.TransformOrigin
@@ -72,7 +73,6 @@ import app.maximus.dnd.domain.DiceParser
 import app.maximus.dnd.domain.DiceProbability
 import app.maximus.dnd.domain.DiceRoller
 import app.maximus.dnd.domain.RollResult
-import app.maximus.ui.theme.Palette
 import kotlin.math.cos
 import kotlin.math.roundToInt
 import kotlin.math.sin
@@ -137,8 +137,9 @@ fun BoxScope.QuickRollBubble(services: AppServices) {
             .size(60.dp)
             .scale(pressScale)
             .shadow(10.dp, CircleShape)
-            .background(Brush.radialGradient(listOf(Palette.SteelLight, Palette.Steel, Palette.SteelDeep)), CircleShape)
-            .border(1.5.dp, Palette.Ground.copy(alpha = 0.6f), CircleShape)
+            // Landsknecht colours: crimson enamel with a saffron rim.
+            .background(Brush.radialGradient(listOf(Color(0xFFE0565C), Color(0xFFB3202A), Color(0xFF4A0B10))), CircleShape)
+            .border(2.dp, Color(0xFFF2C14E), CircleShape)
             .pointerInput(Unit) {
                 detectDragGestures { change, amount ->
                     change.consume()
@@ -150,8 +151,8 @@ fun BoxScope.QuickRollBubble(services: AppServices) {
             .semantics { contentDescription = if (open) "Close quick dice" else "Open quick dice" },
         contentAlignment = Alignment.Center
     ) {
-        D20Glyph(Modifier.size(36.dp).rotate(turn), color = Palette.Ground, strokeDp = 2f)
-        Text("20", style = MaterialTheme.typography.labelSmall.copy(fontWeight = FontWeight.Bold), color = Palette.Ground)
+        D20Glyph(Modifier.size(36.dp).rotate(turn), color = Color(0xFFF2C14E), strokeDp = 2f)
+        Text("20", style = MaterialTheme.typography.labelSmall.copy(fontWeight = FontWeight.Bold), color = Color(0xFFEDE3CF))
     }
 }
 

@@ -35,6 +35,8 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import app.maximus.R
+import app.maximus.ui.theme.LocalModuleStyle
+import app.maximus.ui.theme.ModuleStripe
 import app.maximus.ui.theme.Palette
 
 /** Hairline of polished steel that fades out at both ends, with a small lozenge at the centre. */
@@ -176,11 +178,14 @@ fun MaximusTopBar(
     onTitleClick: (() -> Unit)? = null,
     actions: @Composable RowScope.() -> Unit = {}
 ) {
+    val module = LocalModuleStyle.current
     Column {
         TopAppBar(
             title = {
                 Text(
-                    title, style = MaterialTheme.typography.titleLarge, maxLines = 1, overflow = TextOverflow.Ellipsis,
+                    title,
+                    style = if (module != null) MaterialTheme.typography.titleLarge.copy(brush = module.accentBrush) else MaterialTheme.typography.titleLarge,
+                    maxLines = 1, overflow = TextOverflow.Ellipsis,
                     modifier = if (onTitleClick != null) Modifier.clickable(onClick = onTitleClick) else Modifier
                 )
             },
@@ -194,7 +199,7 @@ fun MaximusTopBar(
                 titleContentColor = MaterialTheme.colorScheme.onBackground
             )
         )
-        SteelRule(lozenge = false)
+        if (module != null) ModuleStripe(module) else SteelRule(lozenge = false)
     }
 }
 
@@ -203,7 +208,10 @@ fun MaximusTopBar(
 @Composable
 fun PlateCard(modifier: Modifier = Modifier, onClick: (() -> Unit)? = null, content: @Composable () -> Unit) {
     val colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceContainerLow)
-    val border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant)
+    val module = LocalModuleStyle.current
+    // Inside a module the engraved edge picks up the module accent at the upper left and fades out.
+    val border = if (module != null) BorderStroke(1.dp, Brush.linearGradient(listOf(module.primary.copy(alpha = 0.55f), module.hairline, module.hairline)))
+    else BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant)
     if (onClick != null) {
         Card(onClick = onClick, modifier = modifier.fillMaxWidth(), colors = colors, border = border) { content() }
     } else {

@@ -10,6 +10,8 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.IntrinsicSize
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -38,20 +40,29 @@ import app.maximus.ui.components.GlyphIcon
 import app.maximus.ui.components.PlateCard
 import app.maximus.ui.components.SteelRule
 import app.maximus.ui.navigation.Routes
+import app.maximus.ui.theme.KnightAvatar
+import app.maximus.ui.theme.ModuleStyle
 import app.maximus.ui.theme.Palette
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 
 /** [phase] is the build phase; [route] is non-null once the module is implemented. */
-private data class ModuleEntry(@StringRes val title: Int, @StringRes val description: Int, val phase: Int, val route: String? = null)
+private data class ModuleEntry(
+    @StringRes val title: Int,
+    @StringRes val description: Int,
+    val phase: Int,
+    val route: String? = null,
+    /** Colour world of the module, previewed on the home screen as accent bar and icon colour. */
+    val style: ModuleStyle? = null
+)
 
 private val MODULES = listOf(
     ModuleEntry(R.string.module_core, R.string.module_core_desc, 1, Routes.CORE),
-    ModuleEntry(R.string.module_strongman, R.string.module_strongman_desc, 2, Routes.STRONGMAN),
-    ModuleEntry(R.string.module_nutrition, R.string.module_nutrition_desc, 3, Routes.NUTRITION),
-    ModuleEntry(R.string.module_dnd, R.string.module_dnd_desc, 4, Routes.DND),
-    ModuleEntry(R.string.module_trainer, R.string.module_trainer_desc, 5, Routes.LAB),
-    ModuleEntry(R.string.module_chat, R.string.module_chat_desc, 6, Routes.CHAT)
+    ModuleEntry(R.string.module_strongman, R.string.module_strongman_desc, 2, Routes.STRONGMAN, ModuleStyle.STRONGMAN),
+    ModuleEntry(R.string.module_nutrition, R.string.module_nutrition_desc, 3, Routes.NUTRITION, ModuleStyle.NUTRITION),
+    ModuleEntry(R.string.module_dnd, R.string.module_dnd_desc, 4, Routes.DND, ModuleStyle.DND),
+    ModuleEntry(R.string.module_trainer, R.string.module_trainer_desc, 5, Routes.LAB, ModuleStyle.LAB),
+    ModuleEntry(R.string.module_chat, R.string.module_chat_desc, 6, Routes.CHAT, ModuleStyle.MAXIMUS)
 )
 
 @Composable
@@ -116,21 +127,27 @@ private fun ModuleRow(module: ModuleEntry, onOpen: (String) -> Unit) {
     val route = module.route
     val active = route != null
     val content: @Composable () -> Unit = {
-        Row(modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 14.dp), verticalAlignment = Alignment.CenterVertically) {
-            GlyphIcon(Glyph.SHIELD, tint = if (active) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.outline, size = 30.dp)
-            Column(modifier = Modifier.weight(1f).padding(start = 14.dp)) {
-                Text(
-                    stringResource(module.title),
-                    style = MaterialTheme.typography.titleLarge,
-                    color = if (active) MaterialTheme.colorScheme.onSurface else MaterialTheme.colorScheme.onSurfaceVariant
-                )
-                Text(
-                    if (active) stringResource(module.description) else stringResource(R.string.phase_label, "P${module.phase}"),
-                    style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                )
+        val accent = module.style?.primary ?: MaterialTheme.colorScheme.primary
+        Row(modifier = Modifier.fillMaxWidth().height(IntrinsicSize.Min), verticalAlignment = Alignment.CenterVertically) {
+            // Accent bar in the module's colour world (D&D shows its Landsknecht stripes).
+            Box(Modifier.width(4.dp).fillMaxHeight().background(module.style?.let { Brush.verticalGradient(it.stripe) } ?: Brush.verticalGradient(listOf(accent, accent))))
+            Row(modifier = Modifier.weight(1f).padding(horizontal = 16.dp, vertical = 14.dp), verticalAlignment = Alignment.CenterVertically) {
+                if (module.style == ModuleStyle.MAXIMUS) KnightAvatar(34.dp, border = accent)
+                else GlyphIcon(Glyph.SHIELD, tint = if (active) accent else MaterialTheme.colorScheme.outline, size = 30.dp)
+                Column(modifier = Modifier.weight(1f).padding(start = 14.dp)) {
+                    Text(
+                        stringResource(module.title),
+                        style = MaterialTheme.typography.titleLarge,
+                        color = if (active) MaterialTheme.colorScheme.onSurface else MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                    Text(
+                        if (active) stringResource(module.description) else stringResource(R.string.phase_label, "P${module.phase}"),
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                }
+                if (active) GlyphIcon(Glyph.CHEVRON_RIGHT, tint = accent, size = 20.dp)
             }
-            if (active) GlyphIcon(Glyph.CHEVRON_RIGHT, tint = MaterialTheme.colorScheme.primary, size = 20.dp)
         }
     }
     if (active) PlateCard(onClick = { onOpen(route!!) }) { content() } else PlateCard { content() }

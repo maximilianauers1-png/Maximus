@@ -110,13 +110,13 @@ fun ModelScreen(service: ChatService, onBack: () -> Unit) {
                         Row(
                             Modifier.fillMaxWidth().padding(vertical = 4.dp)
                                 .background(if (active) MaterialTheme.colorScheme.surfaceContainerHigh else MaterialTheme.colorScheme.surfaceContainer, RoundedCornerShape(12.dp))
-                                .border(1.dp, if (active) Palette.Steel else MaterialTheme.colorScheme.outlineVariant, RoundedCornerShape(12.dp))
+                                .border(1.dp, if (active) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.outlineVariant, RoundedCornerShape(12.dp))
                                 .clickable { service.update { it.copy(model = m, maxTokens = 0) } }
                                 .padding(start = 12.dp, top = 8.dp, bottom = 8.dp),
                             verticalAlignment = Alignment.CenterVertically
                         ) {
                             Column(Modifier.weight(1f)) {
-                                Text((if (active) "● " else "") + profile.name, style = MaterialTheme.typography.titleSmall, color = if (active) Palette.SteelLight else MaterialTheme.colorScheme.onSurface)
+                                Text((if (active) "● " else "") + profile.name, style = MaterialTheme.typography.titleSmall, color = if (active) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurface)
                                 Text("${m.fileName} · ${Fmt.num(m.sizeBytes / 1e9, 3)} GB · Kontext ${ModelCatalog.maxTokensFor(m.fileName)}",
                                     style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.outline)
                             }

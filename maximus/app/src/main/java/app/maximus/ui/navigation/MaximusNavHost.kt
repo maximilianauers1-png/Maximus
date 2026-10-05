@@ -20,6 +20,8 @@ import app.maximus.ui.screens.HomeScreen
 import app.maximus.ui.screens.SettingsScreen
 import app.maximus.ui.strongman.ProgramEditorScreen
 import app.maximus.ui.strongman.StrongmanHubScreen
+import app.maximus.ui.theme.ModuleStyle
+import app.maximus.ui.theme.ModuleTheme
 
 object Routes {
     const val HOME = "home"
@@ -73,58 +75,74 @@ fun MaximusNavHost(services: AppServices) {
             )
         }
         composable(Routes.NUTRITION) {
-            NutritionHubScreen(services = services, onBack = { navController.popBackStack() }, onOpenChat = { navController.navigate(Routes.CHAT) })
+            ModuleTheme(ModuleStyle.NUTRITION) {
+                NutritionHubScreen(services = services, onBack = { navController.popBackStack() }, onOpenChat = { navController.navigate(Routes.CHAT) })
+            }
         }
         composable(Routes.DND) {
-            DndHubScreen(
-                services = services,
-                onBack = { navController.popBackStack() },
-                onOpenSheet = { id -> navController.navigate(Routes.dndSheet(id)) },
-                onEditCharacter = { id -> navController.navigate(Routes.dndEdit(id)) },
-                onOpenChat = { navController.navigate(Routes.CHAT) }
-            )
+            ModuleTheme(ModuleStyle.DND) {
+                DndHubScreen(
+                    services = services,
+                    onBack = { navController.popBackStack() },
+                    onOpenSheet = { id -> navController.navigate(Routes.dndSheet(id)) },
+                    onEditCharacter = { id -> navController.navigate(Routes.dndEdit(id)) },
+                    onOpenChat = { navController.navigate(Routes.CHAT) }
+                )
+            }
         }
         composable(Routes.DND_SHEET, arguments = listOf(navArgument("id") { type = NavType.LongType })) { entry ->
-            CharacterSheetScreen(
-                services = services,
-                characterId = entry.arguments?.getLong("id") ?: 0L,
-                onBack = { navController.popBackStack() },
-                onEdit = { id -> navController.navigate(Routes.dndEdit(id)) },
-                onOpenChat = { navController.navigate(Routes.CHAT) }
-            )
+            ModuleTheme(ModuleStyle.DND) {
+                CharacterSheetScreen(
+                    services = services,
+                    characterId = entry.arguments?.getLong("id") ?: 0L,
+                    onBack = { navController.popBackStack() },
+                    onEdit = { id -> navController.navigate(Routes.dndEdit(id)) },
+                    onOpenChat = { navController.navigate(Routes.CHAT) }
+                )
+            }
         }
         composable(Routes.DND_EDIT, arguments = listOf(navArgument("id") { type = NavType.LongType })) { entry ->
-            CharacterEditorScreen(
-                services = services,
-                characterId = entry.arguments?.getLong("id") ?: 0L,
-                onBack = { navController.popBackStack() },
-                onOpenSheet = { id ->
-                    navController.popBackStack()
-                    navController.navigate(Routes.dndSheet(id))
-                }
-            )
+            ModuleTheme(ModuleStyle.DND) {
+                CharacterEditorScreen(
+                    services = services,
+                    characterId = entry.arguments?.getLong("id") ?: 0L,
+                    onBack = { navController.popBackStack() },
+                    onOpenSheet = { id ->
+                        navController.popBackStack()
+                        navController.navigate(Routes.dndSheet(id))
+                    }
+                )
+            }
         }
         composable(Routes.STRONGMAN) {
-            StrongmanHubScreen(
-                repository = services.strongman,
-                onBack = { navController.popBackStack() },
-                onOpenProgram = { id -> navController.navigate(Routes.program(id)) },
-                chat = services.chat,
-                onOpenChat = { navController.navigate(Routes.CHAT) }
-            )
+            ModuleTheme(ModuleStyle.STRONGMAN) {
+                StrongmanHubScreen(
+                    repository = services.strongman,
+                    onBack = { navController.popBackStack() },
+                    onOpenProgram = { id -> navController.navigate(Routes.program(id)) },
+                    chat = services.chat,
+                    onOpenChat = { navController.navigate(Routes.CHAT) }
+                )
+            }
         }
         composable(Routes.LAB) {
-            LabHubScreen(services = services, onBack = { navController.popBackStack() }, onOpenChat = { navController.navigate(Routes.CHAT) })
+            ModuleTheme(ModuleStyle.LAB) {
+                LabHubScreen(services = services, onBack = { navController.popBackStack() }, onOpenChat = { navController.navigate(Routes.CHAT) })
+            }
         }
         composable(Routes.CHAT) {
-            ChatScreen(service = services.chat, onBack = { navController.popBackStack() })
+            ModuleTheme(ModuleStyle.MAXIMUS) {
+                ChatScreen(service = services.chat, onBack = { navController.popBackStack() })
+            }
         }
         composable(Routes.PROGRAM, arguments = listOf(navArgument("id") { type = NavType.LongType })) { entry ->
-            ProgramEditorScreen(
-                repository = services.strongman,
-                programId = entry.arguments?.getLong("id") ?: 0L,
-                onBack = { navController.popBackStack() }
-            )
+            ModuleTheme(ModuleStyle.STRONGMAN) {
+                ProgramEditorScreen(
+                    repository = services.strongman,
+                    programId = entry.arguments?.getLong("id") ?: 0L,
+                    onBack = { navController.popBackStack() }
+                )
+            }
         }
     }
 }

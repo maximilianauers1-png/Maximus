@@ -79,7 +79,7 @@ fun MarkdownView(blocks: List<MdBlock>, onCopy: (String) -> Unit, modifier: Modi
                 is MdBlock.Heading -> Text(
                     spansToAnnotated(b.spans, codeColor),
                     style = if (b.level <= 2) MaterialTheme.typography.titleLarge else MaterialTheme.typography.titleMedium,
-                    color = Palette.SteelLight,
+                    color = MaterialTheme.colorScheme.primary,
                     modifier = Modifier.padding(top = 4.dp)
                 )
                 is MdBlock.Paragraph -> Text(spansToAnnotated(b.spans, codeColor), style = body)
@@ -118,7 +118,7 @@ private fun MathBlock(text: String) {
     ) {
         Box(Modifier.width(3.dp).height(36.dp).background(ChatColors.MathAccent, RoundedCornerShape(2.dp)))
         Box(Modifier.horizontalScroll(rememberScrollState()).padding(horizontal = 14.dp, vertical = 10.dp)) {
-            Text(text, style = MaterialTheme.typography.bodyLarge.copy(fontFamily = FontFamily.Serif, fontSize = 18.sp), color = Palette.SteelLight)
+            Text(text, style = MaterialTheme.typography.bodyLarge.copy(fontFamily = FontFamily.Serif, fontSize = 18.sp), color = MaterialTheme.colorScheme.secondary)
         }
     }
 }

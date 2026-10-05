@@ -55,6 +55,12 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.drawscope.Stroke
+import androidx.compose.ui.graphics.Path
+import androidx.compose.ui.draw.drawWithCache
+import app.maximus.ui.theme.KnightAvatar
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
@@ -165,7 +171,7 @@ fun ChatScreen(service: ChatService, onBack: () -> Unit) {
         }
     ) { padding ->
         Column(Modifier.fillMaxSize().padding(padding).imePadding()) {
-            Box(Modifier.weight(1f).fillMaxWidth()) {
+            Box(Modifier.weight(1f).fillMaxWidth().crtScanlines()) {
                 if (messages.isEmpty() && live == null) {
                     Welcome(hasModel = settings.model != null, onStarter = { send(it) }, onSetup = { showModel = true })
                 } else {
@@ -189,15 +195,15 @@ fun ChatScreen(service: ChatService, onBack: () -> Unit) {
                 ) {
                     Box(
                         Modifier.size(42.dp).clip(CircleShape).background(MaterialTheme.colorScheme.surfaceContainerHighest)
-                            .border(1.dp, Palette.SteelDeep, CircleShape).clickable { scope.launch { listState.animateScrollToItem(0) } },
+                            .border(1.dp, MaterialTheme.colorScheme.primary, CircleShape).clickable { scope.launch { listState.animateScrollToItem(0) } },
                         contentAlignment = Alignment.Center
-                    ) { Text("↓", style = MaterialTheme.typography.titleMedium, color = Palette.SteelLight) }
+                    ) { Text("↓", style = MaterialTheme.typography.titleMedium, color = MaterialTheme.colorScheme.primary) }
                 }
                 toast?.let {
                     Text(
-                        it, style = MaterialTheme.typography.labelLarge, color = Palette.Ground,
+                        it, style = MaterialTheme.typography.labelLarge, color = MaterialTheme.colorScheme.onPrimary,
                         modifier = Modifier.align(Alignment.TopCenter).padding(top = 10.dp)
-                            .background(Palette.SteelLight, RoundedCornerShape(50)).padding(horizontal = 14.dp, vertical = 6.dp)
+                            .background(MaterialTheme.colorScheme.primary, RoundedCornerShape(50)).padding(horizontal = 14.dp, vertical = 6.dp)
                     )
                 }
             }
@@ -258,17 +264,48 @@ private fun EngineStrip(engine: EngineState, modelName: String?, onClick: () -> 
     }
 }
 
+/** Boot lines of the retro terminal, typed out one after another. */
+@Composable
+private fun BootLog() {
+    val lines = listOf(
+        "> BOOT MAXIMUS ............ OK",
+        "> NETZWERK ............... AUS (keine Berechtigung)",
+        "> WERKZEUGE .............. 8 geladen",
+        "> KOMPENDIUM ............. bereit",
+        "> WARTE AUF EINGABE"
+    )
+    var shown by remember { mutableIntStateOf(0) }
+    LaunchedEffect(Unit) { while (shown < lines.size) { delay(180); shown++ } }
+    Column(
+        Modifier.fillMaxWidth().background(MaterialTheme.colorScheme.surfaceContainerLowest, RoundedCornerShape(10.dp))
+            .border(1.dp, MaterialTheme.colorScheme.outlineVariant, RoundedCornerShape(10.dp)).padding(12.dp)
+    ) {
+        lines.take(shown).forEachIndexed { i, l ->
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Text(l, style = MaterialTheme.typography.labelMedium, color = if (i == lines.lastIndex) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.secondary)
+                if (i == lines.lastIndex) { Spacer(Modifier.width(6.dp)); BlinkingCursor() }
+            }
+        }
+    }
+}
+
 @Composable
 private fun Welcome(hasModel: Boolean, onStarter: (String) -> Unit, onSetup: () -> Unit) {
     Column(
         Modifier.fillMaxSize().verticalScroll(rememberScrollState()).padding(horizontal = 20.dp, vertical = 24.dp),
         verticalArrangement = Arrangement.spacedBy(12.dp)
     ) {
-        Text(
-            "Maximus",
-            style = MaterialTheme.typography.displayMedium.copy(brush = Brush.verticalGradient(listOf(Palette.SteelLight, Palette.Steel, Palette.SteelDeep)))
-        )
-        SteelRule(lozenge = false, modifier = Modifier.width(180.dp))
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            KnightAvatar(84.dp, border = MaterialTheme.colorScheme.primary)
+            Column(Modifier.padding(start = 16.dp)) {
+                Text(
+                    "MAXIMUS",
+                    style = MaterialTheme.typography.headlineLarge.copy(brush = Brush.verticalGradient(listOf(MaterialTheme.colorScheme.primary, Color(0xFFB36B00))))
+                )
+                Text("RITTER-TERMINAL · v2", style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.secondary)
+            }
+        }
+        BootLog()
         Text(
             "Dein Berater für Strongman, D&D, Code, Mathe und Physik. Läuft komplett auf diesem Gerät: keine Cloud, keine Internet-Berechtigung.",
             style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant
@@ -276,7 +313,7 @@ private fun Welcome(hasModel: Boolean, onStarter: (String) -> Unit, onSetup: () 
         if (!hasModel) {
             Row(
                 Modifier.fillMaxWidth().background(MaterialTheme.colorScheme.surfaceContainer, RoundedCornerShape(14.dp))
-                    .border(1.dp, Palette.SteelDeep, RoundedCornerShape(14.dp)).clickable(onClick = onSetup).padding(14.dp),
+                    .border(1.dp, MaterialTheme.colorScheme.primary, RoundedCornerShape(14.dp)).clickable(onClick = onSetup).padding(14.dp),
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 GlyphIcon(Glyph.CHIP, tint = MaterialTheme.colorScheme.primary)
@@ -335,7 +372,7 @@ private fun Composer(
         }
         // Focus selector, then (with an empty input) the tool shortcuts.
         Row(Modifier.horizontalScroll(rememberScrollState()).padding(horizontal = 12.dp, vertical = 4.dp), horizontalArrangement = Arrangement.spacedBy(6.dp)) {
-            FocusChip("Auto", focusMode == null, Palette.Steel) { onFocusMode(null) }
+            FocusChip("Auto", focusMode == null, MaterialTheme.colorScheme.primary) { onFocusMode(null) }
             Focus.entries.filter { it != Focus.GENERAL }.forEach { f -> FocusChip(f.label, focusMode == f, focusColor(f)) { onFocusMode(if (focusMode == f) null else f) } }
             if (input.isEmpty()) TOOL_CHIPS.forEach { (label, cmd) -> FocusChip(label, false, MaterialTheme.colorScheme.outline) { onInput(cmd) } }
         }
@@ -343,13 +380,13 @@ private fun Composer(
             OutlinedTextField(
                 value = input,
                 onValueChange = onInput,
-                placeholder = { Text("Frag Maximus … oder /hilfe") },
+                placeholder = { Text("> frag maximus … oder /hilfe") },
                 modifier = Modifier.weight(1f),
                 maxLines = 6,
                 shape = RoundedCornerShape(22.dp),
                 keyboardOptions = KeyboardOptions(capitalization = KeyboardCapitalization.Sentences),
                 colors = OutlinedTextFieldDefaults.colors(
-                    focusedBorderColor = Palette.Steel, unfocusedBorderColor = MaterialTheme.colorScheme.outlineVariant,
+                    focusedBorderColor = MaterialTheme.colorScheme.primary, unfocusedBorderColor = MaterialTheme.colorScheme.outlineVariant,
                     focusedContainerColor = MaterialTheme.colorScheme.surfaceContainer, unfocusedContainerColor = MaterialTheme.colorScheme.surfaceContainer
                 )
             )
@@ -358,13 +395,13 @@ private fun Composer(
                 Modifier.padding(start = 8.dp, bottom = 4.dp).size(48.dp).clip(CircleShape)
                     .background(
                         if (busy) Brush.linearGradient(listOf(Palette.Heraldic, Color(0xFF8E4F4A)))
-                        else Brush.linearGradient(listOf(Palette.SteelLight, Palette.SteelDeep)),
+                        else Brush.linearGradient(listOf(MaterialTheme.colorScheme.primary, Color(0xFFB36B00))),
                         alpha = if (enabled) 1f else 0.35f
                     )
                     .clickable(enabled = enabled) { if (busy) onStop() else onSend() },
                 contentAlignment = Alignment.Center
             ) {
-                GlyphIcon(if (busy) Glyph.STOP else Glyph.SEND, tint = Palette.Ground, size = 22.dp)
+                GlyphIcon(if (busy) Glyph.STOP else Glyph.SEND, tint = MaterialTheme.colorScheme.onPrimary, size = 22.dp)
             }
         }
     }
@@ -374,7 +411,7 @@ private fun Composer(
 private fun FocusChip(label: String, selected: Boolean, color: Color, onClick: () -> Unit) {
     FilterChip(
         selected = selected, onClick = onClick,
-        label = { Text(label, style = MaterialTheme.typography.labelMedium, color = if (selected) Palette.Ground else color) },
+        label = { Text(label, style = MaterialTheme.typography.labelMedium, color = if (selected) MaterialTheme.colorScheme.onPrimary else color) },
         colors = FilterChipDefaults.filterChipColors(selectedContainerColor = color, containerColor = MaterialTheme.colorScheme.surfaceContainer),
         border = FilterChipDefaults.filterChipBorder(enabled = true, selected = selected, borderColor = color.copy(alpha = 0.45f))
     )
@@ -426,5 +463,25 @@ private fun HistorySheet(
                 }
             }
         }
+    }
+}
+
+/**
+ * CRT scanlines over the terminal area: one dark line every 3 px. The path is built once per size
+ * (drawWithCache), so streaming text does not rebuild it; drawing is a single path per frame.
+ */
+private fun Modifier.crtScanlines(): Modifier = drawWithCache {
+    val lines = Path().apply {
+        var y = 0f
+        while (y < size.height) { moveTo(0f, y); lineTo(size.width, y); y += 3f }
+    }
+    val vignette = Brush.radialGradient(
+        listOf(Color.Transparent, Color.Black.copy(alpha = 0.35f)),
+        center = androidx.compose.ui.geometry.Offset(size.width / 2, size.height / 2), radius = size.maxDimension * 0.75f
+    )
+    onDrawWithContent {
+        drawContent()
+        drawPath(lines, Color.Black.copy(alpha = 0.16f), style = Stroke(width = 1f))
+        drawRect(vignette)
     }
 }

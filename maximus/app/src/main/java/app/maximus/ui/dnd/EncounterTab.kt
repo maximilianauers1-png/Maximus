@@ -17,7 +17,6 @@ import androidx.compose.material3.Slider
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
@@ -28,7 +27,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import app.maximus.core.app.AppServices
-import app.maximus.dnd.data.DndMonsterEntity
 import app.maximus.dnd.domain.ChallengeRating
 import app.maximus.dnd.domain.Encounter
 import app.maximus.ui.components.EmptyState
@@ -37,15 +35,18 @@ import app.maximus.ui.strongman.ResultLine
 import app.maximus.ui.strongman.SectionCard
 import app.maximus.ui.strongman.fmt
 
+/**
+ * Encounter difficulty by challenge rating. Enemies are added by CR (no stat blocks needed), so the
+ * planner works without a monster editor.
+ */
 @Composable
-fun EncounterTab(services: AppServices) {
-    val monsters by services.dnd.monsters.collectAsState(initial = emptyList<DndMonsterEntity>())
+fun EncounterTab(@Suppress("UNUSED_PARAMETER") services: AppServices) {
     var partySize by rememberSaveable { mutableIntStateOf(4) }
     var partyLevel by rememberSaveable { mutableIntStateOf(3) }
-    var picks by remember { mutableStateOf<Map<Long, Int>>(emptyMap()) }
+    var picks by remember { mutableStateOf<Map<Double, Int>>(emptyMap()) }
 
-    val chosen = monsters.filter { (picks[it.id] ?: 0) > 0 }
-    val xpList = chosen.flatMap { m -> List(picks.getValue(m.id)) { ChallengeRating.row(m.challengeRating).xp } }
+    val chosen = picks.filterValues { it > 0 }.toSortedMap()
+    val xpList = chosen.flatMap { (cr, count) -> List(count) { ChallengeRating.row(cr).xp } }
     val levels = List(partySize) { partyLevel }
     val thresholds = Encounter.thresholds(levels)
     val (difficulty, adjusted) = Encounter.difficulty(levels, xpList)
@@ -64,6 +65,31 @@ fun EncounterTab(services: AppServices) {
             }
         }
         item {
+            SectionCard("Add enemies by challenge rating") {
+                FlowRow(horizontalArrangement = Arrangement.spacedBy(6.dp), verticalArrangement = Arrangement.spacedBy(4.dp)) {
+                    ChallengeRating.TABLE.forEach { row ->
+                        FilterChip(
+                            selected = (picks[row.cr] ?: 0) > 0,
+                            onClick = { picks = picks + (row.cr to ((picks[row.cr] ?: 0) + 1).coerceAtMost(20)) },
+                            label = { Text("CR ${ChallengeRating.format(row.cr)}") }
+                        )
+                    }
+                }
+            }
+        }
+        if (chosen.isEmpty()) item { EmptyState("Tap a challenge rating to add enemies.") }
+        items(chosen.entries.toList(), key = { it.key }) { (cr, n) ->
+            PlateCard {
+                Row(modifier = Modifier.padding(horizontal = 14.dp, vertical = 10.dp), verticalAlignment = Alignment.CenterVertically) {
+                    Text("CR ${ChallengeRating.format(cr)}", modifier = Modifier.weight(1f), style = MaterialTheme.typography.titleMedium)
+                    Text("${ChallengeRating.row(cr).xp} XP each", style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.primary, modifier = Modifier.padding(end = 8.dp))
+                    TextButton(onClick = { picks = picks + (cr to (n - 1).coerceAtLeast(0)) }) { Text("−") }
+                    Text("$n", style = MaterialTheme.typography.titleMedium)
+                    TextButton(onClick = { picks = picks + (cr to (n + 1).coerceAtMost(20)) }) { Text("+") }
+                }
+            }
+        }
+        item {
             SectionCard("Assessment") {
                 ResultLine("Raw XP", "${xpList.sum()} XP")
                 ResultLine("Group multiplier", "× ${fmt(Encounter.multiplier(xpList.size, partySize), 1)}")
@@ -77,23 +103,9 @@ fun EncounterTab(services: AppServices) {
                         else -> MaterialTheme.colorScheme.onSurface
                     }
                 )
-                if (xpList.isNotEmpty()) {
-                    ResultLine("XP per character (raw)", "${xpList.sum() / partySize.coerceAtLeast(1)} XP")
-                }
-                Text("The multiplier rises with the number of monsters because more enemies mean more actions per round. Award XP stays unadjusted; only the difficulty assessment uses the adjusted value.", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
-            }
-        }
-        if (monsters.isEmpty()) item { EmptyState("Create monsters first to build an encounter.") }
-        items(monsters, key = { it.id }) { m ->
-            val n = picks[m.id] ?: 0
-            PlateCard {
-                Row(modifier = Modifier.padding(horizontal = 14.dp, vertical = 10.dp), verticalAlignment = Alignment.CenterVertically) {
-                    Text(m.name, modifier = Modifier.weight(1f), style = MaterialTheme.typography.titleMedium)
-                    Text("CR ${ChallengeRating.format(m.challengeRating)}", style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.primary, modifier = Modifier.padding(end = 8.dp))
-                    TextButton(onClick = { picks = picks + (m.id to (n - 1).coerceAtLeast(0)) }) { Text("−") }
-                    Text("$n", style = MaterialTheme.typography.titleMedium)
-                    TextButton(onClick = { picks = picks + (m.id to (n + 1).coerceAtMost(20)) }) { Text("+") }
-                }
+                if (xpList.isNotEmpty()) ResultLine("XP per character (raw)", "${xpList.sum() / partySize.coerceAtLeast(1)} XP")
+                Text("The multiplier rises with the number of enemies because more enemies mean more actions per round. Award XP stays unadjusted; only the difficulty assessment uses the adjusted value.",
+                    style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
             }
         }
     }
