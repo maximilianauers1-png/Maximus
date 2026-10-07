@@ -62,7 +62,7 @@ class LabContext(
     val ask: (AskRequest) -> Unit = {}
 )
 
-private val TABS = listOf("Übersicht", "Kompendium", "Rechner", "Mathe-Werkzeuge", "Training", "Karteikarten", "Konstanten")
+private val TABS = listOf("Übersicht", "AI-Spielwiese", "Kompendium", "Rechner", "Mathe-Werkzeuge", "Training", "Karteikarten", "Konstanten")
 
 @Suppress("DEPRECATION")
 @Composable
@@ -131,11 +131,12 @@ fun LabHubScreen(services: AppServices, onBack: () -> Unit, onOpenChat: () -> Un
                     }
                     when (tab) {
                         0 -> OverviewTab(ctx)
-                        1 -> CompendiumTab(ctx)
-                        2 -> CalculatorsTab(ctx)
-                        3 -> MathToolsTab(ctx)
-                        4 -> TrainingTab(ctx)
-                        5 -> FlashcardsTab(ctx)
+                        1 -> AiPlaygroundTab(ctx)
+                        2 -> CompendiumTab(ctx)
+                        3 -> CalculatorsTab(ctx)
+                        4 -> MathToolsTab(ctx)
+                        5 -> TrainingTab(ctx)
+                        6 -> FlashcardsTab(ctx)
                         else -> ConstantsTab()
                     }
                 }
@@ -156,11 +157,16 @@ internal fun labRequest(chapter: Chapter?): AskRequest =
     if (chapter != null) AskRequest(
         "Kapitel „${chapter.title}“", Focus.SCIENCE,
         (if (chapter.topic == Topic.CALORIC) listOf(DEFENSE_PROMPT) else emptyList()) +
+            (if (chapter.topic == Topic.AI) listOf(
+                "Erkläre mir das, als hätte ich noch nie programmiert", "Zeig mir ein kleines Python-Beispiel dazu",
+                "Stell mir eine Prüfungsfrage wie im IBM AI Engineering Kurs"
+            ) else emptyList()) +
             listOf("Erkläre mir das Kapitel anschaulich", "Woher kommt die wichtigste Formel?", "Gib mir ein Anwendungsbeispiel aus der Forschung",
                 "Welche typischen Prüfungsfragen gibt es dazu?"),
         context = { ModuleContext.chapter(chapter) }
     ) else AskRequest(
         "Physik- und Mathe-Labor", Focus.SCIENCE,
-        listOf(DEFENSE_PROMPT, "Erkläre mir anschaulich die Fermi-Dirac-Verteilung", "Was ist der Unterschied zwischen Lagrange und Hamilton?",
+        listOf(DEFENSE_PROMPT, "Erkläre mir die sieben Techniken des maschinellen Lernens mit Beispielen",
+            "Was ist der Unterschied zwischen Keras und PyTorch?", "Erkläre mir anschaulich die Fermi-Dirac-Verteilung", "Was ist der Unterschied zwischen Lagrange und Hamilton?",
             "Wie hängen Fourier-Reihen und Quantenmechanik zusammen?", "Stelle mir eine knifflige Verständnisfrage zur Thermodynamik")
     )

@@ -10,7 +10,7 @@ internal object CompendiumAi {
     val chapters: List<Chapter> = course(
         "AI-Grundlagen",
         chapter(
-            "ai_intro", T, 1, "Was ist maschinelles Lernen?",
+            "ai_intro", T, 2, "ML mathematisch: Risiko, Generalisierung, Metriken",
             "Lernen aus Daten, Lernarten, Trainings-/Validierungs-/Testdaten, Generalisierung, Overfitting, Metriken.",
             emptyList(),
             sec("Die Grundidee", """
@@ -40,7 +40,7 @@ internal object CompendiumAi {
             )
         ),
         chapter(
-            "ai_linear", T, 1, "Lineare Modelle und Gradientenabstieg",
+            "ai_linear", T, 2, "Lineare Modelle und Gradientenabstieg mathematisch",
             "Lineare und logistische Regression, Verlustfunktionen, Gradientenabstieg, Lernrate, Regularisierung.",
             emptyList(),
             sec("Lineare Regression", """

@@ -229,6 +229,6 @@ class FormulaQuizTest {
         assertTrue(caloric.size >= 14)
         assertTrue(caloric.any { it.key == "ca_defense" } && caloric.any { it.key == "ca_relaxor" })
         assertTrue(QuizEngine.bank.count { it.topic == Topic.CALORIC } >= 40)
-        assertTrue(Compendium.courses(Topic.AI).first() == "AI-Grundlagen")
+        assertTrue(Compendium.courses(Topic.AI).first() == "AI von Null")
     }
 }

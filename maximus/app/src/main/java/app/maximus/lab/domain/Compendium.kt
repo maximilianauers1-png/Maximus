@@ -39,7 +39,7 @@ object Compendium {
     val all: List<Chapter> by lazy {
         CompendiumThermo.chapters + CompendiumElectro.chapters + CompendiumQuantum.chapters + CompendiumSemiconductor.chapters +
             CompendiumCaloric.chapters + CompendiumPvdf.chapters + CompendiumQft.chapters + CompendiumPolymer.chapters +
-            CompendiumElectrical.chapters + CompendiumAi.chapters + CompendiumMechanics.chapters + CompendiumMath.chapters +
+            CompendiumElectrical.chapters + AiCurriculum.chapters + CompendiumMechanics.chapters + CompendiumMath.chapters +
             CompendiumExtra.chapters
     }
     val byKey: Map<String, Chapter> by lazy { all.associateBy { it.key } }

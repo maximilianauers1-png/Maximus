@@ -13,6 +13,8 @@ import androidx.compose.animation.slideOutVertically
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
+import androidx.compose.foundation.horizontalScroll
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxScope
@@ -36,6 +38,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.geometry.CornerRadius
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
@@ -92,7 +95,8 @@ fun FormulaBox(expr: String, modifier: Modifier = Modifier, name: String? = null
 }
 
 /**
- * Renders the compendium markup: blank-line separated paragraphs, "• " bullets, "> " key statements.
+ * Renders the compendium markup: blank-line separated paragraphs, "• " bullets, "> " key statements,
+ * "$ " code lines (monospace, horizontally scrollable).
  */
 @Composable
 fun RichBody(text: String, accent: Color = MaterialTheme.colorScheme.primary) {
@@ -100,7 +104,19 @@ fun RichBody(text: String, accent: Color = MaterialTheme.colorScheme.primary) {
         text.split(Regex("\\n\\s*\\n")).forEach { block ->
             val lines = block.lines().map { it.trim() }.filter { it.isNotEmpty() }
             if (lines.isEmpty()) return@forEach
-            if (lines.all { it.startsWith("• ") }) {
+            if (lines.all { it.startsWith("$") }) {
+                // Code block: "$ " lines, indentation after the marker is kept; scrolls sideways instead of wrapping.
+                Box(
+                    Modifier.fillMaxWidth().clip(RoundedCornerShape(8.dp)).background(MaterialTheme.colorScheme.surfaceContainerHighest)
+                        .horizontalScroll(rememberScrollState()).padding(horizontal = 10.dp, vertical = 8.dp)
+                ) {
+                    Text(
+                        lines.joinToString("\n") { it.removePrefix("$").removePrefix(" ") },
+                        style = MaterialTheme.typography.bodySmall.copy(fontFamily = FontFamily.Monospace),
+                        softWrap = false
+                    )
+                }
+            } else if (lines.all { it.startsWith("• ") }) {
                 Column(verticalArrangement = Arrangement.spacedBy(3.dp)) {
                     lines.forEach { l ->
                         Row {

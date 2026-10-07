@@ -56,9 +56,17 @@ app/src/main/java/app/maximus/dnd/domain/Spells.kt
 app/src/main/java/app/maximus/dnd/domain/SrdContent.kt
 app/src/main/java/app/maximus/dnd/domain/SupplementContent.kt
 app/src/main/java/app/maximus/lab/data/LabRepository.kt
+app/src/main/java/app/maximus/lab/domain/AiCurriculum.kt
+app/src/main/java/app/maximus/lab/domain/AiGames.kt
+app/src/main/java/app/maximus/lab/domain/AiGlossary.kt
 app/src/main/java/app/maximus/lab/domain/CaloricPhysics.kt
 app/src/main/java/app/maximus/lab/domain/Compendium.kt
 app/src/main/java/app/maximus/lab/domain/CompendiumAi.kt
+app/src/main/java/app/maximus/lab/domain/CompendiumAiAlgo.kt
+app/src/main/java/app/maximus/lab/domain/CompendiumAiDeep.kt
+app/src/main/java/app/maximus/lab/domain/CompendiumAiGen.kt
+app/src/main/java/app/maximus/lab/domain/CompendiumAiMl.kt
+app/src/main/java/app/maximus/lab/domain/CompendiumAiZero.kt
 app/src/main/java/app/maximus/lab/domain/CompendiumCaloric.kt
 app/src/main/java/app/maximus/lab/domain/CompendiumElectrical.kt
 app/src/main/java/app/maximus/lab/domain/CompendiumElectro.kt
@@ -87,6 +95,8 @@ app/src/main/java/app/maximus/lab/domain/Progress.kt
 app/src/main/java/app/maximus/lab/domain/QftPhysics.kt
 app/src/main/java/app/maximus/lab/domain/QuantumPhysics.kt
 app/src/main/java/app/maximus/lab/domain/Quiz.kt
+app/src/main/java/app/maximus/lab/domain/QuizAi.kt
+app/src/main/java/app/maximus/lab/domain/QuizAiNumeric.kt
 app/src/main/java/app/maximus/lab/domain/QuizBank.kt
 app/src/main/java/app/maximus/lab/domain/QuizConcepts.kt
 app/src/main/java/app/maximus/lab/domain/QuizConcepts2.kt
@@ -158,6 +168,8 @@ app/src/main/java/app/maximus/ui/dnd/QuickRollBubble.kt
 app/src/main/java/app/maximus/ui/dnd/ReferenceTab.kt
 app/src/main/java/app/maximus/ui/dnd/RollEngine.kt
 app/src/main/java/app/maximus/ui/dnd/SheetScreen.kt
+app/src/main/java/app/maximus/ui/lab/AiGameScreens.kt
+app/src/main/java/app/maximus/ui/lab/AiPlaygroundTab.kt
 app/src/main/java/app/maximus/ui/lab/CalculatorsTab.kt
 app/src/main/java/app/maximus/ui/lab/CompendiumTab.kt
 app/src/main/java/app/maximus/ui/lab/ConstantsTab.kt
@@ -229,6 +241,7 @@ app/src/test/java/app/maximus/dnd/domain/BuildGuidesTest.kt
 app/src/test/java/app/maximus/dnd/domain/CharacterTest.kt
 app/src/test/java/app/maximus/dnd/domain/DiceTest.kt
 app/src/test/java/app/maximus/dnd/domain/MonsterTest.kt
+app/src/test/java/app/maximus/lab/domain/AiLabTest.kt
 app/src/test/java/app/maximus/lab/domain/LabGameTest.kt
 app/src/test/java/app/maximus/lab/domain/LabMechanicsTest.kt
 app/src/test/java/app/maximus/lab/domain/LabPhysicsTest.kt

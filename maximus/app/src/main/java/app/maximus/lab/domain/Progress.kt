@@ -24,7 +24,9 @@ data class LabProgress(
     val usedCalculators: Set<String> = emptySet(),
     val badges: Set<String> = emptySet(),
     val topics: Map<Topic, TopicStat> = emptyMap(),
-    val cards: Map<String, CardState> = emptyMap()
+    val cards: Map<String, CardState> = emptyMap(),
+    /** Best score 0…100 per AI game (key = AiGame name). */
+    val games: Map<String, Int> = emptyMap()
 ) {
     fun topic(t: Topic) = topics[t] ?: TopicStat()
 }
@@ -109,6 +111,12 @@ object LabRules {
         Badge("cards20m", "Langzeitgedächtnis", "20 Karteikarten im höchsten Fach") { p -> p.cards.values.count { it.box >= 5 } >= 20 },
         Badge("lvl10", "Zweistellig", "Stufe 10 erreicht") { level(it.xp) >= 10 },
         Badge("lvl20", "Quantensprung", "Stufe 20 erreicht") { level(it.xp) >= 20 },
+        Badge("aiPlay", "Spielkind", "Ein Spiel der AI-Spielwiese gespielt") { it.games.isNotEmpty() },
+        Badge("aiPlay5", "Neugieriges Netz", "Fünf verschiedene AI-Spiele gespielt") { it.games.size >= 5 },
+        Badge("aiAll80", "Großmeister der Spielwiese", "In jedem AI-Spiel mindestens 80 Punkte") { p -> AiGame.entries.all { (p.games[it.name] ?: 0) >= 80 } },
+        Badge("aiPath10", "Zehn Happen", "Zehn Kapitel des AI-Lernpfads gelesen") { p -> AiCurriculum.keys.count { it in p.readChapters } >= 10 },
+        Badge("aiPath30", "Halbzeit im AI-Kurs", "Dreißig Happen des AI-Lernpfads gelesen") { p -> AiCurriculum.keys.count { it in p.readChapters } >= 30 },
+        Badge("aiPathAll", "AI Engineer", "Den ganzen AI-Lernpfad gelesen") { p -> AiCurriculum.keys.all { it in p.readChapters } },
         Badge("allround", "Universalgelehrter", "In jedem Gebiet mindestens 5 richtige Antworten") { p -> Topic.entries.all { p.topic(it).correct >= 5 } }
     ) + TOPIC_BADGE.map { (t, b) -> Badge("m_${t.name}", b.first, b.second) { it.topic(t).mastery >= 0.8 && it.topic(t).answered >= 10 } }
 
@@ -191,6 +199,21 @@ object LabRules {
         return badges(p, ev) to ev
     }
 
+    /**
+     * A finished AI game with score 0…100: XP = 5 + score/5 every time, plus 25 for a new personal best
+     * (so practice pays, but grinding the same easy game does not explode the XP).
+     */
+    fun gameFinished(p0: LabProgress, game: AiGame, score: Int, today: Long): Pair<LabProgress, List<LabEvent>> {
+        val ev = ArrayList<LabEvent>()
+        val s = score.coerceIn(0, 100)
+        var p = touchDay(p0, today, ev)
+        val old = p.games[game.name]
+        p = p.copy(games = p.games + (game.name to maxOf(old ?: 0, s)))
+        p = gain(p, 5 + s / 5, game.title, ev)
+        if (old == null || s > old) p = gain(p, 25, "Neuer Bestwert", ev)
+        return badges(p, ev) to ev
+    }
+
     /** Leitner step: known → next box (max 5), due after LEITNER_DAYS[box]; unknown → box 1, due tomorrow. */
     fun reviewCard(p0: LabProgress, id: String, knew: Boolean, today: Long): Pair<LabProgress, List<LabEvent>> {
         val ev = ArrayList<LabEvent>()
@@ -230,6 +253,7 @@ object LabRules {
         appendLine("badges=${p.badges.joinToString(",")}")
         p.topics.forEach { (t, s) -> appendLine("topic.${t.name}=${s.answered},${s.correct},${s.mastery}") }
         p.cards.forEach { (id, c) -> appendLine("card.$id=${c.box},${c.dueDay}") }
+        p.games.forEach { (g, s) -> appendLine("game.$g=$s") }
     }
 
     fun decode(text: String?): LabProgress {
@@ -248,12 +272,15 @@ object LabRules {
             val box = parts.getOrNull(0)?.toIntOrNull()?.coerceIn(0, 5) ?: return@mapNotNull null
             k.removePrefix("card.") to CardState(box, parts.getOrNull(1)?.toLongOrNull() ?: 0)
         }.toMap()
+        val games = m.filter { it.first.startsWith("game.") }.mapNotNull { (k, v) ->
+            v.toIntOrNull()?.coerceIn(0, 100)?.let { k.removePrefix("game.") to it }
+        }.toMap()
         return LabProgress(
             xp = long("xp", 0).coerceAtLeast(0), answered = int("answered"), correct = int("correct"),
             streak = int("streak"), bestStreak = int("best"), lastActiveDay = long("last", Long.MIN_VALUE),
             lastDailyDay = long("daily", Long.MIN_VALUE), dailyCount = int("dailyCount"), perfectSessions = int("perfect"),
             reviews = int("reviews"), readChapters = set("read"), usedCalculators = set("calcs"), badges = set("badges"),
-            topics = topics, cards = cards
+            topics = topics, cards = cards, games = games
         )
     }
 }

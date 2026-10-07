@@ -596,6 +596,6 @@ internal object QuizGenerators {
     val all: Map<Topic, List<QuestionGenerator>> = mapOf(
         Topic.THERMO to thermo, Topic.ELECTRO to electro, Topic.QUANTUM to quantum, Topic.SEMICONDUCTOR to semiconductor,
         Topic.CALORIC to caloric, Topic.QFT to qft, Topic.POLYMER to QuizGeneratorsNew.polymer, Topic.ELECTRICAL to QuizGeneratorsNew.electrical,
-        Topic.AI to QuizGeneratorsNew.ai, Topic.MECHANICS to mechanics, Topic.MATH to math + mathCourse
+        Topic.AI to QuizGeneratorsNew.ai + QuizAiNumeric.all, Topic.MECHANICS to mechanics, Topic.MATH to math + mathCourse
     )
 }

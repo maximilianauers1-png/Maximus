@@ -100,3 +100,21 @@ NEU in 0.9: Strongman mit Coach und Arena
   Wettkampfplanung (Countdown, Phase, Checkliste, Versuchswahl, Gewichtsklasse),
   Systeme (5/3/1, 5/3/1 BBB, Smolov Jr., RPE-Block, Event-Peaking) mit
   "Als Programm anlegen", Schwachstellen-Analyse mit Kraftprofil und Verhaeltnissen.
+
+NEU in 0.10: AI-Kurs von Null und AI-Spielwiese (Labor)
+- Labor > Reiter "AI-Spielwiese": AI-Lernpfad mit 60 Happen in 9 Kursen, in fester Reihenfolge:
+  AI von Null (7) - ML: Die sieben Techniken (9) - ML-Algorithmen im Detail (8) -
+  Bewertung und Datenpraxis (5) - Mathematik des Lernens (2) - Deep Learning mit Keras
+  und PyTorch (13) - Reinforcement Learning (3) - Generative KI und LLMs (8) -
+  AI Engineering: vom Notebook zur Anwendung (5, inkl. Spark, MLOps, Abschlussprojekt).
+  "Weiter" oeffnet immer den naechsten ungelesenen Happen; je Kurs ein Quiz-Knopf.
+- Die sieben Techniken wie im IBM-Kurs: Regression, Klassifikation, Clustering,
+  Assoziation, Anomalieerkennung, Sequenz-Mining, Empfehlungssysteme (+ Dimensionsreduktion).
+- Kapitel enthalten jetzt Code-Beispiele (Python, scikit-learn, Keras, PyTorch, Spark).
+- Ueber 650 neue AI-Fragen: rund 200 Verstaendnis- und Szenariofragen, rund 470
+  Glossarfragen und 55 neue Rechenaufgaben-Generatoren (Metriken, Entropie/Gini,
+  k-Means, Apriori, Bayes, Q-Learning, CNN-Groessen, LoRA ...).
+- AI-Glossar mit rund 240 Begriffen, durchsuchbar, mit Link zum passenden Happen.
+- Neun Lernspiele: Technik-Detektiv, Gradientenabstieg, Perzeptron, k-Means,
+  Ueberanpassung, Schwellen-Regler, Baumeister (Entscheidungsbaum), Q-Learning-Labyrinth,
+  Begriffe-Duell. Spiele geben XP, Bestwerte und neue Abzeichen.
