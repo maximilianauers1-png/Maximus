@@ -1,5 +1,8 @@
 package app.maximus.chat.domain
 
+import app.maximus.ai.domain.AiCourse
+import app.maximus.ai.domain.AiQuestion
+import app.maximus.ai.domain.Bite
 import app.maximus.dnd.domain.CharacterSheet
 import app.maximus.lab.domain.Chapter
 import app.maximus.lab.domain.Compendium
@@ -51,6 +54,36 @@ object ModuleContext {
         append("Abschnitte: ").append(ch.sections.joinToString("; ") { it.title }).append('\n')
         append("Formeln: ").append(ChatTools.clip(ch.formulas.joinToString("; ") { "${it.name}: ${it.expr}" }, 900))
     }
+
+    // ------------------------------------------------------------------ AI engineering
+
+    /** A bite of the AI academy: lesson, summary, section titles and the first code lines. */
+    fun aiBite(b: Bite): String = buildString {
+        val lesson = AiCourse.lessons.getOrNull(b.lesson - 1)
+        append("Happen ").append(b.number).append(" „").append(b.title).append("“")
+        if (lesson != null) append(" (Lektion ").append(lesson.number).append(": ").append(lesson.title).append(", nach IBM „").append(lesson.ibmTitle).append("“)")
+        append(": ").append(b.summary).append('\n')
+        if (b.goals.isNotEmpty()) append("Lernziele: ").append(b.goals.joinToString("; ")).append('\n')
+        append("Abschnitte: ").append(b.sections.joinToString("; ") { it.title }).append('\n')
+        val code = b.sections.flatMap { s -> s.body.lines().map { it.trim() }.filter { it.startsWith("$") } }.take(8)
+        if (code.isNotEmpty()) append("Code-Auszug: ").append(ChatTools.clip(code.joinToString(" ⏎ ") { it.removePrefix("$").trim() }, 500))
+    }
+
+    /** An academy quiz question with the user's answer and the stored explanation. */
+    fun aiQuiz(q: AiQuestion, chosen: String?, correct: Boolean): String = buildString {
+        append("Quizfrage aus dem AI-Ingenieurwesen (").append(q.kind.label).append("): ").append(q.prompt).append('\n')
+        if (q.code.isNotBlank()) append("Code:\n").append(ChatTools.clip(q.code, 600)).append('\n')
+        append("Optionen: ").append(q.options.joinToString(" | ")).append('\n')
+        append("Richtige Antwort: ").append(q.options[q.correctIndex]).append('\n')
+        if (chosen != null) append("Antwort des Nutzers: ").append(chosen).append(if (correct) " (richtig)" else " (falsch)").append('\n')
+        append("Erklärung: ").append(ChatTools.clip(q.explanation, 600)).append('\n')
+        AiCourse.byKey[q.bite]?.let { append("Aus Happen ").append(it.number).append(": ").append(it.title) }
+    }
+
+    fun aiQuizQuestion(q: AiQuestion, correct: Boolean): String =
+        if (correct) "Erkläre mir diese Frage genauer: " + ChatTools.clip(q.prompt.replace('\n', ' '), 160)
+        else "Ich habe diese Frage falsch beantwortet. Erkläre mir, warum meine Antwort falsch ist und wie man richtig denkt: " +
+            ChatTools.clip(q.prompt.replace('\n', ' '), 160)
 
     // ------------------------------------------------------------------ strongman
 

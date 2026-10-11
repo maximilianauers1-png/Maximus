@@ -1,5 +1,6 @@
 package app.maximus.chat.domain
 
+import app.maximus.ai.domain.AiCourse
 import app.maximus.dnd.domain.CharacterBuild
 import app.maximus.dnd.domain.CharacterBuilder
 import app.maximus.dnd.domain.ClassLevel
@@ -30,6 +31,19 @@ class ModuleContextTest {
     @Test
     fun chapterContextIsShort() {
         for (ch in Compendium.all) assertTrue(ch.key, PromptPlanner.estimateTokens(ModuleContext.chapter(ch)) < 600)
+    }
+
+    @Test
+    fun aiContextIsShortAndCarriesCode() {
+        for (b in AiCourse.bites) assertTrue(b.key, PromptPlanner.estimateTokens(ModuleContext.aiBite(b)) < 700)
+        val bite = AiCourse.byKey.getValue("pt_autograd")
+        assertTrue(ModuleContext.aiBite(bite).contains("Lektion 4"))
+        assertTrue(ModuleContext.aiBite(bite).contains("Code-Auszug"))
+        val q = AiCourse.questions.first { it.code.isNotBlank() }
+        val ctx = ModuleContext.aiQuiz(q, q.options[1], correct = false)
+        assertTrue(ctx.contains("Code:"))
+        assertTrue(ctx.contains("Richtige Antwort: ${q.options[0]}"))
+        assertTrue(ModuleContext.aiQuizQuestion(q, false).startsWith("Ich habe diese Frage falsch"))
     }
 
     @Test

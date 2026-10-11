@@ -1,4 +1,7 @@
-package app.maximus.lab.domain
+package app.maximus.ai.domain
+
+import app.maximus.lab.domain.fm
+import app.maximus.lab.domain.sec
 
 /**
  * "AI von Null": the very first bites of the AI learning path, for someone who has never trained a model.
@@ -6,14 +9,10 @@ package app.maximus.lab.domain
  * Code lines start with "$ " (rendered monospace).
  */
 internal object CompendiumAiZero {
-    private val T = Topic.AI
-
-    val chapters: List<Chapter> = course(
-        "AI von Null",
-        chapter(
-            "ai0_what", T, 1, "Was ist KI überhaupt?",
+    val bites: List<Bite> = listOf(
+        bite(
+            "ai0_what", 1, "Was ist KI überhaupt?",
             "KI, maschinelles Lernen, Deep Learning und generative KI – was ist was, und wo steckt es im Alltag?",
-            emptyList(),
             sec("Vier Begriffe, ineinander geschachtelt", """
                 Künstliche Intelligenz (KI, englisch AI) ist der Oberbegriff: Computer sollen Aufgaben lösen, für die man bei Menschen Intelligenz bräuchte – sehen, sprechen, planen, entscheiden. Darin steckt das maschinelle Lernen (ML): Statt Regeln von Hand zu programmieren, lernt der Computer sie aus Beispielen. Darin wiederum steckt Deep Learning (DL): maschinelles Lernen mit tiefen neuronalen Netzen aus vielen Schichten. Und ein Teil davon ist generative KI (GenAI): Modelle, die neue Inhalte erzeugen – Text, Bilder, Musik, Code.
 
@@ -61,10 +60,9 @@ internal object CompendiumAiZero {
                 Alle heutigen Systeme sind „schwache“ oder „enge“ KI (narrow AI): Sie sind in einer Aufgabe gut – Bilder sortieren, Text fortsetzen –, aber haben kein allgemeines Verständnis der Welt. „Starke KI“ oder AGI (Artificial General Intelligence) wäre ein System, das jede intellektuelle Aufgabe eines Menschen lernen kann. Ob und wann das kommt, ist offen. Für dein Studium und deine Arbeit zählt: Moderne Modelle sind extrem nützliche Werkzeuge, die man verstehen, prüfen und verantwortungsvoll einsetzen muss.
             """)
         ),
-        chapter(
-            "ai0_data", T, 1, "Daten: der Rohstoff",
+        bite(
+            "ai0_data", 1, "Daten: der Rohstoff",
             "Beispiele, Merkmale, Labels, Datentypen, Tabellen, Datenqualität – warum gute Daten wichtiger sind als ein schlauer Algorithmus.",
-            emptyList(),
             sec("Die Datentabelle", """
                 Fast alles im klassischen maschinellen Lernen beginnt mit einer Tabelle. Jede Zeile ist ein Beispiel (auch: Datenpunkt, Instanz, Beobachtung, englisch sample). Jede Spalte ist ein Merkmal (Feature, Attribut, unabhängige Variable). Eine besondere Spalte ist das Ziel: das Label oder die abhängige Variable – das, was das Modell vorhersagen soll.
 
@@ -114,10 +112,9 @@ internal object CompendiumAiZero {
                 Diese fünf Befehle sind der erste Blick auf jeden neuen Datensatz: erst ansehen, dann modellieren.
             """)
         ),
-        chapter(
-            "ai0_model", T, 1, "Was ist ein Modell, was ist Training?",
+        bite(
+            "ai0_model", 1, "Was ist ein Modell, was ist Training?",
             "Modell = Funktion mit Stellschrauben; Verlust misst den Fehler; Training dreht an den Schrauben; Inferenz nutzt das Ergebnis.",
-            emptyList(),
             sec("Ein Modell ist eine Funktion mit Stellschrauben", """
                 Ein Modell nimmt Merkmale x und liefert eine Vorhersage ŷ. Das einfachste Beispiel ist eine Gerade: ŷ = w·x + b. Die Stellschrauben w (Gewicht, Steigung) und b (Bias, Achsenabschnitt) heißen Parameter. Ein großes Sprachmodell ist im Prinzip dasselbe – nur mit Milliarden Stellschrauben.
 
@@ -163,10 +160,9 @@ internal object CompendiumAiZero {
                 > Die scikit-learn-Formel für fast jedes Modell: erzeugen → fit → predict → bewerten.
             """)
         ),
-        chapter(
-            "ai0_types", T, 1, "Die Lernarten",
+        bite(
+            "ai0_types", 1, "Die Lernarten",
             "Überwacht, unüberwacht, halbüberwacht, selbstüberwacht und bestärkend – mit Alltagsbeispielen und der Frage, welche wann passt.",
-            emptyList(),
             sec("Überwachtes Lernen (supervised)", """
                 Man hat Beispiele mit richtiger Antwort – wie ein Schüler mit Lösungsheft. Zwei Unterarten:
 
@@ -200,10 +196,9 @@ internal object CompendiumAiZero {
                 • Ein System muss Entscheidungen nacheinander treffen und bekommt erst später Rückmeldung → bestärkend.
             """)
         ),
-        chapter(
-            "ai0_math", T, 1, "Der Mathe-Werkzeugkasten",
+        bite(
+            "ai0_math", 1, "Der Mathe-Werkzeugkasten",
             "Vektoren, Skalarprodukt, Matrizen, Ableitung und Gradient, Wahrscheinlichkeit, Mittelwert und Varianz – nur das, was ML wirklich braucht.",
-            emptyList(),
             sec("Vektoren und Skalarprodukt", """
                 Ein Beispiel mit d Merkmalen ist ein Vektor x = (x₁, …, x_d). Das Skalarprodukt w·x = Σ wᵢxᵢ ist die wichtigste Rechenoperation im gesamten maschinellen Lernen: Jedes Neuron, jede lineare Regression, jede Attention berechnet Skalarprodukte. Geometrisch misst es, wie sehr zwei Vektoren in dieselbe Richtung zeigen.
             """,
@@ -248,10 +243,9 @@ internal object CompendiumAiZero {
                 > Als Physiker kennst du das alles schon. In ML heißt es nur anders: Ein Feature-Vektor ist ein Zustandsvektor, ein Gewicht ein Fitparameter, der Verlust ein χ².
             """)
         ),
-        chapter(
-            "ai0_workflow", T, 1, "Der Ablauf eines ML-Projekts",
+        bite(
+            "ai0_workflow", 1, "Der Ablauf eines ML-Projekts",
             "Von der Frage zum Modell im Einsatz: Problem, Daten, Aufbereitung, Modellwahl, Training, Bewertung, Bereitstellung, Überwachung (CRISP-DM und IBM-Methodik).",
-            emptyList(),
             sec("Die acht Schritte", """
                 • 1. Problem verstehen: Was soll vorhergesagt werden, wie wird Erfolg gemessen, was kostet ein Fehler?
                 • 2. Daten sammeln: Welche Daten gibt es, sind sie erlaubt (Datenschutz), sind sie repräsentativ?
@@ -277,10 +271,9 @@ internal object CompendiumAiZero {
                 $ pd.plotting.scatter_matrix(df)         # alle Paare als Streudiagramm
             """)
         ),
-        chapter(
-            "ai0_tools", T, 1, "Werkzeuge: Python, scikit-learn, Keras, PyTorch",
+        bite(
+            "ai0_tools", 1, "Werkzeuge: Python, scikit-learn, Keras, PyTorch",
             "Das Ökosystem des IBM-Kurses: Jupyter, NumPy, pandas, Matplotlib, scikit-learn, Keras/TensorFlow, PyTorch, Hugging Face, Spark.",
-            emptyList(),
             sec("Die Landkarte", """
                 • Jupyter Notebook: interaktives Dokument mit Code, Text und Grafiken – die Werkbank der Datenwissenschaft.
                 • NumPy: schnelle Arrays und lineare Algebra.

@@ -1,18 +1,17 @@
-package app.maximus.lab.domain
+package app.maximus.ai.domain
+
+import app.maximus.lab.domain.fm
+import app.maximus.lab.domain.sec
 
 /**
  * The classic algorithms in depth (one per bite, with a worked number example each) and the craft of
  * evaluation and data preparation.
  */
 internal object CompendiumAiAlgo {
-    private val T = Topic.AI
-
-    val chapters: List<Chapter> = course(
-        "ML-Algorithmen im Detail",
-        chapter(
-            "alg_knn", T, 2, "k-nächste Nachbarn (KNN)",
+    val bites: List<Bite> = listOf(
+        bite(
+            "alg_knn", 2, "k-nächste Nachbarn (KNN)",
             "Abstimmung der Nachbarn, Distanzmaße, Wahl von k, Skalierung, gewichtete Stimmen, KNN-Regression, Rechenaufwand.",
-            emptyList(),
             sec("Der faulste Lerner der Welt", """
                 KNN „lernt“ nichts: Beim Training speichert er alle Beispiele. Für ein neues Beispiel sucht er die k ähnlichsten gespeicherten (Nachbarn) und lässt sie abstimmen. Bei Regression nimmt er den Mittelwert ihrer Zielwerte. IBM-Beispiel: Telefonanbieter sagt aus Alter, Einkommen und Wohnort voraus, welches Tarifpaket ein Kunde wählt.
 
@@ -41,10 +40,9 @@ internal object CompendiumAiAlgo {
                 • Beschleunigung: KD-Bäume, Ball-Trees, approximative Nachbarsuche (dieselbe Technik wie in Vektordatenbanken für RAG).
             """)
         ),
-        chapter(
-            "alg_trees", T, 2, "Entscheidungsbäume",
+        bite(
+            "alg_trees", 2, "Entscheidungsbäume",
             "Fragen-Bäume, Entropie, Informationsgewinn, Gini-Unreinheit, Aufteilen numerischer Merkmale, Tiefe und Pruning, Regressionsbäume.",
-            emptyList(),
             sec("Zwanzig Fragen", """
                 Ein Entscheidungsbaum ist ein Flussdiagramm aus Ja/Nein-Fragen über die Merkmale. Jeder innere Knoten testet ein Merkmal („Blutdruck hoch?“), jeder Ast ist eine Antwort, jedes Blatt eine Vorhersage. IBM-Beispiel: Welches von zwei Medikamenten passt zu einem Patienten, abhängig von Alter, Geschlecht, Blutdruck, Cholesterin.
 
@@ -81,10 +79,9 @@ internal object CompendiumAiAlgo {
                 fm("Split-Kriterium Regression", "Σ_Kinder Nⱼ·Var(yⱼ) minimal")
             )
         ),
-        chapter(
-            "alg_ensembles", T, 2, "Ensembles: Random Forest und Boosting",
+        bite(
+            "alg_ensembles", 2, "Ensembles: Random Forest und Boosting",
             "Weisheit der Vielen, Bagging, Random Forest, Out-of-Bag, Feature-Importance, AdaBoost, Gradient Boosting, XGBoost, Stacking.",
-            emptyList(),
             sec("Die Weisheit der Vielen", """
                 Viele mittelmäßige Modelle, deren Fehler nicht gleich sind, ergeben zusammen ein gutes Modell. Mittelt man B Modelle mit Varianz σ² und paarweiser Korrelation ρ, bleibt Varianz ρσ² + (1 − ρ)σ²/B übrig. Je unabhängiger die Modelle, desto mehr hilft es.
             """,
@@ -119,10 +116,9 @@ internal object CompendiumAiAlgo {
                 $ print(rf.oob_score_, rf.feature_importances_)
             """)
         ),
-        chapter(
-            "alg_logreg", T, 2, "Logistische Regression ausführlich",
+        bite(
+            "alg_logreg", 2, "Logistische Regression ausführlich",
             "Wahrscheinlichkeiten statt Zahlen, Sigmoid, Odds und Log-Odds, lineare Entscheidungsgrenze, Kreuzentropie, Gradient, Regularisierung C.",
-            emptyList(),
             sec("Warum nicht einfach lineare Regression?", """
                 Für Ja/Nein-Fragen will man eine Wahrscheinlichkeit zwischen 0 und 1. Eine Gerade schießt darüber hinaus. Die logistische Regression berechnet erst wie gewohnt z = θᵀx und drückt z dann mit der Sigmoidfunktion in das Intervall (0, 1). IBM-Beispiel: Welche Kunden kündigen ihren Telefonvertrag (Churn)?
             """,
@@ -152,10 +148,9 @@ internal object CompendiumAiAlgo {
                 fm("Entscheidungsgrenze", "θᵀx = 0  ⇔  p = 0,5")
             )
         ),
-        chapter(
-            "alg_svm", T, 2, "Support Vector Machines",
+        bite(
+            "alg_svm", 2, "Support Vector Machines",
             "Maximaler Abstand, Stützvektoren, weiche Ränder und C, Kernel-Trick (RBF, Polynom), wann SVMs glänzen.",
-            emptyList(),
             sec("Die breiteste Straße", """
                 Wenn zwei Klassen linear trennbar sind, gibt es unendlich viele trennende Geraden. Die SVM wählt diejenige, die den größten Abstand (Margin) zu den nächsten Punkten beider Klassen hat – die breiteste Straße zwischen den Klassen. Nur die Punkte am Straßenrand bestimmen die Lösung: die Stützvektoren (support vectors). Alle anderen könnte man weglassen.
             """,
@@ -184,10 +179,9 @@ internal object CompendiumAiAlgo {
                 $ svm = make_pipeline(StandardScaler(), SVC(kernel="rbf", C=1.0, gamma="scale")).fit(X_train, y_train)
             """)
         ),
-        chapter(
-            "alg_bayes", T, 2, "Naive Bayes",
+        bite(
+            "alg_bayes", 2, "Naive Bayes",
             "Satz von Bayes, Prior und Likelihood, die naive Unabhängigkeitsannahme, Spamfilter Schritt für Schritt, Laplace-Glättung, Gauß- und Multinomial-Variante.",
-            emptyList(),
             sec("Bayes in einem Satz", """
                 Wie wahrscheinlich ist die Klasse c, wenn ich die Merkmale x sehe? Bayes dreht die Frage um: Wie wahrscheinlich sind diese Merkmale in Klasse c (Likelihood), mal wie häufig ist c überhaupt (Prior). Den Nenner P(x) braucht man zum Vergleichen der Klassen nicht.
             """,
@@ -221,10 +215,9 @@ internal object CompendiumAiAlgo {
                 $ spam = make_pipeline(CountVectorizer(), MultinomialNB()).fit(texte, labels)
             """)
         ),
-        chapter(
-            "alg_kmeans", T, 2, "k-Means im Detail",
+        bite(
+            "alg_kmeans", 2, "k-Means im Detail",
             "Lloyd-Algorithmus Schritt für Schritt, Konvergenz, lokale Minima, k-means++, Ellbogen und Silhouette, Grenzen von k-Means.",
-            emptyList(),
             sec("Der Lloyd-Algorithmus", """
                 • Initialisieren: k Zentren wählen.
                 • Zuordnen: Jeder Punkt geht zum nächsten Zentrum.
@@ -254,10 +247,9 @@ internal object CompendiumAiAlgo {
                 $ print(km.inertia_, km.cluster_centers_)
             """)
         ),
-        chapter(
-            "alg_hier_dbscan", T, 2, "Hierarchisches Clustering und DBSCAN",
+        bite(
+            "alg_hier_dbscan", 2, "Hierarchisches Clustering und DBSCAN",
             "Agglomeratives Clustering, Linkage-Arten, Dendrogramm; DBSCAN mit ε und minPts, Kern-, Rand- und Rauschpunkte.",
-            emptyList(),
             sec("Agglomeratives Clustering", """
                 Start: jeder Punkt ein Cluster. Dann wiederholt die zwei nächstgelegenen Cluster verschmelzen, bis nur noch einer übrig ist. Das Ergebnis ist ein Dendrogramm – ein Stammbaum der Verschmelzungen. Schneidet man ihn auf einer Höhe, erhält man eine bestimmte Clusterzahl. IBM-Beispiel: Fahrzeugmodelle nach technischen Daten gruppieren.
 
@@ -287,12 +279,10 @@ internal object CompendiumAiAlgo {
                 • Weiche Zugehörigkeiten (Wahrscheinlichkeiten) → Gaußsche Mischmodelle.
             """)
         )
-    ) + course(
-        "Bewertung und Datenpraxis",
-        chapter(
-            "ev_split", T, 2, "Daten aufteilen und Kreuzvalidierung",
+    ) + listOf(
+        bite(
+            "ev_split", 2, "Daten aufteilen und Kreuzvalidierung",
             "Train/Validation/Test, k-fache und stratifizierte Kreuzvalidierung, Datenlecks erkennen und vermeiden.",
-            emptyList(),
             sec("Warum aufteilen?", """
                 Auf den Trainingsdaten sieht jedes ausreichend große Modell gut aus. Der Trainingsfehler ist zu optimistisch. Was zählt, ist der Fehler auf neuen Daten (Generalisierungsfehler) – den schätzt man auf Daten, die das Modell nie gesehen hat.
 
@@ -320,10 +310,9 @@ internal object CompendiumAiAlgo {
                 > Faustregel: Wenn ein Ergebnis zu gut aussieht, um wahr zu sein, such zuerst das Leck.
             """)
         ),
-        chapter(
-            "ev_metrics", T, 2, "Metriken richtig lesen",
+        bite(
+            "ev_metrics", 2, "Metriken richtig lesen",
             "Konfusionsmatrix, Accuracy, Precision, Recall, Spezifität, F1, ROC und AUC, Precision-Recall-Kurve, Log-Loss, Regressionsmetriken im Vergleich.",
-            emptyList(),
             sec("Die Konfusionsmatrix", """
                 Für zwei Klassen gibt es vier Ausgänge:
                 • TP (richtig positiv): krank, als krank erkannt
@@ -367,10 +356,9 @@ internal object CompendiumAiAlgo {
                 fm("MAPE", "MAPE = (100 %/N) Σ |yᵢ − ŷᵢ| / |yᵢ|")
             )
         ),
-        chapter(
-            "ev_features", T, 2, "Feature Engineering und Vorverarbeitung",
+        bite(
+            "ev_features", 2, "Feature Engineering und Vorverarbeitung",
             "Skalieren (Standardisierung, Min-Max), Kodieren (One-Hot, ordinal), fehlende Werte, Ausreißer, neue Merkmale bauen, Pipelines und ColumnTransformer.",
-            emptyList(),
             sec("Skalieren", """
                 Viele Verfahren (KNN, SVM, k-Means, PCA, neuronale Netze, Gradientenabstieg) sind empfindlich für die Größenordnung der Merkmale. Bäume sind es nicht.
 
@@ -410,10 +398,9 @@ internal object CompendiumAiAlgo {
                 > Die Pipeline lernt Mittelwerte und Kategorien nur aus den Trainingsdaten – kein Datenleck.
             """)
         ),
-        chapter(
-            "ev_tuning", T, 2, "Bias, Varianz und Hyperparameter-Suche",
+        bite(
+            "ev_tuning", 2, "Bias, Varianz und Hyperparameter-Suche",
             "Under- und Overfitting diagnostizieren, Lernkurven, Validierungskurven, Grid Search, Random Search, Bayes-Optimierung, Early Stopping.",
-            emptyList(),
             sec("Bias und Varianz", """
                 • Hoher Bias (Underfitting): Modell zu einfach. Trainings- und Validierungsfehler beide hoch. → komplexeres Modell, mehr Merkmale, weniger Regularisierung.
                 • Hohe Varianz (Overfitting): Modell zu flexibel. Trainingsfehler niedrig, Validierungsfehler hoch. → mehr Daten, Regularisierung, einfacheres Modell, Ensembles, Early Stopping.
@@ -442,10 +429,9 @@ internal object CompendiumAiAlgo {
                 Bei iterativen Verfahren (Boosting, neuronale Netze) beobachtet man den Validierungsfehler während des Trainings und hört auf, wenn er wieder steigt. Das ist eine der wirksamsten und billigsten Regularisierungen.
             """)
         ),
-        chapter(
-            "ev_fair", T, 2, "Unausgewogene Daten, Erklärbarkeit und Fairness",
+        bite(
+            "ev_fair", 2, "Unausgewogene Daten, Erklärbarkeit und Fairness",
             "Seltene Klassen (Gewichte, Resampling, SMOTE, Schwellen), Feature-Importance, Permutation Importance, SHAP, Bias und Fairness, Datenschutz.",
-            emptyList(),
             sec("Seltene Klassen", """
                 • Klassengewichte: Fehler bei der seltenen Klasse teurer machen (class_weight="balanced").
                 • Undersampling der häufigen oder Oversampling der seltenen Klasse; SMOTE erzeugt synthetische Beispiele zwischen Nachbarn.

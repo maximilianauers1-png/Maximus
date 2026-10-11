@@ -7,6 +7,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import app.maximus.core.app.AppServices
+import app.maximus.ui.ai.AiHubScreen
 import app.maximus.ui.chat.ChatScreen
 import app.maximus.ui.core.CoreHubScreen
 import app.maximus.ui.core.NoteEditorScreen
@@ -36,6 +37,7 @@ object Routes {
     const val STRONGMAN = "strongman"
     const val PROGRAM = "strongman/program/{id}"
     const val LAB = "lab"
+    const val AI = "ai"
     const val CHAT = "chat"
     fun note(id: Long) = "core/note/$id"
     fun dndSheet(id: Long) = "dnd/sheet/$id"
@@ -128,6 +130,11 @@ fun MaximusNavHost(services: AppServices) {
         composable(Routes.LAB) {
             ModuleTheme(ModuleStyle.LAB) {
                 LabHubScreen(services = services, onBack = { navController.popBackStack() }, onOpenChat = { navController.navigate(Routes.CHAT) })
+            }
+        }
+        composable(Routes.AI) {
+            ModuleTheme(ModuleStyle.AI) {
+                AiHubScreen(services = services, onBack = { navController.popBackStack() }, onOpenChat = { navController.navigate(Routes.CHAT) })
             }
         }
         composable(Routes.CHAT) {

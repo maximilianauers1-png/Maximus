@@ -1,4 +1,4 @@
-package app.maximus.lab.domain
+package app.maximus.ai.domain
 
 /**
  * Hand-written AI/ML questions for the learning path: understanding first, many scenario questions
@@ -7,9 +7,9 @@ package app.maximus.lab.domain
 internal object QuizAi {
     private var n = 0
     private fun c(diff: Int, chapter: String, prompt: String, correct: String, vararg wrong: String, why: String) =
-        Question("qai-${++n}", Topic.AI, diff, prompt, why, listOf(correct) + wrong, 0, chapterKey = chapter)
+        AiQuestion("qai-${++n}", chapter, diff, QKind.CONCEPT, prompt, listOf(correct) + wrong, 0, why)
 
-    val all: List<Question> = listOf(
+    val all: List<AiQuestion> = listOf(
         // ---------------- AI von Null ----------------
         c(1, "ai0_what", "Wie hängen KI, maschinelles Lernen und Deep Learning zusammen?",
             "Deep Learning ist ein Teil des maschinellen Lernens, das ein Teil der KI ist", "Es sind drei unabhängige Gebiete",

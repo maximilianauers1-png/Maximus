@@ -1,18 +1,17 @@
-package app.maximus.lab.domain
+package app.maximus.ai.domain
+
+import app.maximus.lab.domain.fm
+import app.maximus.lab.domain.sec
 
 /**
  * AI engineering from zero: written for a physicist who knows the maths but not the field. Each chapter
  * starts with the intuition, then the formulas, then the engineering consequences.
  */
 internal object CompendiumAi {
-    private val T = Topic.AI
-
-    val chapters: List<Chapter> = course(
-        "AI-Grundlagen",
-        chapter(
-            "ai_intro", T, 2, "ML mathematisch: Risiko, Generalisierung, Metriken",
+    val bites: List<Bite> = listOf(
+        bite(
+            "ai_intro", 2, "ML mathematisch: Risiko, Generalisierung, Metriken",
             "Lernen aus Daten, Lernarten, Trainings-/Validierungs-/Testdaten, Generalisierung, Overfitting, Metriken.",
-            emptyList(),
             sec("Die Grundidee", """
                 Klassische Software: Ein Mensch schreibt die Regeln. Maschinelles Lernen (ML): Man gibt Beispiele vor und lässt einen Algorithmus die Parameter θ eines Modells f_θ so einstellen, dass es die Beispiele gut beschreibt — und vor allem neue, ungesehene Daten. Physikalisch gesprochen: ein Fit mit sehr vielen Parametern, bei dem nicht die Anpassung an die Messpunkte zählt, sondern die Vorhersage neuer Messpunkte.
 
@@ -39,10 +38,9 @@ internal object CompendiumAi {
                 fm("Accuracy", "(TP + TN)/(TP + TN + FP + FN)")
             )
         ),
-        chapter(
-            "ai_linear", T, 2, "Lineare Modelle und Gradientenabstieg mathematisch",
+        bite(
+            "ai_linear", 2, "Lineare Modelle und Gradientenabstieg mathematisch",
             "Lineare und logistische Regression, Verlustfunktionen, Gradientenabstieg, Lernrate, Regularisierung.",
-            emptyList(),
             sec("Lineare Regression", """
                 Das einfachste Modell: ŷ = wᵀx + b. Mit quadratischem Fehler (MSE) hat das Problem eine geschlossene Lösung (Normalengleichungen) — dieselbe Mathematik wie ein linearer Least-Squares-Fit im Praktikum. Statistisch entspricht MSE der Maximum-Likelihood-Schätzung bei gaußschem Rauschen.
             """,
@@ -71,12 +69,10 @@ internal object CompendiumAi {
                 fm("L1", "L_reg = L + λ Σ |wᵢ|")
             )
         )
-    ) + course(
-        "Deep Learning",
-        chapter(
-            "ai_nn", T, 2, "Neuronale Netze und Backpropagation",
+    ) + listOf(
+        bite(
+            "ai_nn", 2, "Neuronale Netze und Backpropagation",
             "Neuronen, Schichten, Aktivierungsfunktionen, universelle Approximation, Rechengraph, Backprop, Initialisierung.",
-            emptyList(),
             sec("Vom Neuron zum Netz", """
                 Ein künstliches Neuron berechnet eine gewichtete Summe seiner Eingänge plus Bias und wendet eine nichtlineare Aktivierungsfunktion an. Schichten solcher Neuronen hintereinander bilden ein mehrschichtiges Perzeptron (MLP). Ohne Nichtlinearität wäre das ganze Netz nur eine einzige lineare Abbildung — die Aktivierungsfunktion macht es ausdrucksstark. Universeller Approximationssatz: Schon eine verborgene Schicht kann jede stetige Funktion auf einem Kompaktum beliebig genau annähern (aber nicht unbedingt effizient oder lernbar).
             """,
@@ -100,10 +96,9 @@ internal object CompendiumAi {
                 fm("Residualblock", "y = x + F(x)")
             )
         ),
-        chapter(
-            "ai_training", T, 2, "Training in der Praxis",
+        bite(
+            "ai_training", 2, "Training in der Praxis",
             "Optimierer (Momentum, Adam), Batchgröße, Lernratenpläne, Normalisierung, Dropout, Mixed Precision, Fehlersuche.",
-            emptyList(),
             sec("Optimierer", """
                 Momentum mittelt Gradienten über die Zeit wie eine Kugel mit Trägheit und dämpft Zickzack in schmalen Tälern. Adam kombiniert Momentum mit einer pro Parameter angepassten Schrittweite (Division durch die Wurzel des gleitenden Mittels der quadrierten Gradienten) und ist der Standard für Transformer; AdamW entkoppelt den Weight Decay.
             """,
@@ -129,10 +124,9 @@ internal object CompendiumAi {
                 fm("Speicher Training (Adam, gemischt)", "≈ 16 Byte pro Parameter (Gewichte, Gradienten, 2 Momente, Master-Kopie)")
             )
         ),
-        chapter(
-            "ai_arch", T, 2, "Architekturen: CNN, RNN, Embeddings",
+        bite(
+            "ai_arch", 2, "Architekturen: CNN, RNN, Embeddings",
             "Faltungen und rezeptives Feld, ResNet, rekurrente Netze und LSTM, Embeddings als gelernte Darstellungen.",
-            emptyList(),
             sec("Faltungsnetze (CNN)", """
                 Bilder haben lokale Struktur und Translationssymmetrie. Eine Faltungsschicht wendet denselben kleinen Filter (z. B. 3×3) an jeder Position an: wenige Parameter, Gewichtsteilung, Translationsäquivarianz. Gestapelte Faltungen vergrößern das rezeptive Feld; Pooling oder Strides verkleinern die Auflösung. ResNets mit Residualverbindungen machten Netze mit über 100 Schichten trainierbar.
             """,
@@ -151,10 +145,9 @@ internal object CompendiumAi {
                 fm("Embedding-Tabelle", "Parameter = |Vokabular| · d")
             )
         ),
-        chapter(
-            "ai_transformer", T, 3, "Transformer und Attention",
+        bite(
+            "ai_transformer", 3, "Transformer und Attention",
             "Tokenisierung, Self-Attention, Multi-Head, Positionskodierung (RoPE), Residualstrom, kausale Maske, Komplexität.",
-            emptyList(),
             sec("Token", """
                 Text wird in Token zerlegt — meist Teilwörter per Byte-Pair-Encoding (BPE): häufige Zeichenfolgen werden zu einem Token zusammengefasst. Ein Vokabular hat typisch 30 000–250 000 Token; ein deutsches Wort entspricht oft 1–3 Token. Jedes Token wird über eine Embedding-Tabelle zu einem Vektor der Dimension d (Modellbreite).
             """,
@@ -183,12 +176,10 @@ internal object CompendiumAi {
                 fm("Gesamt-FLOPs Vorwärts", "≈ 2N pro Token (N Parameter)")
             )
         )
-    ) + course(
-        "Große Sprachmodelle",
-        chapter(
-            "ai_llm", T, 3, "Große Sprachmodelle: Training",
+    ) + listOf(
+        bite(
+            "ai_llm", 3, "Große Sprachmodelle: Training",
             "Vortraining, Perplexität, Skalierungsgesetze, Compute-Budget, Feinabstimmung (SFT), RLHF/DPO, LoRA.",
-            emptyList(),
             sec("Vortraining", """
                 Ein Sprachmodell lernt, das nächste Token vorherzusagen, auf Billionen Token aus Web, Büchern, Code. Der Verlust ist die Kreuzentropie; ihre Exponentialfunktion heißt Perplexität (effektive Zahl gleichwahrscheinlicher Kandidaten). Aus dieser einfachen Aufgabe entstehen Grammatik, Weltwissen und Schlussfolgerungsfähigkeiten — weil gute Vorhersage Verständnis der Daten erfordert.
             """,
@@ -213,10 +204,9 @@ internal object CompendiumAi {
                 fm("DPO-Verlust", "L = −ln σ(β[ln(π(y_w)/π_ref(y_w)) − ln(π(y_l)/π_ref(y_l))])")
             )
         ),
-        chapter(
-            "ai_inference", T, 3, "Inferenz: Sampling, KV-Cache, Quantisierung",
+        bite(
+            "ai_inference", 3, "Inferenz: Sampling, KV-Cache, Quantisierung",
             "Temperatur, Top-k/Top-p, KV-Cache, Prefill vs. Decode, Quantisierung, Speicherbedarf — wie Maximus auf dem Handy läuft.",
-            emptyList(),
             sec("Sampling", """
                 Das Modell liefert eine Wahrscheinlichkeitsverteilung über das nächste Token. Greedy nimmt immer das wahrscheinlichste (deterministisch, neigt zu Wiederholungen). Temperatur T skaliert die Logits: T < 1 schärft, T > 1 glättet. Top-k beschränkt auf die k wahrscheinlichsten, Top-p (Nucleus) auf die kleinste Menge mit kumulierter Wahrscheinlichkeit ≥ p. Für Code und Mathe niedrige Temperatur, für kreatives Schreiben höhere.
             """,
@@ -240,12 +230,10 @@ internal object CompendiumAi {
                 Halluzinationen: Das Modell erzeugt plausible, aber falsche Aussagen, weil es Wahrscheinlichkeiten von Text optimiert, nicht Wahrheit. Gegenmittel: Quellen mitgeben (RAG), Werkzeuge für exakte Rechnungen (wie die Werkzeuge in Maximus), niedrige Temperatur für Fakten, Unsicherheit erfragen und Ergebnisse prüfen.
             """)
         )
-    ) + course(
-        "AI Engineering in der Praxis",
-        chapter(
-            "ai_rag_agents", T, 3, "RAG, Werkzeuge und Agenten",
+    ) + listOf(
+        bite(
+            "ai_rag_agents", 3, "RAG, Werkzeuge und Agenten",
             "Prompting, Retrieval-Augmented Generation, Chunking, hybride Suche, Funktionsaufrufe, Agentenschleifen, Prompt-Injection.",
-            emptyList(),
             sec("Prompting", """
                 Ein guter Prompt nennt Rolle, Aufgabe, Kontext, Format und Beispiele (Few-Shot). Schrittweises Denken (Chain-of-Thought) verbessert Rechen- und Logikaufgaben. Systematisch vorgehen: Prompts wie Code versionieren und gegen eine Testmenge von Beispielen bewerten, nicht nach Gefühl.
             """),
@@ -261,10 +249,9 @@ internal object CompendiumAi {
                 Sicherheit: Prompt-Injection — Text aus Webseiten, Dokumenten oder Werkzeugausgaben kann Anweisungen enthalten, die das Modell befolgt. Gegenmittel: fremde Inhalte als Daten markieren, Rechte minimal halten, kritische Aktionen bestätigen lassen.
             """)
         ),
-        chapter(
-            "ai_mlops", T, 2, "Evaluation, Betrieb und Verantwortung",
+        bite(
+            "ai_mlops", 2, "Evaluation, Betrieb und Verantwortung",
             "Evaluation, Benchmarks, Datenpipelines, Serving, Latenz und Kosten, On-Device-AI, Monitoring, Datenschutz.",
-            emptyList(),
             sec("Evaluation zuerst", """
                 Ohne Messung kein Fortschritt: Lege früh eine Evaluationsmenge an, die echte Nutzungsfälle abdeckt, mit klaren Bewertungskriterien. Automatische Metriken (Genauigkeit, exakte Übereinstimmung, Tests für Code), Modell-als-Richter mit Stichproben-Kontrolle durch Menschen, und A/B-Tests im Betrieb. Öffentliche Benchmarks sind nützlich, aber oft in Trainingsdaten enthalten (Kontamination).
             """),

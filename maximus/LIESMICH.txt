@@ -1,4 +1,4 @@
-MAXIMUS - Gesamtpaket (Version 0.8.0-p7, Datenbankversion 5)
+MAXIMUS - Gesamtpaket (Version 0.11.0-p10, Datenbankversion 5)
 
 Dieses Paket enthaelt das KOMPLETTE Projekt in einem Stueck. Es ersetzt alle
 frueheren Teilpakete (p2, p1-update, p3-update, ritterbild, p4-update,
@@ -118,3 +118,28 @@ NEU in 0.10: AI-Kurs von Null und AI-Spielwiese (Labor)
 - Neun Lernspiele: Technik-Detektiv, Gradientenabstieg, Perzeptron, k-Means,
   Ueberanpassung, Schwellen-Regler, Baumeister (Entscheidungsbaum), Q-Learning-Labyrinth,
   Begriffe-Duell. Spiele geben XP, Bestwerte und neue Abzeichen.
+
+NEU in 0.11: Eigener Bereich "AI-Ingenieurwesen" (Hauptmenue)
+- Der AI-Teil ist aus dem Physik- und Mathe-Labor herausgeloest und steht als eigener
+  Eintrag im Hauptmenue (Farbwelt im Konzept "Ritterorden": Gold und Gruenspan).
+  Bisheriger Fortschritt (gelesene AI-Kapitel, Spiel-Bestwerte) wird beim ersten Oeffnen
+  einmalig uebernommen.
+- 13 Lektionen wie das IBM AI Engineering Professional Certificate:
+  1 Maschinelles Lernen mit Python - 2 Deep Learning mit Keras - 3 Keras und TensorFlow -
+  4 Neuronale Netze und PyTorch - 5 Deep Learning mit PyTorch - 6 Capstone (Satellitenbilder,
+  CNN, Vision Transformer) - 7 GenAI-Architektur und Datenvorbereitung - 8 Fundamentmodelle
+  fuer NLP - 9 Transformer - 10 Fine-Tuning (PEFT, LoRA, QLoRA) - 11 Instruction Tuning,
+  RLHF/PPO, DPO - 12 RAG und LangChain - 13 Projekt: QA-Bot mit RAG, LangChain und Gradio.
+- 131 Happen mit Lernzielen, Erklaerung, Formeln und Python-Code; jeder Happen endet mit
+  einem Happen-Quiz (mind. 6 eigene Fragen, darunter Code-Fragen: Ausgabe vorhersagen,
+  Fehler finden, richtige Zeile waehlen). Sterne: * ab 60 %, ** ab 85 %, *** fehlerfrei.
+- Rund 1500 handgeschriebene Fragen (davon ueber 360 Code-Fragen) plus 69 Generatoren
+  fuer Rechenaufgaben als Multiple Choice.
+- Turniere: je Lektion drei Tjosten (Knappen-, Ritter-, Koenigstjost gegen den Champion der
+  Lektion), 3 Schilde, Sanduhr pro Frage, Lanzen-Kombo, Pokale in Bronze, Silber und Gold.
+- Reiter: Burgsaal (Rang, Tagesprobe, Fehlerschmiede, Wappen), Lehrpfad, Turniere,
+  Uebungsplatz (Lektion, Fragenart, Schwierigkeit, Code-Drill), Spielwiese (9 Spiele), Glossar.
+- 60 Raenge mit eigenem Namen je Stufe (vom "Lehrbub der Lochkarte" bis "Lovelaces Erbe
+  der denkenden Maschinen"); kein Name doppelt.
+- Auch das Labor hat jetzt 60 einzigartige Rangnamen, einen pro Stufe
+  (vom "Lehrbub des Pendels" bis "Newtons Erbe auf den Schultern von Riesen").

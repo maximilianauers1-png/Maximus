@@ -1,15 +1,14 @@
-package app.maximus.lab.domain
+package app.maximus.ai.domain
+
+import app.maximus.lab.domain.fm
+import app.maximus.lab.domain.sec
 
 /** Deep learning with Keras and PyTorch (the IBM AI Engineering stack) and reinforcement learning. */
 internal object CompendiumAiDeep {
-    private val T = Topic.AI
-
-    val chapters: List<Chapter> = course(
-        "Deep Learning",
-        chapter(
-            "dl_neuron", T, 1, "Das künstliche Neuron und das Perzeptron",
+    val bites: List<Bite> = listOf(
+        bite(
+            "dl_neuron", 1, "Das künstliche Neuron und das Perzeptron",
             "Biologisches Vorbild, gewichtete Summe, Bias, Aktivierung, Perzeptron-Lernregel, das XOR-Problem und warum man Schichten braucht.",
-            emptyList(),
             sec("Vom Nervenzell-Vorbild zur Formel", """
                 Eine Nervenzelle sammelt Signale über ihre Dendriten, und wenn die Summe eine Schwelle überschreitet, „feuert“ sie. Das künstliche Neuron macht dasselbe mit Zahlen: Jeder Eingang xᵢ wird mit einem Gewicht wᵢ multipliziert (wie wichtig ist dieser Eingang?), alles wird addiert, ein Bias b verschiebt die Schwelle, und eine Aktivierungsfunktion entscheidet über die Ausgabe.
 
@@ -42,10 +41,9 @@ internal object CompendiumAiDeep {
                 fm("Ableitung Sigmoid", "σ′(z) = σ(z)(1 − σ(z))")
             )
         ),
-        chapter(
-            "dl_backprop_numbers", T, 2, "Backpropagation mit echten Zahlen",
+        bite(
+            "dl_backprop_numbers", 2, "Backpropagation mit echten Zahlen",
             "Ein Mini-Netz Schritt für Schritt: Vorwärtsrechnung, Verlust, Kettenregel rückwärts, Gewichts-Update – einmal komplett von Hand.",
-            emptyList(),
             sec("Das Mini-Netz", """
                 Ein Eingang x = 1, ein verstecktes Neuron mit Gewicht w₁ = 0,5 und ReLU, ein Ausgangsneuron mit Gewicht w₂ = 2 (linear), Zielwert y = 3, Verlust L = ½(ŷ − y)². Biases lassen wir der Übersicht halber weg.
 
@@ -88,10 +86,9 @@ internal object CompendiumAiDeep {
                 $ print(w1.grad, w2.grad)     # tensor(-4.) tensor(-1.)
             """)
         ),
-        chapter(
-            "dl_keras", T, 2, "Keras: Netze in wenigen Zeilen",
+        bite(
+            "dl_keras", 2, "Keras: Netze in wenigen Zeilen",
             "Sequential-Modell, Dense-Schichten, compile (Optimierer, Verlust, Metriken), fit, evaluate, predict, Callbacks, ein vollständiges Beispiel.",
-            emptyList(),
             sec("Die drei Schritte", """
                 • Bauen: Schichten stapeln (Sequential) oder als Graph verbinden (Functional API).
                 • Kompilieren: Optimierer, Verlust und Metriken festlegen.
@@ -133,10 +130,9 @@ internal object CompendiumAiDeep {
                 fm("Parameter einer Dense-Schicht", "P = n_in·n_out + n_out")
             )
         ),
-        chapter(
-            "dl_pytorch", T, 2, "PyTorch: Tensoren, Autograd, Trainingsschleife",
+        bite(
+            "dl_pytorch", 2, "PyTorch: Tensoren, Autograd, Trainingsschleife",
             "Tensoren und Geräte, nn.Module, Dataset und DataLoader, die Standard-Trainingsschleife, Evaluation ohne Gradienten, Speichern und Laden.",
-            emptyList(),
             sec("Tensoren", """
                 Ein Tensor ist ein mehrdimensionales Array wie in NumPy, kann aber auf der GPU liegen und merkt sich Rechenwege für Gradienten. Form (shape) ist alles: Ein Bild-Batch hat z. B. die Form (Batch, Kanäle, Höhe, Breite) = (32, 3, 224, 224).
 
@@ -190,10 +186,9 @@ internal object CompendiumAiDeep {
                 model.eval() schaltet Dropout ab und lässt BatchNorm die gelernten Statistiken nutzen.
             """)
         ),
-        chapter(
-            "dl_cnn", T, 2, "Faltungsnetze (CNN) ausführlich",
+        bite(
+            "dl_cnn", 2, "Faltungsnetze (CNN) ausführlich",
             "Faltung als Mustersuche, Filter und Feature Maps, Padding und Stride, Pooling, Kanäle, Parameterzahl, von LeNet bis ResNet, Datenaugmentation.",
-            emptyList(),
             sec("Faltung: ein wandernder Mustersucher", """
                 Ein Filter (Kernel) ist ein kleines Gewichtsfenster, z. B. 3×3. Er gleitet über das Bild, und an jeder Stelle wird das Skalarprodukt aus Fenster und Bildausschnitt berechnet. Das Ergebnis ist eine Feature Map: Sie leuchtet dort, wo das Muster des Filters vorkommt (Kanten, Ecken, Texturen). Dasselbe Gewicht wird an allen Stellen benutzt (Gewichtsteilung) – eine Katze ist eine Katze, egal wo im Bild.
 
@@ -232,10 +227,9 @@ internal object CompendiumAiDeep {
                 Datenaugmentation (zufällig spiegeln, drehen, zuschneiden, Helligkeit ändern) vervielfacht die Trainingsdaten und ist bei Bildern eine der wirksamsten Regularisierungen.
             """)
         ),
-        chapter(
-            "dl_rnn", T, 2, "Rekurrente Netze, LSTM und GRU",
+        bite(
+            "dl_rnn", 2, "Rekurrente Netze, LSTM und GRU",
             "Gedächtnis über die Zeit, Entfalten und Backpropagation through Time, verschwindende Gradienten, LSTM-Tore, GRU, Seq2Seq, Zeitreihen mit Keras.",
-            emptyList(),
             sec("Ein Netz mit Gedächtnis", """
                 Ein rekurrentes Netz (RNN) liest eine Folge Element für Element und trägt einen versteckten Zustand hₜ weiter – eine Zusammenfassung von allem bisher Gelesenen. Dieselben Gewichte werden in jedem Zeitschritt benutzt. Zum Trainieren entfaltet man das Netz über die Zeit und wendet Backpropagation an (BPTT).
             """,
@@ -271,10 +265,9 @@ internal object CompendiumAiDeep {
                 RNNs verarbeiten Schritt für Schritt – nicht parallelisierbar und bei sehr langen Folgen vergesslich. Transformer schauen per Attention direkt auf alle Positionen und trainieren auf GPUs viel schneller. Für kleine Zeitreihen auf dem Handy oder Sensoren sind LSTMs und GRUs aber weiterhin effizient und beliebt.
             """)
         ),
-        chapter(
-            "dl_transfer", T, 2, "Transfer Learning und vortrainierte Modelle",
+        bite(
+            "dl_transfer", 2, "Transfer Learning und vortrainierte Modelle",
             "Warum man selten bei null anfängt, Merkmalsextraktion gegen Feinabstimmung, Schichten einfrieren, kleine Lernrate, Hugging Face und Keras Applications.",
-            emptyList(),
             sec("Auf den Schultern von Riesen", """
                 Ein auf Millionen Bildern (ImageNet) trainiertes Netz hat in seinen frühen Schichten allgemeine Merkmale gelernt: Kanten, Texturen, Formen. Diese sind für fast jede Bildaufgabe nützlich. Statt bei null zu beginnen, nimmt man das vortrainierte Netz und passt es mit wenigen eigenen Daten an. Dasselbe gilt für Sprache: Jedes LLM-Projekt startet mit einem vortrainierten Modell.
             """),
@@ -293,10 +286,9 @@ internal object CompendiumAiDeep {
                 • Hugging Face: from_pretrained lädt Tausende Modelle für Text, Bild und Audio.
             """)
         ),
-        chapter(
-            "dl_autoencoder", T, 2, "Autoencoder und variationale Autoencoder",
+        bite(
+            "dl_autoencoder", 2, "Autoencoder und variationale Autoencoder",
             "Komprimieren und rekonstruieren, Flaschenhals, Entrauschen, Anomalieerkennung, VAE mit latentem Raum und KL-Term, Generieren durch Sampling.",
-            emptyList(),
             sec("Komprimieren lernen", """
                 Ein Autoencoder besteht aus Encoder f (Eingabe → kleiner Code z) und Decoder g (Code → Rekonstruktion). Trainiert wird darauf, die Eingabe möglichst genau wiederherzustellen. Weil der Code schmaler ist als die Eingabe (Flaschenhals), muss das Netz das Wesentliche lernen – eine nichtlineare Verallgemeinerung der PCA.
             """,
@@ -315,10 +307,9 @@ internal object CompendiumAiDeep {
                 fm("Reparametrisierung", "z = μ + σ ⊙ ε, ε ~ N(0, 1)")
             )
         ),
-        chapter(
-            "dl_generative", T, 3, "Generative Modelle: GANs und Diffusion",
+        bite(
+            "dl_generative", 3, "Generative Modelle: GANs und Diffusion",
             "Generator gegen Diskriminator, Minimax-Spiel, Trainingsprobleme, Diffusionsmodelle als schrittweises Entrauschen, Text-zu-Bild, Klassifikator-freie Führung.",
-            emptyList(),
             sec("GAN: Fälscher gegen Gutachter", """
                 Ein Generative Adversarial Network (Goodfellow 2014) besteht aus zwei Netzen: Der Generator G macht aus Zufallsrauschen z ein Bild, der Diskriminator D soll echte von gefälschten Bildern unterscheiden. Beide trainieren gegeneinander – wie ein Geldfälscher und die Polizei. Im Gleichgewicht sind die Fälschungen von echten nicht mehr zu unterscheiden.
             """,
@@ -345,12 +336,10 @@ internal object CompendiumAiDeep {
                 fm("Score", "s_θ(x) ≈ ∇ₓ ln p(x)")
             )
         )
-    ) + course(
-        "Reinforcement Learning",
-        chapter(
-            "rl_basics", T, 2, "Bestärkendes Lernen: Agent, Umgebung, Belohnung",
+    ) + listOf(
+        bite(
+            "rl_basics", 2, "Bestärkendes Lernen: Agent, Umgebung, Belohnung",
             "Zustände, Aktionen, Belohnungen, Episoden, Markov-Entscheidungsprozess, Return und Diskontfaktor, Policy und Wertfunktion, Exploration gegen Ausbeutung.",
-            emptyList(),
             sec("Die Grundschleife", """
                 Ein Agent beobachtet den Zustand s der Umgebung, wählt eine Aktion a, bekommt eine Belohnung r und landet in einem neuen Zustand s′. Wiederholen. Ziel: eine Strategie (Policy π), die auf Dauer möglichst viel Belohnung sammelt. Niemand sagt dem Agenten die richtige Aktion – er muss es durch Ausprobieren herausfinden, und Belohnungen kommen oft erst spät (Schach: erst am Ende).
 
@@ -374,10 +363,9 @@ internal object CompendiumAiDeep {
                 fm("ε-greedy", "a = zufällig mit Wahrscheinlichkeit ε, sonst argmax_a Q(s, a)")
             )
         ),
-        chapter(
-            "rl_qlearning", T, 2, "Bellman-Gleichung und Q-Learning",
+        bite(
+            "rl_qlearning", 2, "Bellman-Gleichung und Q-Learning",
             "Rekursive Wertfunktion, Bellman-Optimalität, Q-Learning-Update Schritt für Schritt, Lernrate und Diskont, SARSA, Q-Tabelle im Gitterlabyrinth.",
-            emptyList(),
             sec("Die Bellman-Gleichung", """
                 Der Wert eines Zustands ist die sofortige Belohnung plus der diskontierte Wert dessen, was danach kommt. Diese Rekursion ist das Herz des bestärkenden Lernens – dieselbe Idee wie dynamische Programmierung.
             """,
@@ -397,10 +385,9 @@ internal object CompendiumAiDeep {
                 fm("SARSA-Update", "Q(s, a) ← Q(s, a) + α [r + γ Q(s′, a′) − Q(s, a)]")
             )
         ),
-        chapter(
-            "rl_deep", T, 3, "Deep Reinforcement Learning",
+        bite(
+            "rl_deep", 3, "Deep Reinforcement Learning",
             "Wenn die Tabelle zu groß wird: DQN mit Replay und Zielnetz, Policy Gradients, Actor-Critic, PPO, AlphaGo/AlphaZero, RLHF für Sprachmodelle.",
-            emptyList(),
             sec("Deep Q-Networks (DQN)", """
                 Bei Atari-Spielen ist der Zustand ein Bild – unendlich viele Zustände, keine Tabelle möglich. DQN (DeepMind 2015) ersetzt die Tabelle durch ein neuronales Netz Q_θ(s, a). Zwei Tricks machen es stabil: Experience Replay (Erfahrungen speichern und zufällig gemischt wiederverwenden) und ein Zielnetz, das nur ab und zu aktualisiert wird.
             """,

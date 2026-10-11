@@ -1,6 +1,6 @@
 @file:OptIn(ExperimentalLayoutApi::class)
 
-package app.maximus.ui.lab
+package app.maximus.ui.ai
 
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Canvas
@@ -54,23 +54,22 @@ import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import app.maximus.lab.domain.AiGlossary
+import app.maximus.ai.domain.AiGlossary
 import app.maximus.lab.domain.Fmt
-import app.maximus.lab.domain.GlossaryDuel
-import app.maximus.lab.domain.GradientGame
-import app.maximus.lab.domain.GridWorld
-import app.maximus.lab.domain.KMeansGame
-import app.maximus.lab.domain.MlTechnique
-import app.maximus.lab.domain.OverfitGame
-import app.maximus.lab.domain.P2
-import app.maximus.lab.domain.Perceptron
-import app.maximus.lab.domain.PerceptronGame
-import app.maximus.lab.domain.QLearner
-import app.maximus.lab.domain.TechniqueDetective
-import app.maximus.lab.domain.ThresholdGame
-import app.maximus.lab.domain.ThresholdMission
-import app.maximus.lab.domain.Topic
-import app.maximus.lab.domain.TreeGame
+import app.maximus.ai.domain.GlossaryDuel
+import app.maximus.ai.domain.GradientGame
+import app.maximus.ai.domain.GridWorld
+import app.maximus.ai.domain.KMeansGame
+import app.maximus.ai.domain.MlTechnique
+import app.maximus.ai.domain.OverfitGame
+import app.maximus.ai.domain.P2
+import app.maximus.ai.domain.Perceptron
+import app.maximus.ai.domain.PerceptronGame
+import app.maximus.ai.domain.QLearner
+import app.maximus.ai.domain.TechniqueDetective
+import app.maximus.ai.domain.ThresholdGame
+import app.maximus.ai.domain.ThresholdMission
+import app.maximus.ai.domain.TreeGame
 import app.maximus.ui.charts.ChartFrame
 import app.maximus.ui.charts.LineSeries
 import app.maximus.ui.charts.drawLineChart
@@ -95,7 +94,7 @@ private fun GameColumn(content: @Composable () -> Unit) {
 /** Score banner after a scored attempt. */
 @Composable
 private fun ScoreBanner(score: Int, text: String) {
-    val accent = topicColor(Topic.AI)
+    val accent = MaterialTheme.colorScheme.primary
     Surface(shape = RoundedCornerShape(12.dp), color = accent.copy(alpha = 0.12f), border = BorderStroke(1.dp, accent)) {
         Row(Modifier.fillMaxWidth().padding(12.dp), verticalAlignment = Alignment.CenterVertically) {
             Text("$score", style = MaterialTheme.typography.headlineMedium, fontWeight = FontWeight.Bold, color = accent, modifier = Modifier.width(64.dp))
@@ -109,7 +108,7 @@ private fun LabeledSlider(label: String, value: Float, range: ClosedFloatingPoin
     Column {
         Row {
             Text(label, style = MaterialTheme.typography.labelLarge, modifier = Modifier.weight(1f))
-            Text(display, style = MaterialTheme.typography.labelLarge.copy(fontFeatureSettings = "tnum"), color = topicColor(Topic.AI))
+            Text(display, style = MaterialTheme.typography.labelLarge.copy(fontFeatureSettings = "tnum"), color = MaterialTheme.colorScheme.primary)
         }
         Slider(value = value, onValueChange = onChange, valueRange = range)
     }
@@ -142,7 +141,7 @@ internal fun TechniqueGameScreen(finish: (Int) -> Unit) {
     var answers by remember(seed) { mutableStateOf(listOf<Boolean>()) }
     var picked by remember(seed) { mutableStateOf<MlTechnique?>(null) }
     var reported by remember(seed) { mutableStateOf(false) }
-    val accent = topicColor(Topic.AI)
+    val accent = MaterialTheme.colorScheme.primary
 
     GameColumn {
         if (index >= round.size) {
@@ -193,7 +192,7 @@ internal fun GradientGameScreen(finish: (Int) -> Unit) {
     val b = if (level.allowMomentum) beta.toDouble() else 0.0
     val path = remember(levelIndex, eta, b) { GradientGame.run(l, eta, b, level.steps) }
     val end = GradientGame.finalLoss(l, path)
-    val accent = topicColor(Topic.AI)
+    val accent = MaterialTheme.colorScheme.primary
     val curveColor = MaterialTheme.colorScheme.onSurface
     val bad = MaterialTheme.colorScheme.error
 
@@ -259,7 +258,7 @@ internal fun PerceptronGameScreen(finish: (Int) -> Unit) {
     val p = Perceptron(w1.toDouble(), w2.toDouble(), b.toDouble())
     val acc = p.accuracy(data)
     val c0 = MaterialTheme.colorScheme.tertiary
-    val c1 = topicColor(Topic.AI)
+    val c1 = MaterialTheme.colorScheme.primary
     val line = MaterialTheme.colorScheme.onSurface
 
     GameColumn {
@@ -325,7 +324,7 @@ internal fun KMeansGameScreen(finish: (Int) -> Unit) {
     var steps by remember(seed, k) { mutableIntStateOf(0) }
     var result by remember(seed, k) { mutableStateOf<Int?>(null) }
     val best = remember(seed, k) { KMeansGame.bestInertia(points, k) }
-    val palette = listOf(topicColor(Topic.AI), MaterialTheme.colorScheme.tertiary, MaterialTheme.colorScheme.secondary, Color(0xFF64B5F6), Color(0xFFE57373))
+    val palette = listOf(MaterialTheme.colorScheme.primary, MaterialTheme.colorScheme.tertiary, MaterialTheme.colorScheme.secondary, Color(0xFF64B5F6), Color(0xFFE57373))
     val grey = MaterialTheme.colorScheme.outline
     val inertia = labels?.let { if (centers.size == k) KMeansGame.inertia(points, it, centers) else null }
 
@@ -382,7 +381,7 @@ internal fun OverfitGameScreen(finish: (Int) -> Unit) {
     val data = remember(seed) { OverfitGame.data(seed) }
     val fit = remember(seed, degree) { OverfitGame.fit(data, degree) }
     val all = remember(seed) { OverfitGame.degrees.map { OverfitGame.fit(data, it) } }
-    val accent = topicColor(Topic.AI)
+    val accent = MaterialTheme.colorScheme.primary
     val train = MaterialTheme.colorScheme.onSurface
     val valC = MaterialTheme.colorScheme.tertiary
     val truth = MaterialTheme.colorScheme.outline
@@ -446,7 +445,7 @@ internal fun ThresholdGameScreen(finish: (Int) -> Unit) {
     val s = remember(seed) { ThresholdGame.scores(seed) }
     val c = ThresholdGame.confusion(s, threshold.toDouble())
     val ok = ThresholdGame.objective(mission, c) != null
-    val pos = topicColor(Topic.AI)
+    val pos = MaterialTheme.colorScheme.primary
     val neg = MaterialTheme.colorScheme.tertiary
     val line = MaterialTheme.colorScheme.onSurface
 
@@ -512,7 +511,7 @@ internal fun TreeGameScreen(finish: (Int) -> Unit) {
     var reported by remember(root) { mutableStateOf(false) }
     val rows = TreeGame.rows
     val allF = TreeGame.features.indices.toList()
-    val accent = topicColor(Topic.AI)
+    val accent = MaterialTheme.colorScheme.primary
 
     GameColumn {
         SectionCard("Daten: Heute schwer trainieren?") {
@@ -566,7 +565,7 @@ internal fun TreeGameScreen(finish: (Int) -> Unit) {
 @Composable
 private fun GainList(gains: Map<Int, Double>, chosen: Int) {
     val best = gains.maxBy { it.value }.key
-    val accent = topicColor(Topic.AI)
+    val accent = MaterialTheme.colorScheme.primary
     Column {
         gains.entries.sortedByDescending { it.value }.forEach { (i, g) ->
             Row(verticalAlignment = Alignment.CenterVertically) {
@@ -593,7 +592,7 @@ internal fun QLearnGameScreen(finish: (Int) -> Unit) {
     val learner = remember(generation) { QLearner(world, alpha.toDouble(), gamma.toDouble(), eps.toDouble(), seed = generation.toLong() + 1) }
     var version by remember(generation) { mutableIntStateOf(0) }
     var result by remember(generation) { mutableStateOf<Int?>(null) }
-    val accent = topicColor(Topic.AI)
+    val accent = MaterialTheme.colorScheme.primary
     val wallC = MaterialTheme.colorScheme.outline
     val trapC = MaterialTheme.colorScheme.error
     val text = MaterialTheme.colorScheme.onSurface
@@ -676,7 +675,7 @@ internal fun GlossaryDuelScreen(finish: (Int) -> Unit) {
     var shownAt by remember(seed, index) { mutableLongStateOf(System.currentTimeMillis()) }
     var picked by remember(seed, index) { mutableStateOf<Int?>(null) }
     var reported by remember(seed) { mutableStateOf(false) }
-    val accent = topicColor(Topic.AI)
+    val accent = MaterialTheme.colorScheme.primary
     val maxPoints = round.size * 12
 
     GameColumn {
@@ -685,7 +684,7 @@ internal fun GlossaryDuelScreen(finish: (Int) -> Unit) {
             LaunchedEffect(seed) { if (!reported) { reported = true; finish(score) } }
             ScoreBanner(score, "$correct von ${round.size} richtig, $points Punkte. Schnelle Antworten (unter 3 s) geben Bonus.")
             Button(onClick = { seed = System.currentTimeMillis() }, modifier = Modifier.fillMaxWidth()) { Text("Neues Duell") }
-            Text("Alle ${AiGlossary.terms.size} Begriffe findest du im Glossar der Spielwiese.", style = MaterialTheme.typography.bodySmall,
+            Text("Alle ${AiGlossary.terms.size} Begriffe findest du im Reiter Glossar.", style = MaterialTheme.typography.bodySmall,
                 color = MaterialTheme.colorScheme.outline)
             return@GameColumn
         }

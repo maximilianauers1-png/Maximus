@@ -34,7 +34,7 @@ import androidx.compose.ui.unit.dp
 import app.maximus.R
 
 /** The app's modules; each can carry its own palette depending on the chosen [DesignConcept]. */
-enum class ModuleStyle { DND, STRONGMAN, NUTRITION, LAB, MAXIMUS }
+enum class ModuleStyle { DND, STRONGMAN, NUTRITION, LAB, AI, MAXIMUS }
 
 /** Ornament drawn under the top bar. */
 enum class StripePattern { SLASHED, BANDS, METAL, SCAN }
@@ -89,6 +89,14 @@ object Palettes {
         stripe = listOf(Color(0xFF2F6FE0), Color(0xFFF4F7FB), Color(0xFFC9D1DB), Color(0xFF2F6FE0)), pattern = StripePattern.METAL
     )
 
+    /** The alchemist's study for AI engineering: old gold and verdigris on ink black, parchment highlights. */
+    val ALCHEMIE = ModulePalette(
+        primary = Color(0xFFE2B455), onPrimary = Color(0xFF1C1405), secondary = Color(0xFF6FC8AE), tertiary = Color(0xFFEFE2C4),
+        ground = Color(0xFF0B0C0B), low = Color(0xFF121412), container = Color(0xFF181B18), high = Color(0xFF20241F), highest = Color(0xFF2A2F29),
+        outline = Color(0xFF6E6440), hairline = Color(0xFF30342A),
+        stripe = listOf(Color(0xFF0B0C0B), Color(0xFFE2B455), Color(0xFF3E8C76)), pattern = StripePattern.BANDS
+    )
+
     /** Retro terminal for Maximus: amber and green phosphor on black, monospace. */
     val TERMINAL = ModulePalette(
         primary = Color(0xFFFFB000), onPrimary = Color(0xFF1A1000), secondary = Color(0xFF41FF7A), tertiary = Color(0xFFFF6B5B),
@@ -103,7 +111,7 @@ object Palettes {
  * Maximus keeps the terminal; "Klassisch" is the original steel design without module colours.
  */
 enum class DesignConcept(val label: String, val description: String) {
-    RITTERORDEN("Ritterorden", "Schwarz-Rot-Gold für D&D und Strongman, Blau-Weiß-Silber für Labor und Ernährung, Maximus als Terminal"),
+    RITTERORDEN("Ritterorden", "Schwarz-Rot-Gold für D&D und Strongman, Blau-Weiß-Silber für Labor und Ernährung, Gold und Grünspan für AI, Maximus als Terminal"),
     SCHWARZ_ROT_GOLD("Schwarz-Rot-Gold", "Alle Bereiche in Schwarz, Rot und Gold; D&D mit Landsknecht-Muster, Maximus als Terminal"),
     BLAU_WEISS_SILBER("Blau-Weiß-Silber", "Alle Bereiche in Königsblau, Weiß und Silber; D&D bleibt rot-schwarz, Maximus als Terminal"),
     KLASSISCH("Klassisch", "Das ursprüngliche Design: dunkles Eisen und poliertes Silber, überall gleich");
@@ -114,6 +122,7 @@ enum class DesignConcept(val label: String, val description: String) {
             ModuleStyle.DND -> Palettes.LANDSKNECHT
             ModuleStyle.STRONGMAN -> Palettes.SCHWARZ_ROT_GOLD
             ModuleStyle.NUTRITION, ModuleStyle.LAB -> Palettes.BLAU_WEISS_SILBER
+            ModuleStyle.AI -> Palettes.ALCHEMIE
             ModuleStyle.MAXIMUS -> Palettes.TERMINAL
         }
         SCHWARZ_ROT_GOLD -> when (module) {

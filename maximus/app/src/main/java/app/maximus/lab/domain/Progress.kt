@@ -24,9 +24,7 @@ data class LabProgress(
     val usedCalculators: Set<String> = emptySet(),
     val badges: Set<String> = emptySet(),
     val topics: Map<Topic, TopicStat> = emptyMap(),
-    val cards: Map<String, CardState> = emptyMap(),
-    /** Best score 0…100 per AI game (key = AiGame name). */
-    val games: Map<String, Int> = emptyMap()
+    val cards: Map<String, CardState> = emptyMap()
 ) {
     fun topic(t: Topic) = topics[t] ?: TopicStat()
 }
@@ -62,13 +60,34 @@ object LabRules {
         return ((xp - lo).toDouble() / (hi - lo)).coerceIn(0.0, 1.0)
     }
 
-    private val TITLES = listOf(
-        1 to "Lehrling", 3 to "Knappe der Formeln", 5 to "Experimentator", 8 to "Ritter der Analysis",
-        12 to "Hüter der Hauptsätze", 16 to "Meister der Felder", 20 to "Quantenritter", 25 to "Großmeister der Physik",
-        30 to "Laplacescher Dämon", 40 to "Maxwells Dämon"
+    /** One rank per level – no name twice; beyond the named ranks the immortals count on in Roman numerals. */
+    val RANKS: List<String> = listOf(
+        "Lehrbub des Pendels", "Lotgießer der Werkstatt", "Kerzenzieher der Optik", "Gehilfe am Stundenglas",
+        "Knappe der Formeln", "Waagemeister der Apotheke", "Hebelkundiger des Archimedes", "Prismenschleifer",
+        "Barometermacher", "Experimentator der Fallrinne", "Keplers Sternbuchhalter", "Ritter der Analysis",
+        "Fluxionenrechner", "Hüter der Hauptsätze", "Bändiger des Dampfkessels", "Carnots Kreisläufer",
+        "Wächter der Entropie", "Sammler der Leidener Flaschen", "Galvanis Froschmeister", "Voltas Säulenbauer",
+        "Faradays Feldlinienzieher", "Meister der Felder", "Maxwells Gleichungsschmied", "Reiter der Lichtwelle",
+        "Leser der Spektrallinien", "Plancks Quantenmünzer", "Bohrs Bahnbaumeister", "Quantenritter",
+        "Weber der Wellenfunktion", "Tunnelgräber der Barriere", "Spinschmied", "Bändermeister des Halbleiters",
+        "Alchemist der Dotierung", "Herr des pn-Übergangs", "Kühlkünstler der Kalorik", "Flechter der Polymerketten",
+        "Dompteur der Reptation", "Graf der Schaltkreise", "Baumeister der Chips", "Lagranges Variationsfürst",
+        "Hamiltons Phasenraumvogt", "Kreiselbändiger des starren Körpers", "Lorentz' Zeitdehner", "Krümmer der Raumzeit",
+        "Kanzler der Tensoren", "Herzog des Hilbertraums", "Markgraf der Funktionentheorie", "Richter der Residuen",
+        "Hüter des Dirac-Spinors", "Feynmans Diagrammzeichner", "Meister der Renormierung", "Kurfürst der Eichfelder",
+        "Großmeister der Physik", "Noethers Symmetriewahrer", "Boltzmanns Zustandszähler", "Laplacescher Dämon",
+        "Maxwells Dämon", "Hüter der Weltformel", "Erzphilosoph der Natur", "Newtons Erbe auf den Schultern von Riesen"
     )
 
-    fun title(level: Int): String = TITLES.last { it.first <= level }.second
+    fun title(level: Int): String = RANKS.getOrNull(level - 1) ?: "Unsterblicher der Naturlehre ${roman(level - RANKS.size)}"
+
+    private fun roman(n: Int): String {
+        val v = intArrayOf(1000, 900, 500, 400, 100, 90, 50, 40, 10, 9, 5, 4, 1)
+        val sym = arrayOf("M", "CM", "D", "CD", "C", "XC", "L", "XL", "X", "IX", "V", "IV", "I")
+        var x = n; val b = StringBuilder()
+        for (i in v.indices) while (x >= v[i]) { b.append(sym[i]); x -= v[i] }
+        return b.toString()
+    }
 
     fun streakMultiplier(streak: Int) = 1 + 0.1 * min(streak, 10)
 
@@ -83,7 +102,6 @@ object LabRules {
         Topic.QFT to ("Feynmans Diagramm" to "Quantenfeldtheorie zu 80 % gemeistert"),
         Topic.POLYMER to ("Flory-Schüler" to "Polymerphysik zu 80 % gemeistert"),
         Topic.ELECTRICAL to ("Schaltkreis-Schmied" to "Elektrotechnik und Chips zu 80 % gemeistert"),
-        Topic.AI to ("Gradientenreiter" to "AI Engineering zu 80 % gemeistert"),
         Topic.MECHANICS to ("Newtons Apfel" to "Mechanik und Relativität zu 80 % gemeistert"),
         Topic.MATH to ("Gauß' Zögling" to "Mathematik zu 80 % gemeistert")
     )
@@ -111,12 +129,6 @@ object LabRules {
         Badge("cards20m", "Langzeitgedächtnis", "20 Karteikarten im höchsten Fach") { p -> p.cards.values.count { it.box >= 5 } >= 20 },
         Badge("lvl10", "Zweistellig", "Stufe 10 erreicht") { level(it.xp) >= 10 },
         Badge("lvl20", "Quantensprung", "Stufe 20 erreicht") { level(it.xp) >= 20 },
-        Badge("aiPlay", "Spielkind", "Ein Spiel der AI-Spielwiese gespielt") { it.games.isNotEmpty() },
-        Badge("aiPlay5", "Neugieriges Netz", "Fünf verschiedene AI-Spiele gespielt") { it.games.size >= 5 },
-        Badge("aiAll80", "Großmeister der Spielwiese", "In jedem AI-Spiel mindestens 80 Punkte") { p -> AiGame.entries.all { (p.games[it.name] ?: 0) >= 80 } },
-        Badge("aiPath10", "Zehn Happen", "Zehn Kapitel des AI-Lernpfads gelesen") { p -> AiCurriculum.keys.count { it in p.readChapters } >= 10 },
-        Badge("aiPath30", "Halbzeit im AI-Kurs", "Dreißig Happen des AI-Lernpfads gelesen") { p -> AiCurriculum.keys.count { it in p.readChapters } >= 30 },
-        Badge("aiPathAll", "AI Engineer", "Den ganzen AI-Lernpfad gelesen") { p -> AiCurriculum.keys.all { it in p.readChapters } },
         Badge("allround", "Universalgelehrter", "In jedem Gebiet mindestens 5 richtige Antworten") { p -> Topic.entries.all { p.topic(it).correct >= 5 } }
     ) + TOPIC_BADGE.map { (t, b) -> Badge("m_${t.name}", b.first, b.second) { it.topic(t).mastery >= 0.8 && it.topic(t).answered >= 10 } }
 
@@ -199,21 +211,6 @@ object LabRules {
         return badges(p, ev) to ev
     }
 
-    /**
-     * A finished AI game with score 0…100: XP = 5 + score/5 every time, plus 25 for a new personal best
-     * (so practice pays, but grinding the same easy game does not explode the XP).
-     */
-    fun gameFinished(p0: LabProgress, game: AiGame, score: Int, today: Long): Pair<LabProgress, List<LabEvent>> {
-        val ev = ArrayList<LabEvent>()
-        val s = score.coerceIn(0, 100)
-        var p = touchDay(p0, today, ev)
-        val old = p.games[game.name]
-        p = p.copy(games = p.games + (game.name to maxOf(old ?: 0, s)))
-        p = gain(p, 5 + s / 5, game.title, ev)
-        if (old == null || s > old) p = gain(p, 25, "Neuer Bestwert", ev)
-        return badges(p, ev) to ev
-    }
-
     /** Leitner step: known → next box (max 5), due after LEITNER_DAYS[box]; unknown → box 1, due tomorrow. */
     fun reviewCard(p0: LabProgress, id: String, knew: Boolean, today: Long): Pair<LabProgress, List<LabEvent>> {
         val ev = ArrayList<LabEvent>()
@@ -253,7 +250,6 @@ object LabRules {
         appendLine("badges=${p.badges.joinToString(",")}")
         p.topics.forEach { (t, s) -> appendLine("topic.${t.name}=${s.answered},${s.correct},${s.mastery}") }
         p.cards.forEach { (id, c) -> appendLine("card.$id=${c.box},${c.dueDay}") }
-        p.games.forEach { (g, s) -> appendLine("game.$g=$s") }
     }
 
     fun decode(text: String?): LabProgress {
@@ -272,15 +268,12 @@ object LabRules {
             val box = parts.getOrNull(0)?.toIntOrNull()?.coerceIn(0, 5) ?: return@mapNotNull null
             k.removePrefix("card.") to CardState(box, parts.getOrNull(1)?.toLongOrNull() ?: 0)
         }.toMap()
-        val games = m.filter { it.first.startsWith("game.") }.mapNotNull { (k, v) ->
-            v.toIntOrNull()?.coerceIn(0, 100)?.let { k.removePrefix("game.") to it }
-        }.toMap()
         return LabProgress(
             xp = long("xp", 0).coerceAtLeast(0), answered = int("answered"), correct = int("correct"),
             streak = int("streak"), bestStreak = int("best"), lastActiveDay = long("last", Long.MIN_VALUE),
             lastDailyDay = long("daily", Long.MIN_VALUE), dailyCount = int("dailyCount"), perfectSessions = int("perfect"),
             reviews = int("reviews"), readChapters = set("read"), usedCalculators = set("calcs"), badges = set("badges"),
-            topics = topics, cards = cards, games = games
+            topics = topics, cards = cards
         )
     }
 }

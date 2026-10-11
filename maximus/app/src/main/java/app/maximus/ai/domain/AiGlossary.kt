@@ -1,4 +1,4 @@
-package app.maximus.lab.domain
+package app.maximus.ai.domain
 
 import kotlin.random.Random
 
@@ -312,15 +312,15 @@ object AiGlossary {
     }
 
     /** Two questions per term, with deterministic ids; options are shuffled later by the quiz engine. */
-    val questions: List<Question> by lazy {
+    val questions: List<AiQuestion> by lazy {
         val r = Random(4711)
         terms.flatMapIndexed { i, t ->
             val diff = when (t.group) { "Grundbegriffe", "Lernarten", "Die sieben Techniken" -> 1; "Transformer und LLMs", "Bestärkendes Lernen", "Engineering" -> 3; else -> 2 }
             listOf(
-                Question("gl-$i-d", Topic.AI, diff, "Was bedeutet „${t.term}“?", "${t.term}: ${t.definition}.",
-                    listOf(t.definition) + distractors(t, r, ofTerms = false), 0, chapterKey = t.chapterKey),
-                Question("gl-$i-t", Topic.AI, diff, "Welcher Begriff passt? „${t.definition}“", "${t.term}: ${t.definition}.",
-                    listOf(t.term) + distractors(t, r, ofTerms = true), 0, chapterKey = t.chapterKey)
+                AiQuestion("gl-$i-d", t.chapterKey, diff, QKind.TERM, "Was bedeutet „${t.term}“?",
+                    listOf(t.definition) + distractors(t, r, ofTerms = false), 0, "${t.term}: ${t.definition}."),
+                AiQuestion("gl-$i-t", t.chapterKey, diff, QKind.TERM, "Welcher Begriff passt? „${t.definition}“",
+                    listOf(t.term) + distractors(t, r, ofTerms = true), 0, "${t.term}: ${t.definition}.")
             )
         }
     }

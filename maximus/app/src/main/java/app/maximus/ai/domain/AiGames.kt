@@ -1,4 +1,4 @@
-package app.maximus.lab.domain
+package app.maximus.ai.domain
 
 import kotlin.math.abs
 import kotlin.math.cos

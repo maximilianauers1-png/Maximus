@@ -1,15 +1,14 @@
-package app.maximus.lab.domain
+package app.maximus.ai.domain
+
+import app.maximus.lab.domain.fm
+import app.maximus.lab.domain.sec
 
 /** Generative AI in practice (prompting, embeddings, frameworks, fine-tuning, evaluation) and AI engineering for production. */
 internal object CompendiumAiGen {
-    private val T = Topic.AI
-
-    val chapters: List<Chapter> = course(
-        "Generative KI und LLMs",
-        chapter(
-            "gen_prompting", T, 2, "Prompt Engineering",
+    val bites: List<Bite> = listOf(
+        bite(
+            "gen_prompting", 2, "Prompt Engineering",
             "Wie ein Sprachmodell einen Prompt liest, Rolle und Kontext, Zero- und Few-Shot, Schritt-für-Schritt-Denken, strukturierte Ausgaben, Systemprompts, typische Fehler.",
-            emptyList(),
             sec("Was ein Sprachmodell eigentlich tut", """
                 Ein LLM setzt Text fort: Es berechnet für das nächste Token eine Wahrscheinlichkeitsverteilung und wählt daraus. Alles, was im Prompt steht, ist Kontext, der diese Verteilung verschiebt. Ein guter Prompt macht die gewünschte Antwort zur wahrscheinlichsten Fortsetzung. Das Modell hat kein Gedächtnis zwischen Gesprächen – nur das, was im aktuellen Kontextfenster steht.
             """,
@@ -45,10 +44,9 @@ internal object CompendiumAiGen {
                 • Ergebnisse nicht prüfen: LLMs können überzeugend falsch sein (Halluzinationen).
             """)
         ),
-        chapter(
-            "gen_vector", T, 2, "Embeddings und Vektordatenbanken",
+        bite(
+            "gen_vector", 2, "Embeddings und Vektordatenbanken",
             "Bedeutung als Vektor, Kosinusähnlichkeit, Satz-Embeddings, semantische Suche, approximative Nachbarsuche (HNSW, IVF), Chunking, hybride Suche.",
-            emptyList(),
             sec("Bedeutung als Richtung im Raum", """
                 Ein Embedding-Modell bildet einen Text (Wort, Satz, Absatz) auf einen Vektor mit einigen hundert bis tausend Zahlen ab. Texte mit ähnlicher Bedeutung landen nah beieinander, auch wenn sie keine Wörter teilen: „Kniebeuge“ und „Squat“ liegen nah. Gemessen wird meist mit der Kosinusähnlichkeit. Berühmt: König − Mann + Frau ≈ Königin – Bedeutungsbeziehungen als Vektordifferenzen.
             """,
@@ -81,10 +79,9 @@ internal object CompendiumAiGen {
                 • Hybride Suche: Embeddings verstehen Bedeutung, Stichwortsuche (BM25) findet exakte Begriffe, Namen und Zahlen zuverlässiger – beide kombinieren.
             """)
         ),
-        chapter(
-            "gen_frameworks", T, 2, "LLM-Anwendungen bauen: LangChain, Ketten, Werkzeuge",
+        bite(
+            "gen_frameworks", 2, "LLM-Anwendungen bauen: LangChain, Ketten, Werkzeuge",
             "Bausteine einer LLM-App, Prompt-Vorlagen, Ketten, Gesprächsgedächtnis, Werkzeuge und Funktionsaufrufe, RAG-Kette in Code, Agenten-Frameworks.",
-            emptyList(),
             sec("Die Bausteine", """
                 Eine LLM-Anwendung ist mehr als ein Modell: Prompt-Vorlagen, Datenquellen, Retriever, Speicher für das Gespräch, Werkzeuge (Rechner, Suche, Datenbank, Code) und Logik, die alles verbindet. Frameworks wie LangChain, LlamaIndex oder Haystack liefern diese Bausteine fertig; der IBM-Kurs nutzt LangChain mit watsonx-Modellen.
             """),
@@ -110,10 +107,9 @@ internal object CompendiumAiGen {
                 > Werkzeuge machen LLMs verlässlich bei Dingen, die sie schlecht können: rechnen, aktuelle Fakten, Datenbanken. Maximus in dieser App nutzt genau das (/1rm, /rechne, /formel).
             """)
         ),
-        chapter(
-            "gen_finetune", T, 3, "Feinabstimmung in der Praxis",
+        bite(
+            "gen_finetune", 3, "Feinabstimmung in der Praxis",
             "Wann Prompting, wann RAG, wann Fine-Tuning; Datensätze bauen, Instruction-Tuning, LoRA und QLoRA, Hyperparameter, Hugging Face Trainer, Überprüfung.",
-            emptyList(),
             sec("Prompting, RAG oder Fine-Tuning?", """
                 • Prompting: zuerst immer. Kostet nichts, sofort änderbar.
                 • RAG: wenn das Modell Wissen braucht, das es nicht hat oder das sich ändert (Firmendokumente, deine Trainingsdaten).
@@ -139,10 +135,9 @@ internal object CompendiumAiGen {
                 Typische Fehler: zu hohe Lernrate (das Modell „vergisst“ Allgemeinwissen – katastrophales Vergessen), zu viele Epochen (auswendig lernen), Trainings- und Testdaten vermischt.
             """)
         ),
-        chapter(
-            "gen_eval", T, 3, "LLM-Anwendungen bewerten und absichern",
+        bite(
+            "gen_eval", 3, "LLM-Anwendungen bewerten und absichern",
             "Testsätze, automatische Metriken, LLM als Richter, RAG-Metriken (Treue, Relevanz), Halluzinationen, Prompt-Injection, Guardrails, Datenschutz.",
-            emptyList(),
             sec("Ohne Tests keine Verbesserung", """
                 Man baut früh einen festen Testsatz echter Fragen mit erwarteten Antworten oder Bewertungskriterien. Jede Änderung (Prompt, Modell, Chunking) wird darauf gemessen. Sonst verbessert man eine Frage und verschlechtert zehn andere, ohne es zu merken.
 
@@ -168,12 +163,10 @@ internal object CompendiumAiGen {
                 • Guardrails: Ein- und Ausgaben filtern und auf Format prüfen.
             """)
         )
-    ) + course(
-        "AI Engineering: vom Notebook zur Anwendung",
-        chapter(
-            "eng_deploy", T, 2, "Modelle bereitstellen",
+    ) + listOf(
+        bite(
+            "eng_deploy", 2, "Modelle bereitstellen",
             "Modell speichern (joblib, ONNX, SavedModel), REST-API mit Flask/FastAPI, Gradio-Demos, Docker-Container, Batch- gegen Echtzeit-Vorhersage, On-Device.",
-            emptyList(),
             sec("Vom Notebook zum Dienst", """
                 Ein Modell im Notebook nützt niemandem. Bereitstellen heißt: das trainierte Modell speichern, in eine Anwendung einbetten, die Anfragen annimmt, und das zuverlässig, schnell und überwacht. Zuerst klären: Brauche ich Vorhersagen in Echtzeit (eine Anfrage, Antwort in Millisekunden) oder als Stapel (jede Nacht alle Kunden bewerten)?
             """),
@@ -202,10 +195,9 @@ internal object CompendiumAiGen {
                 Docker packt Code, Bibliotheken und Modell in ein Image, das überall gleich läuft – Schluss mit „bei mir funktioniert es“. Skaliert wird mit Kubernetes oder Cloud-Diensten (IBM watsonx, AWS SageMaker, Google Vertex AI). Für LLMs gibt es spezialisierte Server (vLLM, TGI, Ollama). On-Device (wie Maximus) spart Server, Latenz und schützt Daten, braucht aber kleine, quantisierte Modelle.
             """)
         ),
-        chapter(
-            "eng_spark", T, 2, "Big Data mit Apache Spark",
+        bite(
+            "eng_spark", 2, "Big Data mit Apache Spark",
             "Warum verteilt rechnen, Spark-Architektur (Driver, Executor), RDD und DataFrame, Lazy Evaluation, Spark SQL, Spark MLlib-Pipelines, wann sich Spark lohnt.",
-            emptyList(),
             sec("Wenn die Daten nicht mehr auf einen Rechner passen", """
                 pandas lädt alles in den Arbeitsspeicher eines Rechners. Bei Terabytes geht das nicht mehr. Apache Spark verteilt Daten und Rechnungen auf viele Rechner (einen Cluster). Ein Driver-Programm plant die Arbeit, viele Executors erledigen sie parallel auf ihren Datenstücken (Partitionen). Spark hält Zwischenergebnisse im Speicher und ist deshalb viel schneller als das ältere Hadoop MapReduce.
             """),
@@ -239,10 +231,9 @@ internal object CompendiumAiGen {
                 • Deep Learning auf großen Daten: Spark für Vorverarbeitung, Training mit PyTorch/TensorFlow verteilt.
             """)
         ),
-        chapter(
-            "eng_mlops", T, 2, "MLOps: Modelle im Dauerbetrieb",
+        bite(
+            "eng_mlops", 2, "MLOps: Modelle im Dauerbetrieb",
             "Versionierung von Code, Daten und Modellen, Experiment-Tracking, automatisierte Pipelines und CI/CD, Monitoring, Daten- und Konzeptdrift, Neutraining, Rollback.",
-            emptyList(),
             sec("Warum MLOps?", """
                 Software ändert sich, wenn jemand den Code ändert. Ein ML-System ändert sich auch, wenn sich die Welt ändert – die Daten. MLOps überträgt DevOps-Praktiken auf ML: alles reproduzierbar, automatisiert, überwacht.
             """),
@@ -276,10 +267,9 @@ internal object CompendiumAiGen {
                 Werkzeuge: Airflow, Kubeflow, GitHub Actions, Cloud-Pipelines.
             """)
         ),
-        chapter(
-            "eng_capstone", T, 2, "Dein Abschlussprojekt: ein ML-Projekt von A bis Z",
+        bite(
+            "eng_capstone", 2, "Dein Abschlussprojekt: ein ML-Projekt von A bis Z",
             "Ein vollständiges Projekt im Stil des IBM-Capstone: Fragestellung, Daten, EDA, Basislinie, Modelle, Bewertung, Bericht, Demo – mit Checkliste und Projektideen.",
-            emptyList(),
             sec("Projektidee mit Bezug zu dir", """
                 • Strongman: e1RM-Prognose aus deinem Trainingslog (Regression), Erkennen von Übertrainingsphasen (Anomalie), Trainingstage clustern.
                 • Physik: Phasenübergänge in Simulationsdaten klassifizieren, Materialeigenschaften elektrokalorischer Polymere vorhersagen, Rauschen in Messdaten mit Autoencoder entfernen.

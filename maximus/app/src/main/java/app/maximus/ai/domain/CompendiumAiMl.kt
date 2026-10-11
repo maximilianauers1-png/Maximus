@@ -1,4 +1,7 @@
-package app.maximus.lab.domain
+package app.maximus.ai.domain
+
+import app.maximus.lab.domain.fm
+import app.maximus.lab.domain.sec
 
 /**
  * "Machine Learning: Die sieben Techniken" – the technique map of IBM's "Machine Learning with Python":
@@ -6,14 +9,10 @@ package app.maximus.lab.domain
  * recommendation systems, plus dimensionality reduction as the eighth tool every course also teaches.
  */
 internal object CompendiumAiMl {
-    private val T = Topic.AI
-
-    val chapters: List<Chapter> = course(
-        "ML: Die sieben Techniken",
-        chapter(
-            "ml_techniques", T, 1, "Die Landkarte der sieben Techniken",
+    val bites: List<Bite> = listOf(
+        bite(
+            "ml_techniques", 1, "Die Landkarte der sieben Techniken",
             "Regression, Klassifikation, Clustering, Assoziation, Anomalieerkennung, Sequenz-Mining, Empfehlungssysteme – und welche Technik zu welcher Frage passt.",
-            emptyList(),
             sec("Sieben Fragen, sieben Techniken", """
                 Fast jedes ML-Problem lässt sich einer von sieben Grundtechniken zuordnen. Merke dir die Frage, die jede beantwortet:
 
@@ -54,10 +53,9 @@ internal object CompendiumAiMl {
                 • Dimensionsreduktion: PCA, t-SNE, UMAP, Autoencoder
             """)
         ),
-        chapter(
-            "ml_regression", T, 1, "Regression: Zahlen vorhersagen",
+        bite(
+            "ml_regression", 1, "Regression: Zahlen vorhersagen",
             "Einfache, multiple, polynomiale und nichtlineare Regression, kleinste Quadrate, Koeffizienten deuten, Fehlermaße MAE, MSE, RMSE, R².",
-            emptyList(),
             sec("Einfache lineare Regression", """
                 Eine Eingangsgröße, eine Zielgröße, eine Gerade. Beispiel aus dem IBM-Kurs: CO₂-Ausstoß eines Autos aus der Motorgröße. Die Gerade ŷ = θ₀ + θ₁x wird so gelegt, dass die Summe der quadrierten senkrechten Abstände minimal ist (Methode der kleinsten Quadrate, OLS). Es gibt eine geschlossene Lösung:
             """,
@@ -102,10 +100,9 @@ internal object CompendiumAiMl {
                 • Korrelation ist keine Kausalität: Ein großer Koeffizient heißt nicht, dass das Merkmal die Ursache ist.
             """)
         ),
-        chapter(
-            "ml_classification", T, 1, "Klassifikation: Schubladen vorhersagen",
+        bite(
+            "ml_classification", 1, "Klassifikation: Schubladen vorhersagen",
             "Binär und mehrklassig, Entscheidungsgrenzen, die fünf Klassiker KNN, Entscheidungsbaum, logistische Regression, SVM, Naive Bayes, One-vs-Rest.",
-            emptyList(),
             sec("Die Idee", """
                 Ein Klassifikator ordnet jedem Beispiel eine Klasse zu. Im Merkmalsraum zieht er Entscheidungsgrenzen: Auf der einen Seite „Spam“, auf der anderen „kein Spam“. Lineare Klassifikatoren ziehen gerade Grenzen (Ebenen), andere können beliebig gekrümmte Grenzen lernen.
 
@@ -148,10 +145,9 @@ internal object CompendiumAiMl {
                 fm("Log-Loss", "LL = −(1/N) Σ [yᵢ ln pᵢ + (1 − yᵢ) ln(1 − pᵢ)]")
             )
         ),
-        chapter(
-            "ml_clustering", T, 1, "Clustering: Gruppen entdecken",
+        bite(
+            "ml_clustering", 1, "Clustering: Gruppen entdecken",
             "Ähnlichkeit und Distanz, k-Means, hierarchisches Clustering, DBSCAN, wie viele Cluster, Anwendungen wie Kundensegmentierung.",
-            emptyList(),
             sec("Was ist ein Cluster?", """
                 Ein Cluster ist eine Gruppe von Beispielen, die einander ähnlicher sind als den Beispielen anderer Gruppen. Es gibt keine Labels – das Verfahren entdeckt die Gruppen selbst. Was „ähnlich“ heißt, bestimmt das Distanzmaß.
 
@@ -184,10 +180,9 @@ internal object CompendiumAiMl {
                 fm("Silhouette", "s = (b − a) / max(a, b)")
             )
         ),
-        chapter(
-            "ml_association", T, 1, "Assoziation: Was gehört zusammen?",
+        bite(
+            "ml_association", 1, "Assoziation: Was gehört zusammen?",
             "Warenkorbanalyse, Itemsets, Support, Konfidenz, Lift, Apriori-Prinzip, FP-Growth, Anwendungen und Fallstricke.",
-            emptyList(),
             sec("Warenkorbanalyse", """
                 Ein Supermarkt hat Millionen Kassenbons (Transaktionen). Jede ist eine Menge von Artikeln (Items). Gesucht sind Regeln der Form „Wer A kauft, kauft auch B“ (A ⇒ B). Daraus folgen Regalplanung, Bundles, Empfehlungen. Dieselbe Methode findet zusammen auftretende Symptome, Fehlermeldungen oder Webseitenbesuche.
             """),
@@ -217,10 +212,9 @@ internal object CompendiumAiMl {
                 • Bei sehr vielen Regeln: nach Lift und Support filtern, Fachleute draufschauen lassen.
             """)
         ),
-        chapter(
-            "ml_anomaly", T, 2, "Anomalieerkennung: das Ungewöhnliche finden",
+        bite(
+            "ml_anomaly", 2, "Anomalieerkennung: das Ungewöhnliche finden",
             "Punkt-, Kontext- und Kollektivanomalien, z-Score und IQR, Isolation Forest, One-Class-SVM, Local Outlier Factor, Autoencoder, Bewertung bei seltenen Ereignissen.",
-            emptyList(),
             sec("Arten von Anomalien", """
                 • Punktanomalie: ein einzelner Wert ist absurd – eine Kartenzahlung über 9000 € bei sonst 30 €.
                 • Kontextanomalie: der Wert ist nur in seinem Zusammenhang seltsam – 30 °C im Januar in Berlin.
@@ -254,10 +248,9 @@ internal object CompendiumAiMl {
                 Accuracy ist hier nutzlos: Bei 0,1 % Betrug ist „nie Alarm“ zu 99,9 % richtig. Man schaut auf Recall (wie viel Betrug wird gefunden), Precision (wie viele Alarme stimmen) und die Precision-Recall-Kurve. Die Alarmschwelle richtet sich nach den Kosten: Ein übersehener Betrug kostet Geld, ein Fehlalarm einen genervten Kunden.
             """)
         ),
-        chapter(
-            "ml_sequence", T, 2, "Sequenz-Mining und Zeitreihen",
+        bite(
+            "ml_sequence", 2, "Sequenz-Mining und Zeitreihen",
             "Sequentielle Muster (GSP, PrefixSpan), Markov-Ketten, Zeitreihenkomponenten, gleitender Mittelwert, AR/ARIMA, LSTM, zeitlich korrektes Validieren.",
-            emptyList(),
             sec("Wenn die Reihenfolge zählt", """
                 Bei Sequenzdaten ist die Reihenfolge Teil der Information: Klickpfade, Kaufhistorien, DNA, Sätze, Sensordaten. Zwei Fragestellungen:
 
@@ -291,10 +284,9 @@ internal object CompendiumAiMl {
                 $     ...  # Test liegt immer nach dem Training
             """)
         ),
-        chapter(
-            "ml_recommender", T, 2, "Empfehlungssysteme",
+        bite(
+            "ml_recommender", 2, "Empfehlungssysteme",
             "Inhaltsbasierte Empfehlungen, kollaboratives Filtern (nutzer- und objektbasiert), Kosinusähnlichkeit, Matrixfaktorisierung, Kaltstart, Bewertung.",
-            emptyList(),
             sec("Zwei Grundideen", """
                 • Inhaltsbasiert (content-based): „Du mochtest Actionfilme mit Keanu Reeves – hier ist noch einer.“ Man beschreibt Objekte durch Merkmale (Genre, Schauspieler) und baut aus deinen Bewertungen ein Nutzerprofil. Empfohlen wird, was dem Profil am ähnlichsten ist.
                 • Kollaboratives Filtern: „Menschen wie du mochten auch …“ Man braucht keine Merkmale der Objekte, nur die Bewertungsmatrix Nutzer × Objekt.
@@ -325,10 +317,9 @@ internal object CompendiumAiMl {
                 fm("Precision@k", "P@k = (relevante unter den Top-k) / k")
             )
         ),
-        chapter(
-            "ml_dimred", T, 2, "Dimensionsreduktion",
+        bite(
+            "ml_dimred", 2, "Dimensionsreduktion",
             "Fluch der Dimensionalität, Merkmalsauswahl gegen Merkmalsextraktion, PCA mit Eigenvektoren, erklärte Varianz, t-SNE und UMAP zur Visualisierung.",
-            emptyList(),
             sec("Warum weniger Dimensionen?", """
                 Mit vielen Merkmalen werden Daten im Raum dünn: Das Volumen wächst exponentiell, alle Punkte sind weit voneinander entfernt, Distanzen verlieren ihre Aussagekraft (Fluch der Dimensionalität). Weniger Dimensionen bedeuten schnelleres Training, weniger Overfitting, und bei zwei oder drei Dimensionen kann man die Daten ansehen.
 
