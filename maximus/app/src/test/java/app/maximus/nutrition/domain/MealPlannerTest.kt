@@ -7,14 +7,15 @@ import kotlin.math.abs
 
 class MealPlannerTest {
     @Test fun recipeDatabaseIsConsistent() {
-        assertEquals(82, Recipes.all.size)
+        assertEquals(82 + 5 + 20, Recipes.all.size)
         assertEquals(Recipes.all.size, Recipes.byKey.size)
         for (r in Recipes.all) {
             assertTrue(r.items.all { it.first in Foods.byKey })
             assertTrue(r.stepsDe.size == r.stepsEn.size && r.stepsDe.isNotEmpty())
             val n = r.nutrients
             assertTrue(n.kcal in 150.0..1600.0)
-            assertEquals(n.kcal, Atwater.kcal(n.proteinG, n.fatG, n.carbG, n.fiberG), 1e-6)
+            // Coach meals carry the coach's stated values; all others are the database sum.
+            if (r.stated == null) assertEquals(n.kcal, Atwater.kcal(n.proteinG, n.fatG, n.carbG, n.fiberG), 1e-6)
         }
         // Overnight oats: 80 g oats + 200 g milk + 150 g skyr + 100 g berries + 10 g chia + 10 g honey.
         // P = 0.8·13.5 + 2·3.4 + 1.5·11 + 1·1.0 + 0.1·17 + 0.1·0.4 = 36.84 g.
@@ -41,7 +42,7 @@ class MealPlannerTest {
     }
 
     @Test fun foodDatabaseIsConsistent() {
-        assertEquals(135, Foods.all.size)
+        assertEquals(141, Foods.all.size)
         assertEquals(Foods.all.size, Foods.byKey.size)
         for (f in Foods.all) {
             val n = f.per100

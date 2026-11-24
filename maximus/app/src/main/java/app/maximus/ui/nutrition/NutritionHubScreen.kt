@@ -35,6 +35,8 @@ import app.maximus.nutrition.domain.AdaptiveTdee
 import app.maximus.nutrition.domain.NutritionProfile
 import app.maximus.nutrition.domain.NutritionTargets
 import app.maximus.nutrition.domain.Recipe
+import app.maximus.nutrition.domain.RecipeBook
+import app.maximus.nutrition.domain.WeekBook
 import app.maximus.ui.components.MaximusTopBar
 import java.time.LocalDate
 
@@ -52,9 +54,16 @@ fun NutritionHubScreen(services: AppServices, onBack: () -> Unit, onOpenChat: ()
     val repo = services.nutrition
     val profile by repo.profile.collectAsState(initial = null)
     val log by repo.log.collectAsState(initial = emptyList<NutritionLogEntity>())
+    val custom by repo.customRecipes.collectAsState(initial = emptyList<Recipe>())
+    val book = remember(custom) { RecipeBook(custom) }
     var tab by rememberSaveable { mutableIntStateOf(0) }
     val today = remember { LocalDate.now().toEpochDay() }
-    val titles = listOf(R.string.nu_tab_goals, R.string.nu_tab_plan, R.string.nu_tab_recipes, R.string.nu_tab_journal, R.string.nu_tab_tools)
+    val currentWeekId = remember(today) { WeekBook.weekId(today) }
+    val week by remember(currentWeekId) { repo.week(currentWeekId) }.collectAsState(initial = WeekBook(currentWeekId))
+    val titles = listOf(
+        R.string.nu_tab_coach, R.string.nu_tab_week, R.string.nu_tab_recipes, R.string.nu_tab_journal,
+        R.string.nu_tab_goals, R.string.nu_tab_plan, R.string.nu_tab_tools
+    )
 
     Scaffold(topBar = {
         MaximusTopBar(stringResource(R.string.module_nutrition), onBack) { AskMaximusButton(onClick = { ask = true }) }
@@ -74,10 +83,12 @@ fun NutritionHubScreen(services: AppServices, onBack: () -> Unit, onOpenChat: ()
             val adaptive = remember(log) { AdaptiveTdee.estimate(log.map { it.toPoint() }, today) }
             val derived = remember(p, adaptive) { NutritionTargets.derive(p, today, adaptive) }
             when (tab) {
-                0 -> GoalsTab(p, derived, adaptive, today) { services.nutrition.saveProfileAsync(it) }
-                1 -> PlanTab(p, derived) { services.nutrition.saveProfileAsync(it) }
-                2 -> RecipesTab(p) { services.nutrition.saveProfileAsync(it) }
+                0 -> CoachTab(p, derived, log, today, week, book, repo) { services.nutrition.saveProfileAsync(it) }
+                1 -> WeekTab(derived, today, book, repo)
+                2 -> RecipesTab(p, book, today, repo) { services.nutrition.saveProfileAsync(it) }
                 3 -> JournalTab(log, adaptive, today, repo)
+                4 -> GoalsTab(p, derived, adaptive, today) { services.nutrition.saveProfileAsync(it) }
+                5 -> PlanTab(p, derived) { services.nutrition.saveProfileAsync(it) }
                 else -> ToolsTab(p)
             }
         }
@@ -87,8 +98,8 @@ fun NutritionHubScreen(services: AppServices, onBack: () -> Unit, onOpenChat: ()
             services.chat,
             AskRequest(
                 "Ernährung", Focus.NUTRITION,
-                listOf("Passt meine Proteinmenge zu meinen Zielen?", "Wie esse ich am Wettkampftag?", "Bewerte meinen Gewichtsverlauf",
-                    "Wie schaffe ich meine Kalorien ohne Völlegefühl?", "Lohnt sich Kreatin für mich?"),
+                listOf("Bewerte meinen Check-in dieser Woche", "Wie verliere ich Fett, ohne Kraft zu verlieren?", "Passt meine Proteinmenge zu meinen Zielen?",
+                    "Was esse ich vor und nach dem Training?", "Wie esse ich am Wettkampftag?", "Lohnt sich Kreatin für mich?"),
                 context = { services.chat.nutritionContext() }
             ),
             onDismiss = { ask = false },

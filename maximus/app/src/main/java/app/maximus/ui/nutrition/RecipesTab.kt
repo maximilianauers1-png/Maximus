@@ -34,13 +34,20 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import androidx.compose.material3.Button
+import androidx.compose.runtime.rememberCoroutineScope
 import app.maximus.R
+import app.maximus.nutrition.data.NutritionRepository
+import app.maximus.nutrition.domain.CustomRecipeCodec
+import app.maximus.nutrition.domain.RecipeBook
+import app.maximus.nutrition.domain.WeekBook
+import app.maximus.nutrition.domain.WeekEntry
+import kotlinx.coroutines.launch
 import app.maximus.nutrition.domain.Foods
 import app.maximus.nutrition.domain.MealType
 import app.maximus.nutrition.domain.NutritionProfile
 import app.maximus.nutrition.domain.Recipe
 import app.maximus.nutrition.domain.RecipeTag
-import app.maximus.nutrition.domain.Recipes
 import app.maximus.ui.components.EmptyState
 import app.maximus.ui.components.PlateCard
 import app.maximus.ui.components.SteelRule
@@ -55,23 +62,37 @@ fun tagLabel(t: RecipeTag) = stringResource(
         RecipeTag.QUICK -> R.string.nu_tag_quick
         RecipeTag.CLASSIC_GERMAN -> R.string.nu_tag_german
         RecipeTag.MASS_GAIN -> R.string.nu_tag_mass
+        RecipeTag.COACH_PLAN -> R.string.nu_tag_coach
+        RecipeTag.FAT_LOSS -> R.string.nu_tag_cut
+        RecipeTag.CUSTOM -> R.string.nu_tag_custom
     }
 )
 
 @Composable
-fun RecipesTab(p: NutritionProfile, onSave: (NutritionProfile) -> Unit) {
+fun RecipesTab(p: NutritionProfile, book: RecipeBook, today: Long, repo: NutritionRepository, onSave: (NutritionProfile) -> Unit) {
     val de = isGerman()
+    val scope = rememberCoroutineScope()
     var query by rememberSaveable { mutableStateOf("") }
     var type by rememberSaveable { mutableStateOf<MealType?>(null) }
     var tag by rememberSaveable { mutableStateOf<RecipeTag?>(null) }
     var open by remember { mutableStateOf<Recipe?>(null) }
+    var editor by remember { mutableStateOf<Recipe?>(null) }
+    var creating by remember { mutableStateOf(false) }
     val q = query.trim().lowercase()
-    val list = Recipes.all.filter { r ->
+    val list = book.all.filter { r ->
         (type == null || r.type == type) && (tag == null || tag in r.tags) &&
             (q.isEmpty() || r.name(de).lowercase().contains(q) || r.items.any { (k, _) -> Foods.byKey.getValue(k).let { f -> (if (de) f.nameDe else f.nameEn).lowercase().contains(q) } })
     }
 
     LazyColumn(contentPadding = PaddingValues(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+        item {
+            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                Button(onClick = { creating = true }, modifier = Modifier.weight(1f)) { Text(stringResource(R.string.nr_new)) }
+                OutlinedButton(onClick = { tag = if (tag == RecipeTag.FAT_LOSS) null else RecipeTag.FAT_LOSS }, modifier = Modifier.weight(1f)) {
+                    Text(stringResource(R.string.nu_tag_cut) + " (${book.all.count { RecipeTag.FAT_LOSS in it.tags }})")
+                }
+            }
+        }
         item { OutlinedTextField(query, { query = it }, label = { Text(stringResource(R.string.nu_recipe_search)) }, singleLine = true, modifier = Modifier.fillMaxWidth()) }
         item {
             FlowRow(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
@@ -90,6 +111,10 @@ fun RecipesTab(p: NutritionProfile, onSave: (NutritionProfile) -> Unit) {
             PlateCard(onClick = { open = r }) {
                 Column(modifier = Modifier.padding(horizontal = 16.dp, vertical = 12.dp)) {
                     Text(r.name(de), style = MaterialTheme.typography.titleLarge, color = if (excluded) MaterialTheme.colorScheme.outline else MaterialTheme.colorScheme.onSurface)
+                    val badges = listOf(RecipeTag.COACH_PLAN, RecipeTag.FAT_LOSS, RecipeTag.CUSTOM).filter { it in r.tags }
+                    if (badges.isNotEmpty()) {
+                        Text(badges.map { tagLabel(it) }.joinToString(" · "), style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.tertiary)
+                    }
                     Text(
                         "${mealTypeLabel(r.type)}   ${r.minutes} min   " + macroLine(n),
                         style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant
@@ -102,16 +127,48 @@ fun RecipesTab(p: NutritionProfile, onSave: (NutritionProfile) -> Unit) {
     open?.let { r ->
         RecipeDialog(r, 1.0, excluded = r.key in p.plan.excluded,
             onToggleExclude = { ex -> onSave(p.copy(plan = p.plan.copy(excluded = if (ex) p.plan.excluded + r.key else p.plan.excluded - r.key))) },
-            onDismiss = { open = null })
+            onDismiss = { open = null },
+            onAddToWeek = { day, slot, portions ->
+                scope.launch {
+                    val id = WeekBook.weekId(today)
+                    repo.saveWeek(repo.loadWeek(id).set(day, slot, WeekEntry(r.key, portions)))
+                }
+            },
+            today = today,
+            onEdit = if (RecipeTag.CUSTOM in r.tags) ({ open = null; editor = r }) else null,
+            onDelete = if (RecipeTag.CUSTOM in r.tags) ({ scope.launch { repo.deleteCustomRecipe(r.key) }; open = null }) else null
+        )
+    }
+    if (creating || editor != null) {
+        RecipeEditorDialog(
+            initial = editor,
+            newKey = { CustomRecipeCodec.newKey(book.custom.map { it.key }.toSet()) },
+            onSave = { r -> scope.launch { repo.saveCustomRecipe(r) }; creating = false; editor = null },
+            onDismiss = { creating = false; editor = null }
+        )
     }
 }
 
 /** Recipe with adjustable portions: every quantity and nutrient scales linearly with the portion factor. */
 @Composable
-fun RecipeDialog(r: Recipe, initialPortions: Double, excluded: Boolean, onToggleExclude: (Boolean) -> Unit, onDismiss: () -> Unit) {
+fun RecipeDialog(
+    r: Recipe,
+    initialPortions: Double,
+    excluded: Boolean,
+    onToggleExclude: (Boolean) -> Unit,
+    onDismiss: () -> Unit,
+    onAddToWeek: ((day: Int, slot: Int, portions: Double) -> Unit)? = null,
+    today: Long = 0L,
+    onEdit: (() -> Unit)? = null,
+    onDelete: (() -> Unit)? = null
+) {
     val de = isGerman()
+    val locale = androidx.compose.ui.platform.LocalConfiguration.current.locales[0]
     var portions by remember(r.key) { mutableDoubleStateOf(initialPortions) }
     var ex by remember(r.key, excluded) { mutableStateOf(excluded) }
+    var addDay by remember(r.key) { mutableStateOf(if (today > 0) WeekBook.dayIndex(today) else 0) }
+    var addSlot by remember(r.key) { mutableStateOf(WeekBook.slotTypes.indexOf(r.type).coerceAtLeast(0)) }
+    var added by remember(r.key) { mutableStateOf(false) }
     val n = r.nutrients * portions
     AlertDialog(
         onDismissRequest = onDismiss,
@@ -148,13 +205,39 @@ fun RecipeDialog(r: Recipe, initialPortions: Double, excluded: Boolean, onToggle
                         Text(s, style = MaterialTheme.typography.bodyMedium)
                     }
                 }
+                r.costSek?.let { Text(stringResource(R.string.nr_cost, fmt(it * portions, 0)), style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.onSurfaceVariant) }
+                if (r.stated != null) Text(stringResource(R.string.nr_stated_note, fmt(r.computed.kcal * portions, 0)), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
                 Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.padding(top = 6.dp)) {
                     Checkbox(ex, { ex = it; onToggleExclude(it) })
                     Text(stringResource(R.string.nu_exclude_from_plan))
                 }
+                if (onAddToWeek != null) {
+                    SteelRule(lozenge = false, modifier = Modifier.padding(vertical = 6.dp))
+                    Text(stringResource(R.string.nr_add_to_week), style = MaterialTheme.typography.titleLarge)
+                    FlowRow(horizontalArrangement = Arrangement.spacedBy(4.dp)) {
+                        (0..6).forEach { i ->
+                            FilterChip(addDay == i, { addDay = i; added = false }, label = {
+                                Text(java.time.DayOfWeek.of(i + 1).getDisplayName(java.time.format.TextStyle.SHORT, locale))
+                            })
+                        }
+                    }
+                    FlowRow(horizontalArrangement = Arrangement.spacedBy(4.dp)) {
+                        (0 until WeekBook.SLOTS).forEach { s -> FilterChip(addSlot == s, { addSlot = s; added = false }, label = { Text("M${s + 1}") }) }
+                    }
+                    Text(slotLabel(addSlot), style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                    Button(enabled = !added, onClick = { onAddToWeek(addDay, addSlot, portions); added = true }, modifier = Modifier.fillMaxWidth()) {
+                        Text(stringResource(if (added) R.string.nr_added else R.string.nr_add))
+                    }
+                }
             }
         },
-        confirmButton = { TextButton(onClick = onDismiss) { Text(stringResource(R.string.close)) } }
+        confirmButton = { TextButton(onClick = onDismiss) { Text(stringResource(R.string.close)) } },
+        dismissButton = if (onEdit != null || onDelete != null) ({
+            Row {
+                onDelete?.let { TextButton(onClick = it) { Text(stringResource(R.string.delete)) } }
+                onEdit?.let { TextButton(onClick = it) { Text(stringResource(R.string.nr_edit)) } }
+            }
+        }) else null
     )
 }
 

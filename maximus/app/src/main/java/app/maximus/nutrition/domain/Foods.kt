@@ -155,7 +155,14 @@ object Foods {
         f("maple_syrup", "Ahornsirup", "Maple syrup", FoodCategory.PANTRY, 0.0, 0.1, 67.0, 0.0),
         f("protein_bar", "Proteinriegel", "Protein bar", FoodCategory.PANTRY, 32.0, 12.0, 30.0, 10.0),
         f("rice_cakes", "Reiswaffeln", "Rice cakes", FoodCategory.PANTRY, 8.0, 3.0, 78.0, 3.0),
-        f("olives", "Oliven", "Olives", FoodCategory.PANTRY, 1.0, 15.0, 1.0, 3.0)
+        f("olives", "Oliven", "Olives", FoodCategory.PANTRY, 1.0, 15.0, 1.0, 3.0),
+        // Coach plan (Leicht Coaching) staples: Scandinavian supermarket products
+        f("muesli", "Müsli ohne Zuckerzusatz", "Muesli, no added sugar", FoodCategory.GRAINS, 10.0, 6.0, 62.0, 8.0),
+        f("veg_mix", "Pfannengemüse (TK)", "Frozen stir-fry vegetables", FoodCategory.PRODUCE, 2.5, 0.3, 5.0, 3.0),
+        f("passata", "Passata / passierte Tomaten", "Passata / crushed tomatoes", FoodCategory.PANTRY, 1.3, 0.2, 5.0, 1.2),
+        f("beef_mince_10", "Rinderhack 10–12 %", "Beef mince 10–12 %", FoodCategory.MEAT_FISH, 20.0, 10.0, 0.0, 0.0),
+        f("cheese_sliced", "Schnittkäse in Scheiben", "Sliced cheese", FoodCategory.DAIRY_EGGS, 26.0, 27.0, 0.0, 0.0),
+        f("mixed_nuts", "Nussmischung (Mandel, Walnuss, Cashew)", "Mixed nuts (almond, walnut, cashew)", FoodCategory.NUTS_OILS, 18.0, 53.0, 13.0, 7.0)
     )
 
     val byKey: Map<String, Food> = all.associateBy { it.key }

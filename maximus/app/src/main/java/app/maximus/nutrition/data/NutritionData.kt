@@ -7,8 +7,12 @@ import androidx.room.Query
 import androidx.room.Upsert
 import app.maximus.data.db.AppMetaEntity
 import app.maximus.data.db.MaximusDatabase
+import app.maximus.nutrition.domain.CustomRecipeCodec
+import app.maximus.nutrition.domain.DayLogPoint
 import app.maximus.nutrition.domain.LogPoint
 import app.maximus.nutrition.domain.NutritionProfile
+import app.maximus.nutrition.domain.Recipe
+import app.maximus.nutrition.domain.WeekBook
 import dagger.Lazy
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -47,6 +51,7 @@ interface NutritionDao {
 }
 
 fun NutritionLogEntity.toPoint() = LogPoint(epochDay, weightKg, kcal)
+fun NutritionLogEntity.toDayPoint() = DayLogPoint(epochDay, weightKg, kcal, proteinG)
 
 @Singleton
 class NutritionRepository @Inject constructor(private val database: Lazy<MaximusDatabase>) {
@@ -81,4 +86,36 @@ class NutritionRepository @Inject constructor(private val database: Lazy<Maximus
     }
 
     suspend fun deleteDay(day: Long) = withContext(io) { dao().delete(day) }
+
+    // ---------------------------------------------------------------- weekly recipe store (app_meta rows)
+
+    /** ISO week ids that have a stored week, newest first. */
+    val storedWeeks: Flow<List<String>> = flow {
+        emitAll(meta().observePrefix(WEEK_PREFIX).map { rows -> rows.filter { it.value.isNotBlank() }.map { it.key.removePrefix(WEEK_PREFIX) }.sortedDescending() })
+    }.flowOn(io)
+
+    fun week(weekId: String): Flow<WeekBook> = flow {
+        emitAll(meta().observe(WEEK_PREFIX + weekId).map { WeekBook.decode(weekId, it) })
+    }.flowOn(io)
+
+    suspend fun loadWeek(weekId: String): WeekBook = withContext(io) { WeekBook.decode(weekId, meta().get(WEEK_PREFIX + weekId)) }
+
+    /** An empty week is deleted instead of stored, so the archive only lists planned weeks. */
+    suspend fun saveWeek(b: WeekBook) = withContext(io) {
+        if (b.isEmpty) meta().delete(WEEK_PREFIX + b.weekId) else meta().upsert(AppMetaEntity(WEEK_PREFIX + b.weekId, WeekBook.encode(b)))
+    }
+
+    val customRecipes: Flow<List<Recipe>> = flow {
+        emitAll(meta().observePrefix(RECIPE_PREFIX).map { rows -> rows.mapNotNull { CustomRecipeCodec.decode(it.value) }.sortedBy { it.nameDe.lowercase() } })
+    }.flowOn(io)
+
+    suspend fun saveCustomRecipe(r: Recipe) = withContext(io) { meta().upsert(AppMetaEntity(RECIPE_PREFIX + r.key, CustomRecipeCodec.encode(r))) }
+
+    suspend fun deleteCustomRecipe(key: String) = withContext(io) { meta().delete(RECIPE_PREFIX + key) }
+
+    companion object {
+        /** Deliberately not under "nutrition." so profile observers are not re-triggered by week edits. */
+        const val WEEK_PREFIX = "nutriweek."
+        const val RECIPE_PREFIX = "nutrirecipe."
+    }
 }

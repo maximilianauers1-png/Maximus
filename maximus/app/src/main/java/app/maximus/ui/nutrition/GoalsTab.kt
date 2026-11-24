@@ -79,6 +79,11 @@ fun GoalsTab(p: NutritionProfile, d: DerivedTargets, adaptive: TdeeEstimate?, to
     }
 
     LazyColumn(contentPadding = PaddingValues(16.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
+        if (p.coachMode) item {
+            SectionCard(stringResource(R.string.nc_title)) {
+                Text(stringResource(R.string.nc_goals_banner, phaseLabel(p.phase)), style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.tertiary)
+            }
+        }
         item { TargetsCard(d, p) }
         if (d.projection != null) item { ProjectionCard(d, p) }
         item {

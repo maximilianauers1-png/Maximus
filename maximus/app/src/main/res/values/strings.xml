@@ -380,7 +380,7 @@
     <string name="home_motto">Der Wille entscheidet.</string>
     <string name="mascot_description">Maskottchen: Ritter in dunkler Plattenrüstung mit gehörntem Helm</string>
     <string name="nu_tab_goals">Ziele</string>
-    <string name="nu_tab_plan">Wochenplan</string>
+    <string name="nu_tab_plan">Generator</string>
     <string name="nu_tab_recipes">Rezepte</string>
     <string name="nu_tab_journal">Tagebuch</string>
     <string name="nu_tab_tools">Rechner</string>
@@ -581,4 +581,121 @@
     <string name="sm_reference">Letztes Mal und Rekorde</string>
     <string name="sm_reference_last">Letzte Einheit mit dieser Übung</string>
     <string name="sm_reference_first_time">Diese Übung ist neu im Log.</string>
+    <!-- Nutrition coach (coach plan, phases, check-in, weekly recipe store) -->
+    <string name="nu_tab_coach">Coach</string>
+    <string name="nu_tab_week">Woche</string>
+    <string name="nu_tag_coach">Coach-Plan</string>
+    <string name="nu_tag_cut">Abnehmen</string>
+    <string name="nu_tag_custom">Eigenes Rezept</string>
+    <string name="nc_title">Dein Ernährungscoach</string>
+    <string name="nc_coach_line">Grundlage ist der Plan von Coach %1$s (Leicht Coaching): 3 700 kcal, 205 g Protein, 475 g Kohlenhydrate, 110 g Fett in 5 Mahlzeiten für 85–100 SEK pro Tag. Jede Phase wird daraus abgeleitet.</string>
+    <string name="nc_mode">Coach-Modus</string>
+    <string name="nc_mode_off">Coach-Modus aus: Die Tagesziele kommen aus den Formeln im Reiter „Ziele“.</string>
+    <string name="nc_phase">Phase</string>
+    <string name="nc_phase_maintenance">Erhaltung (Coach-Plan)</string>
+    <string name="nc_phase_recomp">Rekomposition</string>
+    <string name="nc_phase_cut">Definition (Fett weg)</string>
+    <string name="nc_phase_break">Diätpause</string>
+    <string name="nc_phase_maintenance_explain">Der Plan deines Coaches unverändert: Energie im Gleichgewicht, rund 2 g Protein pro kg, Kohlenhydrate als Treibstoff für schweres Training. Die Basis für Kraftaufbau.</string>
+    <string name="nc_phase_recomp_explain" formatted="false">Kleines Defizit mit dem Ziel −0,25 % Körpergewicht pro Woche (≈ 275 kcal am Tag bei 100 kg). Trainierte mit hoher Proteinzufuhr können dabei gleichzeitig Fett verlieren und Muskelmasse aufbauen (Barakat et al. 2020). Langsam, aber ohne Leistungseinbruch.</string>
+    <string name="nc_phase_cut_explain" formatted="false">Ziel −0,7 % Körpergewicht pro Woche. Bei Garthe et al. (2011) behielten Athleten mit 0,7 % pro Woche ihre Kraft und bauten sogar Magermasse auf, mit 1,4 % pro Woche nicht. Protein steigt auf 2,8 g pro kg fettfreie Masse, Fett bleibt bei 25 % der Energie, die Kohlenhydrate tragen das Defizit. Höchstens 25 % unter Erhaltung.</string>
+    <string name="nc_phase_break_explain">Zwei Wochen auf Erhaltung nach 8–12 Wochen Defizit. Im MATADOR-Versuch (Byrne et al. 2018) verlor die Gruppe mit Pausen mehr Fett und ihr Energieumsatz sank weniger als bei durchgehender Diät. Danach zurück zur Definition.</string>
+    <string name="nc_phase_since">Seit %1$s (Woche %2$d)</string>
+    <string name="nc_coach_agree">Phasenwechsel mit Mikkel absprechen: Sein Plan bleibt die Erhaltungsbasis, die App rechnet das Defizit nachvollziehbar daraus ab.</string>
+    <string name="nc_targets">Tagesziele</string>
+    <string name="nc_maint_coach">Erhaltung laut Coach</string>
+    <string name="nc_maint_measured">Erhaltung gemessen (Tagebuch)</string>
+    <string name="nc_planned_deficit">Geplantes Defizit (%1$s %% pro Woche)</string>
+    <string name="nc_adjustments">Check-in-Korrekturen</string>
+    <string name="nc_targets_formula" formatted="false">E = E_Erhaltung − r·m·7700/7 + Korrekturen;  P = max(205 g, k·FFM);  F = 25 % von E (≥ 0,8 g/kg);  K = (E − 4P − 9F)/4.</string>
+    <string name="nc_protein_per_meal">Protein je Mahlzeit (Plan / Optimum 0,4 g/kg)</string>
+    <string name="nc_today">Heute</string>
+    <string name="nc_today_empty">Für heute ist noch nichts geplant.</string>
+    <string name="nc_fill_week_coach">Coach-Plan für diese Woche einsetzen</string>
+    <string name="nc_fill_today_coach">Coach-Plan für heute einsetzen</string>
+    <string name="nc_eaten_of">Gegessen: %1$s von %2$s kcal</string>
+    <string name="nc_protein_of">Protein: %1$s von %2$s g</string>
+    <string name="nc_planned_day">Geplant für heute: %1$s kcal, %2$s g Protein</string>
+    <string name="nc_to_journal">Gegessenes ins Tagebuch übernehmen</string>
+    <string name="nc_checkin">Wöchentlicher Check-in</string>
+    <string name="nc_ci_need_data">Noch zu wenige Daten: mindestens 6 Wiegungen über 9 Tage innerhalb von 14 Tagen. Täglich morgens nüchtern wiegen.</string>
+    <string name="nc_ci_adherence" formatted="false">Die Zufuhr weicht mehr als 10 % vom Ziel ab: erst den Plan einhalten, dann am Ziel drehen.</string>
+    <string name="nc_ci_on_track">Im Plan. Das Ziel bleibt unverändert.</string>
+    <string name="nc_ci_down">Fortschritt zu langsam: Energieziel senken.</string>
+    <string name="nc_ci_up">Gewicht sinkt zu schnell: Energieziel anheben.</string>
+    <string name="nc_rate_obs">Gemessene Rate (Trend)</string>
+    <string name="nc_rate_target">Zielrate</string>
+    <string name="nc_rate_unit" formatted="false">%/Wo.</string>
+    <string name="nc_weighins">Wiegungen / Tage mit Zufuhr</string>
+    <string name="nc_mean_kcal">Mittlere Zufuhr (7 Tage)</string>
+    <string name="nc_mean_protein">Mittleres Protein (7 Tage)</string>
+    <string name="nc_recommend">Empfehlung</string>
+    <string name="nc_change_from_carbs">Die Änderung läuft über Kohlenhydrate und Fett, das Protein bleibt gleich. 100 kcal ≈ 25 g Kohlenhydrate ≈ 32 g Reis (roh).</string>
+    <string name="nc_apply">Anpassung übernehmen</string>
+    <string name="nc_confirm_checkin">Check-in abschließen</string>
+    <string name="nc_next_checkin">Nächster Check-in ab %1$s</string>
+    <string name="nc_note_protein" formatted="false">Protein im Mittel unter 90 % des Ziels: jede Mahlzeit mit einer Proteinquelle beginnen.</string>
+    <string name="nc_note_too_fast" formatted="false">Verlust über 1 % pro Woche: erhöhtes Risiko für Kraft- und Muskelverlust (Helms et al. 2014).</string>
+    <string name="nc_note_break">Seit 8 Wochen im Defizit: Eine zweiwöchige Diätpause auf Erhaltung ist jetzt sinnvoll.</string>
+    <string name="nc_note_log">Weniger als 4 Tage mit erfasster Zufuhr: Die Bewertung stützt sich nur auf das Gewicht.</string>
+    <string name="nc_note_end_break">Die Diätpause ist vorbei: zurück zur Definition.</string>
+    <string name="nc_checkin_explain" formatted="false">Regelkreis: Rate r aus der Regressionsgeraden der letzten 14 Tage, Fehler e = r − r*. Innerhalb von ±max(0,15 %, σ) bleibt das Ziel (Wasser- und Glykogenschwankungen). Sonst ΔE = −0,5 · e · m · 7700 / 7, höchstens ±250 kcal pro Woche.</string>
+    <string name="nc_body">Körperkomposition</string>
+    <string name="nc_weight_profile">Gewicht (Profil)</string>
+    <string name="nc_weight_trend">Gewicht (Trend, EWMA)</string>
+    <string name="nc_use_trend">Trendgewicht ins Profil übernehmen</string>
+    <string name="nc_target_bf">Ziel-Körperfett</string>
+    <string name="nc_need_bf">Körperfett eintragen (Navy-Methode oder Caliper im Reiter „Rechner“), dann berechnet der Coach Zielgewicht und Dauer.</string>
+    <string name="nc_fat_mass">Fettmasse</string>
+    <string name="nc_target_weight">Zielgewicht bei gleicher Magermasse</string>
+    <string name="nc_fat_to_lose">Abzubauendes Fett</string>
+    <string name="nc_weeks_at">Wochen bei %1$s %% pro Woche</string>
+    <string name="nc_body_explain">m* = Magermasse / (1 − KF*), Dauer k = ln(m*/m) / ln(1 − r). Gilt, wenn die Magermasse erhalten bleibt: Dafür braucht es hohes Protein, schweres Training und ein moderates Tempo.</string>
+    <string name="nc_plan_analysis">Analyse des Coach-Plans</string>
+    <string name="nc_day_total">Tagessumme</string>
+    <string name="nc_cost">Kosten pro Tag / Woche</string>
+    <string name="nc_low_protein_meal">%1$s liegt unter %2$s g Protein (0,25 g/kg, Leucin-Schwelle für maximale Muskelproteinsynthese). Option nach Absprache mit dem Coach: 250 g Skyr oder Quark dazu (≈ 30 g Protein).</string>
+    <string name="nc_rules">Regeln deines Coaches</string>
+    <string name="nc_rule_1">Kein Takeaway und keine Fertiggerichte: Kebab, Sushi, Fischstäbchen und Lachsburger kosten viel pro Nährstoff.</string>
+    <string name="nc_rule_2">Proteinpuddings ersetzen: Whey, Hüttenkäse, Quark oder Eier liefern dasselbe Protein für ein Drittel des Preises.</string>
+    <string name="nc_rule_3">Kohlenhydrate aus Grundnahrungsmitteln: Reis im 5-kg-Sack, Haferflocken, Kartoffeln.</string>
+    <string name="nc_rule_4">Zweimal pro Woche vorkochen: 1–1,5 kg Hähnchen oder ein großer Topf Chili oder Bolognese.</string>
+    <string name="nc_rule_5">Snacks bleiben erlaubt: Süßes als Multipack zu Hause statt einzeln unterwegs kaufen.</string>
+    <string name="nc_rule_6">Protein auf 4–5 Mahlzeiten verteilen, je etwa 0,4 g pro kg (Schoenfeld und Aragon 2018).</string>
+    <string name="nc_rule_7">Kohlenhydrate um das Training legen: M3 60–90 Minuten vorher füllt die Glykogenspeicher für schwere Events.</string>
+    <string name="nc_rule_8">Jeden Morgen wiegen und die Zufuhr loggen: Der Coach steuert nach dem Trend, nicht nach Einzelwerten.</string>
+    <string name="nc_goals_banner">Coach-Modus aktiv (Phase: %1$s). Die Tagesziele kommen aus dem Coach-Plan. Die Körperdaten hier werden weiter verwendet; Zielgewicht, Makro-Regler und manuelles Energieziel gelten nur ohne Coach-Modus.</string>
+    <string name="nc_slot_1">M1 Frühstück</string>
+    <string name="nc_slot_2">M2 Mittagessen</string>
+    <string name="nc_slot_3">M3 vor dem Training</string>
+    <string name="nc_slot_4">M4 Abendessen</string>
+    <string name="nc_slot_5">M5 Abendsnack</string>
+    <string name="nw_title">Wochen-Rezeptspeicher</string>
+    <string name="nw_week_label">Kalenderwoche %1$d</string>
+    <string name="nw_this_week">diese Woche</string>
+    <string name="nw_explain">Jede Woche wird gespeichert: Rezepte pro Tag und Mahlzeit festlegen, Gegessenes abhaken und frühere Wochen im Archiv wieder öffnen.</string>
+    <string name="nw_fill_coach">Coach-Plan</string>
+    <string name="nw_fill_cut">Abnehm-Woche</string>
+    <string name="nw_copy_prev">Vorwoche kopieren</string>
+    <string name="nw_clear">Woche leeren</string>
+    <string name="nw_clear_confirm">Alle Einträge dieser Woche löschen?</string>
+    <string name="nw_cut_hint">Die Abnehm-Woche stellt 10 Gerichte aus den Abnehm-Rezepten so zusammen, dass Energie und Protein das aktuelle Phasenziel treffen; die Portionen werden skaliert. Jeder Tipp ergibt eine neue Auswahl.</string>
+    <string name="nw_planned_meals">Geplante Mahlzeiten</string>
+    <string name="nw_week_cost">Kosten der Woche (Coach-Angaben)</string>
+    <string name="nw_add">+ Rezept wählen</string>
+    <string name="nw_all_types">Alle Mahlzeitarten</string>
+    <string name="nw_remove">Entfernen</string>
+    <string name="nw_archive">Archiv</string>
+    <string name="nw_shopping_rest">Von heute bis Sonntag.</string>
+    <string name="nw_shopping_note">Rohgewichte, aufgerundet; Gewürze, Salz und Kräuter nicht enthalten.</string>
+    <string name="nr_new">Eigenes Rezept</string>
+    <string name="nr_edit">Bearbeiten</string>
+    <string name="nr_name">Name</string>
+    <string name="nr_add_food">Zutat suchen und hinzufügen</string>
+    <string name="nr_steps_hint">Zubereitung (ein Schritt pro Zeile)</string>
+    <string name="nr_add_to_week">In den Wochenspeicher</string>
+    <string name="nr_add">Zur aktuellen Woche hinzufügen</string>
+    <string name="nr_added">Gespeichert ✓</string>
+    <string name="nr_cost">Kosten laut Coach: %1$s SEK</string>
+    <string name="nr_stated_note">Nährwerte wie im Coach-Plan angegeben. Aus der Lebensmitteldatenbank berechnet: %1$s kcal (Unterschiede durch Produktwahl und Ballaststoff-Energie).</string>
 </resources>

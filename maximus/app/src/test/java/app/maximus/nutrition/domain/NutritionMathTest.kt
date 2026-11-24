@@ -79,7 +79,7 @@ class NutritionMathTest {
     }
 
     @Test fun derivedTargetsUseGoal() {
-        val p = NutritionProfile(weightKg = 100.0, bodyFatPercent = 15.0, goalWeightKg = 95.0, goalEpochDay = 1084L)
+        val p = NutritionProfile(weightKg = 100.0, bodyFatPercent = 15.0, goalWeightKg = 95.0, goalEpochDay = 1084L, coachMode = false)
         val d = NutritionTargets.derive(p, 1000L, null)
         assertEquals(1980.0 * 1.85, d.tdee, 1e-9)
         assertTrue(d.projection != null && d.macros.kcal < d.tdee)

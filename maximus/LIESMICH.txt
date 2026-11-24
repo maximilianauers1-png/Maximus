@@ -25,6 +25,24 @@ Hinweis zu Daten: Die App nicht deinstallieren. Wenn schon eine aeltere
 Version auf dem Handy ist, installiert Run darueber und die Datenbank wird
 automatisch bis Version 5 migriert. Auf einem frischen Handy beginnt alles leer.
 
+NEU: Ernaehrung ist jetzt ein Ernaehrungscoach (Grundlage: Plan von Mikkel Leicht)
+- Reiter "Coach": Coach-Plan (3700 kcal, 205 g P, 475 g K, 110 g F, 5 Mahlzeiten, ~103 SEK/Tag)
+  als Erhaltungsbasis. Phasen: Erhaltung, Rekomposition (-0,25 %/Woche), Definition (-0,7 %/Woche),
+  Diaetpause. Defizit = Rate x Gewicht x 7700/7, hoechstens 25 % unter Erhaltung; Protein steigt
+  auf 2,8 g/kg fettfreie Masse, Fett 25 % der Energie, Kohlenhydrate tragen den Rest.
+- Woechentlicher Check-in: Gewichtstrend der letzten 14 Tage (Regression), Abgleich mit der
+  Zielrate, Empfehlung in 25-kcal-Schritten (hoechstens +-250 kcal pro Woche). Erst Einhaltung
+  pruefen, dann am Ziel drehen. Hinweise auf zu wenig Protein, zu schnellen Verlust, Diaetpause.
+- Heute-Ansicht: Mahlzeiten abhaken, Fortschritt zu kcal und Protein, Uebernahme ins Tagebuch.
+- Koerperkomposition: Zielgewicht bei gleicher Magermasse und Dauer bis zum Ziel-Koerperfett.
+- Reiter "Woche": Wochen-Rezeptspeicher (7 Tage x M1-M5) pro Kalenderwoche mit Archiv,
+  Coach-Plan einsetzen, Abnehm-Woche erzeugen, Vorwoche kopieren, Einkaufsliste.
+- 20 neue Abnehm-Rezepte (je >= 30 g Protein, Energiedichte <= 1,3 kcal/g) und die 5 Coach-Mahlzeiten.
+- Eigene Rezepte anlegen (Zutaten aus der Lebensmitteldatenbank, Naehrwerte werden berechnet)
+  und jedes Rezept direkt in die aktuelle Woche speichern.
+- Keine Datenbankmigration noetig: Wochen und eigene Rezepte liegen verschluesselt in app_meta.
+- Der alte automatische Wochenplan heisst jetzt "Generator".
+
 NEU in P6: Reiter "Maximus" (lokale KI)
 - Das Simulationslabor ist entfernt; an seiner Stelle steht "Maximus".
 - Die KI laeuft komplett auf dem Handy (MediaPipe LLM Inference). Die App hat

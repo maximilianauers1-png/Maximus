@@ -2,7 +2,7 @@ package app.maximus.nutrition.domain
 
 enum class MealType { BREAKFAST, MAIN, SNACK }
 
-enum class RecipeTag { HIGH_PROTEIN, VEGETARIAN, MEAL_PREP, QUICK, CLASSIC_GERMAN, MASS_GAIN }
+enum class RecipeTag { HIGH_PROTEIN, VEGETARIAN, MEAL_PREP, QUICK, CLASSIC_GERMAN, MASS_GAIN, COACH_PLAN, FAT_LOSS, CUSTOM }
 
 data class Recipe(
     val key: String,
@@ -14,15 +14,26 @@ data class Recipe(
     /** Ingredient grams for ONE serving. */
     val items: List<Pair<String, Double>>,
     val stepsDe: List<String>,
-    val stepsEn: List<String>
+    val stepsEn: List<String>,
+    /** Nutrients as stated by the coach for this exact meal; wins over the database sum when present. */
+    val stated: Nutrients? = null,
+    /** Cost per serving in SEK as stated by the coach (null = unknown). */
+    val costSek: Double? = null
 ) {
     val vegetarian: Boolean get() = RecipeTag.VEGETARIAN in tags
-    val nutrients: Nutrients by lazy {
-        items.fold(Nutrients.ZERO) { acc, (k, g) -> acc + Foods.byKey.getValue(k).per100 * (g / 100.0) }
+    /** Σ_i g_i/100 · n_i over the ingredient list (BLS/USDA reference values, Atwater energy). */
+    val computed: Nutrients by lazy {
+        items.fold(Nutrients.ZERO) { acc, (k, g) -> acc + (Foods.byKey[k]?.per100 ?: Nutrients.ZERO) * (g / 100.0) }
     }
+    val nutrients: Nutrients get() = stated ?: computed
+    /** Energy density in kcal per gram of the raw ingredient mass (Rolls: < 1.5 kcal/g is "low"). */
+    val energyDensity: Double get() = nutrients.kcal / items.sumOf { it.second }.coerceAtLeast(1.0)
 }
 
-/** 82 recipes, one serving each; salt, pepper, herbs and spices are free and not listed as ingredients. */
+/**
+ * 82 base recipes, the 5 meals of the coach plan (Leicht Coaching, maintenance phase) and 20 fat-loss recipes,
+ * one serving each; salt, pepper, herbs and spices are free and not listed as ingredients.
+ */
 object Recipes {
     private fun r(
         key: String, de: String, en: String, type: MealType, min: Int, tags: Set<RecipeTag>,
@@ -40,7 +51,7 @@ object Recipes {
     private val DE = RecipeTag.CLASSIC_GERMAN
     private val MASS = RecipeTag.MASS_GAIN
 
-    val all: List<Recipe> = listOf(
+    private val base: List<Recipe> = listOf(
         // ---------- breakfast ----------
         r("overnight_oats", "Protein-Overnight-Oats mit Beeren", "Protein overnight oats with berries", MealType.BREAKFAST, 5, setOf(HP, VEG, PREP, QUICK),
             "oats:80, milk:200, skyr:150, berries:100, chia:10, honey:10",
@@ -376,6 +387,132 @@ object Recipes {
             listOf("Eier 9 Minuten kochen, abschrecken und würfeln.", "Mit Joghurt, Senf, Zwiebel, Salz und Pfeffer mischen.", "Pitabrot öffnen und mit Salat und Eiersalat füllen."),
             listOf("Boil the eggs 9 minutes, cool and dice.", "Mix with yoghurt, mustard, onion, salt and pepper.", "Open the pita and fill with leaves and the egg salad."))
     )
+
+    private val COACH = RecipeTag.COACH_PLAN
+    private val CUT = RecipeTag.FAT_LOSS
+
+    /** The five meals of the coach plan exactly as prescribed; nutrients and cost as stated by the coach. */
+    val coachPlan: List<Recipe> = listOf(
+        r("coach_m1", "Power-Müsli mit Eiern", "Power muesli and eggs", MealType.BREAKFAST, 10, setOf(COACH, HP, VEG, QUICK),
+            "muesli:150, milk:400, egg:165, orange:150",
+            listOf("150 g Müsli oder Haferflocken (ohne Zuckerzusatz) mit 400 ml Milch 1,5 % übergießen.", "3 Eier kochen (9 Minuten) oder als Rührei braten.", "Mit einer Orange oder Banane servieren."),
+            listOf("Pour 400 ml semi-skimmed milk over 150 g muesli or rolled oats (no added sugar).", "Boil 3 eggs (9 minutes) or scramble them.", "Serve with an orange or a banana."))
+            .copy(stated = Nutrients(980.0, 46.0, 31.0, 125.0, 14.0), costSek = 18.0),
+        r("coach_m2", "Hähnchen, Reis und Gemüse", "Chicken, rice and vegetables", MealType.MAIN, 30, setOf(COACH, HP, PREP),
+            "chicken:250, rice:150, veg_mix:250, rapeseed_oil:10",
+            listOf("150 g Jasmin- oder weißen Reis (trocken, ergibt ca. 450 g) garen.", "250 g Hähnchenbrust (roh) in 10 g Rapsöl anbraten oder im Ofen bei 200 °C ca. 20 Minuten garen.", "250 g TK-Pfannengemüse dämpfen oder kurz mitbraten.", "Für Meal Prep: 1–1,5 kg Hähnchen auf einmal backen, hält 4 Tage im Kühlschrank."),
+            listOf("Cook 150 g jasmine or white rice (dry, about 450 g cooked).", "Sear 250 g raw chicken breast in 10 g rapeseed oil or bake at 200 °C for about 20 minutes.", "Steam or stir-fry 250 g frozen pan vegetables.", "Meal prep: bake 1–1.5 kg chicken at once; keeps 4 days refrigerated."))
+            .copy(stated = Nutrients(935.0, 68.0, 16.0, 122.0, 10.0), costSek = 30.0),
+        r("coach_m3", "Brot, Käse und Whey (vor dem Training)", "Bread, cheese and whey (pre-workout)", MealType.SNACK, 5, setOf(COACH, HP, VEG, QUICK),
+            "bread_whole:120, cheese_sliced:50, banana:120, whey:30",
+            listOf("3 Scheiben Vollkorn- oder Roggenbrot mit 50 g Schnittkäse belegen.", "Dazu eine Banane oder einen Apfel.", "30 g Whey (1 Messlöffel) in Wasser schütteln. Etwa 60–90 Minuten vor dem Training essen."),
+            listOf("Top 3 slices of whole-grain or rye bread with 50 g sliced cheese.", "Add a banana or an apple.", "Shake 30 g whey (1 scoop) in water. Eat about 60–90 minutes before training."))
+            .copy(stated = Nutrients(635.0, 39.0, 17.0, 75.0, 11.0), costSek = 18.0),
+        r("coach_m4", "Chili con Carne mit Kartoffeln", "Chilli con carne with potatoes", MealType.MAIN, 35, setOf(COACH, HP, PREP),
+            "beef_mince_10:200, potato:450, passata:200, kidney:100, cucumber:100, milk:30",
+            listOf("200 g mageres Rinderhack (10–12 %) oder mageres Schwein krümelig anbraten, mit Kreuzkümmel, Paprika und Chili würzen.", "200 g Passata und 100 g abgetropfte Kidney- oder schwarze Bohnen zugeben, 15 Minuten köcheln.", "450 g Kartoffeln kochen oder mit einem Schuss Milch stampfen.", "Mit Gurken- oder Karottensticks servieren. Doppelte Menge kochen spart Zeit und Takeaway."),
+            listOf("Brown 200 g lean beef mince (10–12 %) or lean pork; season with cumin, paprika and chilli.", "Add 200 g passata and 100 g drained kidney or black beans; simmer 15 minutes.", "Boil 450 g potatoes or mash them with a splash of milk.", "Serve with cucumber or carrot sticks. Cooking a double batch saves time and takeaway."))
+            .copy(stated = Nutrients(770.0, 58.0, 20.0, 88.0, 18.0), costSek = 25.0),
+        r("coach_m5", "Datteln und Nussmischung", "Dates and mixed nuts", MealType.SNACK, 1, setOf(COACH, VEG, QUICK),
+            "dates:70, mixed_nuts:35",
+            listOf("70 g getrocknete Datteln und 35 g Nüsse (Mandeln, Walnüsse oder Cashews) abwiegen.", "Am Abend als Snack essen."),
+            listOf("Weigh 70 g dried dates and 35 g nuts (almonds, walnuts or cashews).", "Eat as an evening snack."))
+            .copy(stated = Nutrients(410.0, 8.0, 19.0, 58.0, 8.0), costSek = 12.0)
+    )
+
+    /**
+     * Fat-loss recipes. Design rules (all checked in the tests):
+     *  protein ≥ 30 g per serving and ≥ 25 % of energy (satiety and lean-mass retention; Leidy et al., AJCN 2015),
+     *  energy density ≤ 1.3 kcal/g (volume eating; Rolls, Physiol Behav 2009), mains ≤ 750 kcal so the planner
+     *  can scale portions to the deficit target without the plate becoming small.
+     */
+    val fatLoss: List<Recipe> = listOf(
+        // breakfast
+        r("cut_eggwhite_porridge", "Eiklar-Porridge mit Beeren", "Egg-white porridge with berries", MealType.BREAKFAST, 10, setOf(CUT, HP, VEG, QUICK),
+            "oats:70, egg_white:200, milk:200, berries:150",
+            listOf("Haferflocken mit Milch aufkochen und 3 Minuten köcheln.", "Hitze reduzieren, Eiklar langsam unter ständigem Rühren einlaufen lassen, bis der Brei cremig stockt (ca. 2 Minuten).", "Mit Zimt und Beeren servieren."),
+            listOf("Bring oats and milk to the boil and simmer 3 minutes.", "Lower the heat and slowly stir in the egg whites until creamy and set (about 2 minutes).", "Serve with cinnamon and berries.")),
+        r("cut_skyr_volume", "Skyr-Volumen-Bowl", "High-volume skyr bowl", MealType.BREAKFAST, 5, setOf(CUT, HP, VEG, QUICK),
+            "skyr:400, berries:200, oats:40, chia:10",
+            listOf("Skyr in eine große Schüssel geben.", "Angetaute Beeren unterheben (der Saft süßt).", "Mit Haferflocken und Chiasamen bestreuen."),
+            listOf("Spoon the skyr into a large bowl.", "Fold in thawed berries (their juice sweetens).", "Sprinkle with oats and chia seeds.")),
+        r("cut_veggie_omelette", "Gemüse-Omelett mit Hüttenkäse und Brot", "Vegetable omelette with cottage cheese and bread", MealType.BREAKFAST, 15, setOf(CUT, HP, VEG),
+            "egg:110, egg_white:200, cottage:100, spinach:100, mushroom:100, tomato:100, bread_whole:60, rapeseed_oil:3",
+            listOf("Pilze in wenig Öl anbraten, Spinat zusammenfallen lassen.", "Eier und Eiklar verquirlen, darübergießen und bei mittlerer Hitze stocken lassen.", "Hüttenkäse und Tomatenwürfel darauf geben, zusammenklappen.", "Mit einer Scheibe Vollkornbrot servieren."),
+            listOf("Fry the mushrooms in a little oil, wilt the spinach.", "Whisk eggs and whites, pour over and set over medium heat.", "Add cottage cheese and diced tomato, fold over.", "Serve with a slice of wholemeal bread.")),
+        r("cut_quark_apple_bake", "Quark-Apfel-Auflauf", "Baked quark and apple", MealType.BREAKFAST, 35, setOf(CUT, HP, VEG, PREP),
+            "quark:300, egg:55, apple:200, oats:40",
+            listOf("Ofen auf 180 °C vorheizen.", "Quark, Ei und Haferflocken mit Zimt verrühren.", "Apfel in Spalten schneiden, mit der Masse in eine Form schichten.", "30 Minuten backen; hält kalt 3 Tage."),
+            listOf("Preheat the oven to 180 °C.", "Stir quark, egg and oats with cinnamon.", "Slice the apple and layer with the mixture in a dish.", "Bake 30 minutes; keeps 3 days cold.")),
+        // mains
+        r("cut_chicken_veg_pan", "Hähnchen-Gemüsepfanne mit Reis", "Chicken vegetable pan with rice", MealType.MAIN, 20, setOf(CUT, HP, PREP, QUICK),
+            "chicken:220, veg_mix:350, rice:60, soy_sauce:15, rapeseed_oil:5",
+            listOf("Reis garen.", "Hähnchen in Streifen in Öl scharf anbraten.", "TK-Gemüse zugeben und 6 Minuten unter Rühren braten.", "Mit Sojasauce ablöschen, mit Reis servieren."),
+            listOf("Cook the rice.", "Sear chicken strips in oil.", "Add the frozen vegetables and stir-fry 6 minutes.", "Deglaze with soy sauce, serve with rice.")),
+        r("cut_cod_potato_broccoli", "Kabeljau mit Ofenkartoffeln und Brokkoli", "Cod with roast potatoes and broccoli", MealType.MAIN, 35, setOf(CUT, HP),
+            "cod:250, potato:300, broccoli:250, rapeseed_oil:8, lemon:10",
+            listOf("Kartoffeln vierteln, mit der Hälfte des Öls bei 220 °C 25 Minuten rösten.", "Kabeljau und Brokkoli die letzten 12 Minuten mit aufs Blech legen.", "Mit Zitrone, Salz und Dill servieren."),
+            listOf("Quarter the potatoes, roast with half the oil at 220 °C for 25 minutes.", "Add cod and broccoli to the tray for the last 12 minutes.", "Serve with lemon, salt and dill.")),
+        r("cut_turkey_chili", "Puten-Chili mit Bohnen", "Turkey chilli with beans", MealType.MAIN, 35, setOf(CUT, HP, PREP),
+            "turkey:200, kidney:150, passata:300, pepper:150, onion:80, corn:50",
+            listOf("Pute fein würfeln oder hacken und mit Zwiebel anbraten.", "Paprika, Passata, Bohnen und Mais zugeben, mit Kreuzkümmel, Chili und Paprika würzen.", "20 Minuten köcheln. Ideal zum Vorkochen in großer Menge."),
+            listOf("Finely dice or mince the turkey and brown with onion.", "Add pepper, passata, beans and corn; season with cumin, chilli and paprika.", "Simmer 20 minutes. Ideal for batch cooking.")),
+        r("cut_lean_bolognese", "Magere Bolognese mit Pasta und Zucchini", "Lean bolognese with pasta and courgette", MealType.MAIN, 35, setOf(CUT, HP, PREP),
+            "beef_mince:180, pasta:70, zucchini:300, passata:250, onion:60, carrot:80, parmesan:10",
+            listOf("Zwiebel und Karotte fein würfeln, mit dem Hack krümelig braten.", "Passata zugeben und 20 Minuten einkochen.", "Pasta kochen; Zucchini in Streifen schneiden und die letzten 2 Minuten mitkochen.", "Mit Parmesan servieren: halbe Pasta, doppeltes Volumen."),
+            listOf("Finely dice onion and carrot, brown with the mince.", "Add passata and reduce 20 minutes.", "Cook the pasta; add courgette ribbons for the last 2 minutes.", "Serve with parmesan: half the pasta, double the volume.")),
+        r("cut_shrimp_wok", "Garnelen-Wok mit Gemüse", "Prawn and vegetable stir-fry", MealType.MAIN, 15, setOf(CUT, HP, QUICK),
+            "shrimp:250, veg_mix:300, rice:60, soy_sauce:15, ginger:5, garlic:5, rapeseed_oil:5",
+            listOf("Reis garen.", "Ingwer und Knoblauch in Öl kurz anbraten, Gemüse 5 Minuten pfannenrühren.", "Garnelen 2–3 Minuten mitbraten, bis sie rosa sind.", "Mit Sojasauce abschmecken."),
+            listOf("Cook the rice.", "Briefly fry ginger and garlic in oil, stir-fry the vegetables 5 minutes.", "Add the prawns for 2–3 minutes until pink.", "Season with soy sauce.")),
+        r("cut_pollock_cabbage", "Seelachs mit Rahmkohl-Ersatz und Kartoffeln", "Pollock with cabbage and potatoes", MealType.MAIN, 30, setOf(CUT, HP, DE),
+            "pollock:250, cabbage:300, potato:250, skyr:60, rapeseed_oil:8",
+            listOf("Kartoffeln kochen.", "Kohl in feine Streifen schneiden und in der Hälfte des Öls 10 Minuten schmoren, mit Muskat würzen, vom Herd nehmen und Skyr unterrühren.", "Seelachs im restlichen Öl je Seite 3 Minuten braten."),
+            listOf("Boil the potatoes.", "Shred the cabbage, braise in half the oil for 10 minutes, season with nutmeg, take off the heat and stir in the skyr.", "Fry the pollock in the remaining oil 3 minutes per side.")),
+        r("cut_chicken_soup", "Hähnchen-Gemüse-Suppe", "Chicken vegetable soup", MealType.MAIN, 40, setOf(CUT, HP, PREP, DE),
+            "chicken:200, carrot:150, leek:100, celeriac:100, potato:150, stock_cube:5",
+            listOf("Gemüse und Kartoffeln würfeln, mit 1 l Wasser und Brühe aufkochen.", "Hähnchen ganz einlegen und 20 Minuten leise sieden.", "Fleisch herausnehmen, zerzupfen und zurückgeben. Mit Petersilie servieren."),
+            listOf("Dice vegetables and potatoes, bring to the boil with 1 l water and stock.", "Add the whole chicken breast and simmer gently 20 minutes.", "Remove, shred and return the meat. Serve with parsley.")),
+        r("cut_lentil_cauli_curry", "Linsen-Blumenkohl-Curry mit Skyr", "Lentil and cauliflower curry with skyr", MealType.MAIN, 35, setOf(CUT, HP, VEG, PREP),
+            "lentils:80, cauliflower:300, spinach:100, tomato_canned:200, onion:60, skyr:200",
+            listOf("Zwiebel mit Currypulver und Kreuzkümmel anschwitzen.", "Linsen, Tomaten und 300 ml Wasser zugeben, 15 Minuten köcheln.", "Blumenkohlröschen zugeben, weitere 10 Minuten garen, Spinat unterheben.", "Mit einem großen Klecks Skyr servieren."),
+            listOf("Sweat the onion with curry powder and cumin.", "Add lentils, tomatoes and 300 ml water; simmer 15 minutes.", "Add cauliflower florets, cook 10 minutes more, fold in spinach.", "Serve with a large dollop of skyr.")),
+        r("cut_steak_salad", "Steak-Salat mit Kartoffeln", "Steak salad with potatoes", MealType.MAIN, 25, setOf(CUT, HP),
+            "steak:200, lettuce:150, tomato:150, cucumber:150, potato:250, olive_oil:8, vinegar:10, mustard:5",
+            listOf("Kartoffeln kochen und halbieren.", "Steak 2–3 Minuten je Seite braten, 5 Minuten ruhen lassen, in Streifen schneiden.", "Salat, Tomate und Gurke mit Öl, Essig und Senf anmachen.", "Kartoffeln und Steak darauf anrichten."),
+            listOf("Boil and halve the potatoes.", "Sear the steak 2–3 minutes per side, rest 5 minutes, slice.", "Dress leaves, tomato and cucumber with oil, vinegar and mustard.", "Top with potatoes and steak.")),
+        r("cut_tuna_bowl", "Thunfisch-Reis-Bowl", "Tuna rice bowl", MealType.MAIN, 15, setOf(CUT, HP, QUICK),
+            "tuna:150, rice:70, cucumber:150, corn:60, pepper:100, yogurt_greek:80, soy_sauce:10",
+            listOf("Reis garen und abkühlen lassen.", "Gurke und Paprika würfeln.", "Joghurt mit Sojasauce und etwas Chili verrühren.", "Alles in einer Schüssel anrichten, Thunfisch darauf."),
+            listOf("Cook and cool the rice.", "Dice cucumber and pepper.", "Stir yoghurt with soy sauce and a little chilli.", "Arrange everything in a bowl, top with tuna.")),
+        r("cut_sheetpan_chicken", "Ofen-Hähnchen mit Kürbis und Rosenkohl", "Sheet-pan chicken with pumpkin and sprouts", MealType.MAIN, 35, setOf(CUT, HP, PREP),
+            "chicken:230, pumpkin:300, brussels_sprouts:200, rapeseed_oil:8",
+            listOf("Ofen auf 210 °C vorheizen.", "Kürbis würfeln, Rosenkohl halbieren, mit Öl, Salz und Paprika mischen.", "Hähnchen dazulegen und alles 25 Minuten backen."),
+            listOf("Preheat the oven to 210 °C.", "Dice the pumpkin, halve the sprouts, toss with oil, salt and paprika.", "Add the chicken and roast everything 25 minutes.")),
+        // snacks
+        r("cut_protein_pudding", "Protein-Schokopudding aus Quark", "Chocolate protein quark pudding", MealType.SNACK, 3, setOf(CUT, HP, VEG, QUICK),
+            "quark:250, whey:20, cocoa:8, milk:50, berries:100",
+            listOf("Quark, Whey, Kakao und Milch glatt rühren.", "Mit Beeren toppen. Ersetzt fertige Proteinpuddings zu einem Drittel des Preises."),
+            listOf("Stir quark, whey, cocoa and milk until smooth.", "Top with berries. Replaces ready-made protein puddings at a third of the price.")),
+        r("cut_cottage_crunch", "Hüttenkäse mit Gemüse und Reiswaffeln", "Cottage cheese with vegetables and rice cakes", MealType.SNACK, 5, setOf(CUT, HP, VEG, QUICK),
+            "cottage:250, cucumber:100, radish:100, pepper:100, rice_cakes:20",
+            listOf("Gemüse in mundgerechte Stücke schneiden.", "Mit dem Hüttenkäse und den Reiswaffeln anrichten, pfeffern."),
+            listOf("Cut the vegetables into bite-sized pieces.", "Serve with the cottage cheese and rice cakes, add pepper.")),
+        r("cut_berry_shake", "Whey-Beeren-Shake", "Whey berry shake", MealType.SNACK, 3, setOf(CUT, HP, VEG, QUICK),
+            "whey:40, milk:300, berries:150",
+            listOf("Alles im Mixer 30 Sekunden pürieren."),
+            listOf("Blend everything for 30 seconds.")),
+        r("cut_casein_night", "Casein-Quark vor dem Schlafen", "Pre-sleep casein quark", MealType.SNACK, 3, setOf(CUT, HP, VEG, QUICK),
+            "quark:250, casein:20, berries:80, walnuts:10",
+            listOf("Quark mit Casein und etwas Wasser cremig rühren.", "Mit Beeren und Walnüssen 30–60 Minuten vor dem Schlafen essen (≈ 40 g Protein; Res et al. 2012)."),
+            listOf("Stir quark with casein and a little water until creamy.", "Eat with berries and walnuts 30–60 minutes before sleep (≈ 40 g protein; Res et al. 2012).")),
+        r("cut_egg_veg_box", "Eier-Gemüse-Box", "Egg and vegetable box", MealType.SNACK, 12, setOf(CUT, HP, VEG, PREP),
+            "egg:110, egg_white:100, carrot:150, cucumber:100, skyr:100, mustard:5",
+            listOf("Eier 9 Minuten kochen; Eiklar als kleines Omelett stocken lassen und in Streifen schneiden.", "Gemüse in Sticks schneiden.", "Skyr mit Senf als Dip verrühren."),
+            listOf("Boil the eggs 9 minutes; set the whites as a thin omelette and slice.", "Cut the vegetables into sticks.", "Stir skyr with mustard as a dip."))
+    )
+
+    val all: List<Recipe> = base + coachPlan + fatLoss
 
     val byKey: Map<String, Recipe> = all.associateBy { it.key }
 }

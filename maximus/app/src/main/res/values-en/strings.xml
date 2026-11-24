@@ -379,7 +379,7 @@
     <string name="home_motto">The will decides.</string>
     <string name="mascot_description">Mascot: knight in dark plate armour with a horned helm</string>
     <string name="nu_tab_goals">Goals</string>
-    <string name="nu_tab_plan">Week plan</string>
+    <string name="nu_tab_plan">Generator</string>
     <string name="nu_tab_recipes">Recipes</string>
     <string name="nu_tab_journal">Journal</string>
     <string name="nu_tab_tools">Calculators</string>
@@ -580,4 +580,121 @@
     <string name="sm_reference">Last time and records</string>
     <string name="sm_reference_last">Last session with this exercise</string>
     <string name="sm_reference_first_time">This exercise is new to the log.</string>
+    <!-- Nutrition coach (coach plan, phases, check-in, weekly recipe store) -->
+    <string name="nu_tab_coach">Coach</string>
+    <string name="nu_tab_week">Week</string>
+    <string name="nu_tag_coach">Coach plan</string>
+    <string name="nu_tag_cut">Fat loss</string>
+    <string name="nu_tag_custom">Own recipe</string>
+    <string name="nc_title">Your nutrition coach</string>
+    <string name="nc_coach_line">Built on the plan by coach %1$s (Leicht Coaching): 3,700 kcal, 205 g protein, 475 g carbs, 110 g fat in 5 meals for 85–100 SEK a day. Every phase is derived from it.</string>
+    <string name="nc_mode">Coach mode</string>
+    <string name="nc_mode_off">Coach mode off: daily targets come from the formulas in the Goals tab.</string>
+    <string name="nc_phase">Phase</string>
+    <string name="nc_phase_maintenance">Maintenance (coach plan)</string>
+    <string name="nc_phase_recomp">Recomposition</string>
+    <string name="nc_phase_cut">Cut (lose fat)</string>
+    <string name="nc_phase_break">Diet break</string>
+    <string name="nc_phase_maintenance_explain">Your coach\'s plan unchanged: energy balance, about 2 g protein per kg, carbohydrates as fuel for heavy training. The base for building strength.</string>
+    <string name="nc_phase_recomp_explain" formatted="false">Small deficit targeting −0.25 % body mass per week (≈ 275 kcal a day at 100 kg). Trained lifters with high protein intake can lose fat and gain muscle at the same time (Barakat et al. 2020). Slow, but without a drop in performance.</string>
+    <string name="nc_phase_cut_explain" formatted="false">Target −0.7 % body mass per week. In Garthe et al. (2011) athletes losing 0.7 % per week kept their strength and even gained lean mass, those losing 1.4 % did not. Protein rises to 2.8 g per kg fat-free mass, fat stays at 25 % of energy, carbohydrates carry the deficit. Never more than 25 % below maintenance.</string>
+    <string name="nc_phase_break_explain">Two weeks at maintenance after 8–12 weeks in a deficit. In the MATADOR trial (Byrne et al. 2018) the group with breaks lost more fat and less energy expenditure than continuous dieting. Then back to the cut.</string>
+    <string name="nc_phase_since">Since %1$s (week %2$d)</string>
+    <string name="nc_coach_agree">Agree phase changes with Mikkel: his plan stays the maintenance base, the app derives the deficit from it transparently.</string>
+    <string name="nc_targets">Daily targets</string>
+    <string name="nc_maint_coach">Maintenance (coach)</string>
+    <string name="nc_maint_measured">Maintenance measured (journal)</string>
+    <string name="nc_planned_deficit">Planned deficit (%1$s %% per week)</string>
+    <string name="nc_adjustments">Check-in corrections</string>
+    <string name="nc_targets_formula" formatted="false">E = E_maint − r·m·7700/7 + corrections;  P = max(205 g, k·FFM);  F = 25 % of E (≥ 0.8 g/kg);  C = (E − 4P − 9F)/4.</string>
+    <string name="nc_protein_per_meal">Protein per meal (plan / optimum 0.4 g/kg)</string>
+    <string name="nc_today">Today</string>
+    <string name="nc_today_empty">Nothing planned for today yet.</string>
+    <string name="nc_fill_week_coach">Use the coach plan for this week</string>
+    <string name="nc_fill_today_coach">Use the coach plan for today</string>
+    <string name="nc_eaten_of">Eaten: %1$s of %2$s kcal</string>
+    <string name="nc_protein_of">Protein: %1$s of %2$s g</string>
+    <string name="nc_planned_day">Planned for today: %1$s kcal, %2$s g protein</string>
+    <string name="nc_to_journal">Copy what was eaten to the journal</string>
+    <string name="nc_checkin">Weekly check-in</string>
+    <string name="nc_ci_need_data">Not enough data yet: at least 6 weigh-ins spanning 9 days within 14 days. Weigh in every morning, fasted.</string>
+    <string name="nc_ci_adherence" formatted="false">Intake deviates more than 10 % from the target: stick to the plan first, then adjust the target.</string>
+    <string name="nc_ci_on_track">On track. The target stays the same.</string>
+    <string name="nc_ci_down">Progress too slow: lower the energy target.</string>
+    <string name="nc_ci_up">Weight drops too fast: raise the energy target.</string>
+    <string name="nc_rate_obs">Measured rate (trend)</string>
+    <string name="nc_rate_target">Target rate</string>
+    <string name="nc_rate_unit" formatted="false">%/wk</string>
+    <string name="nc_weighins">Weigh-ins / days with intake</string>
+    <string name="nc_mean_kcal">Mean intake (7 days)</string>
+    <string name="nc_mean_protein">Mean protein (7 days)</string>
+    <string name="nc_recommend">Recommendation</string>
+    <string name="nc_change_from_carbs">The change goes through carbohydrates and fat; protein stays the same. 100 kcal ≈ 25 g carbohydrates ≈ 32 g rice (raw).</string>
+    <string name="nc_apply">Apply adjustment</string>
+    <string name="nc_confirm_checkin">Complete check-in</string>
+    <string name="nc_next_checkin">Next check-in from %1$s</string>
+    <string name="nc_note_protein" formatted="false">Mean protein below 90 % of the target: start every meal with a protein source.</string>
+    <string name="nc_note_too_fast" formatted="false">Losing more than 1 % per week: higher risk of losing strength and muscle (Helms et al. 2014).</string>
+    <string name="nc_note_break">8 weeks in a deficit: a two-week diet break at maintenance makes sense now.</string>
+    <string name="nc_note_log">Fewer than 4 days with logged intake: the assessment relies on body weight only.</string>
+    <string name="nc_note_end_break">The diet break is over: back to the cut.</string>
+    <string name="nc_checkin_explain" formatted="false">Control loop: rate r from the regression line of the last 14 days, error e = r − r*. Within ±max(0.15 %, σ) the target stays (water and glycogen swings). Otherwise ΔE = −0.5 · e · m · 7700 / 7, at most ±250 kcal per week.</string>
+    <string name="nc_body">Body composition</string>
+    <string name="nc_weight_profile">Weight (profile)</string>
+    <string name="nc_weight_trend">Weight (trend, EWMA)</string>
+    <string name="nc_use_trend">Use trend weight in the profile</string>
+    <string name="nc_target_bf">Target body fat</string>
+    <string name="nc_need_bf">Enter your body fat (Navy method or calipers in the Calculators tab) and the coach computes target weight and duration.</string>
+    <string name="nc_fat_mass">Fat mass</string>
+    <string name="nc_target_weight">Target weight at equal lean mass</string>
+    <string name="nc_fat_to_lose">Fat to lose</string>
+    <string name="nc_weeks_at">Weeks at %1$s %% per week</string>
+    <string name="nc_body_explain">m* = lean mass / (1 − BF*), duration k = ln(m*/m) / ln(1 − r). Holds if lean mass is preserved, which takes high protein, heavy training and a moderate pace.</string>
+    <string name="nc_plan_analysis">Coach plan analysis</string>
+    <string name="nc_day_total">Day total</string>
+    <string name="nc_cost">Cost per day / week</string>
+    <string name="nc_low_protein_meal">%1$s is below %2$s g protein (0.25 g/kg, the leucine threshold for maximal muscle protein synthesis). Option after checking with the coach: add 250 g skyr or quark (≈ 30 g protein).</string>
+    <string name="nc_rules">Your coach\'s rules</string>
+    <string name="nc_rule_1">No takeaway or ready meals: kebab, sushi, fish fingers and salmon burgers cost a lot per nutrient.</string>
+    <string name="nc_rule_2">Replace protein puddings: whey, cottage cheese, quark or eggs give the same protein for a third of the price.</string>
+    <string name="nc_rule_3">Carbohydrates from staples: rice in 5 kg bags, oats, potatoes.</string>
+    <string name="nc_rule_4">Batch cook twice a week: 1–1.5 kg chicken or a big pot of chilli or bolognese.</string>
+    <string name="nc_rule_5">Snacks stay allowed: keep treats as multipacks at home instead of buying single ones on the go.</string>
+    <string name="nc_rule_6">Spread protein over 4–5 meals of about 0.4 g per kg each (Schoenfeld and Aragon 2018).</string>
+    <string name="nc_rule_7">Time carbohydrates around training: M3 60–90 minutes before tops up glycogen for heavy events.</string>
+    <string name="nc_rule_8">Weigh in every morning and log intake: the coach steers by the trend, not by single values.</string>
+    <string name="nc_goals_banner">Coach mode is on (phase: %1$s). Daily targets come from the coach plan. Body data here is still used; goal weight, macro sliders and manual energy target only apply without coach mode.</string>
+    <string name="nc_slot_1">M1 Breakfast</string>
+    <string name="nc_slot_2">M2 Lunch</string>
+    <string name="nc_slot_3">M3 Pre-workout</string>
+    <string name="nc_slot_4">M4 Dinner</string>
+    <string name="nc_slot_5">M5 Evening snack</string>
+    <string name="nw_title">Weekly recipe store</string>
+    <string name="nw_week_label">Week %1$d</string>
+    <string name="nw_this_week">this week</string>
+    <string name="nw_explain">Every week is saved: set recipes per day and meal, tick off what you ate and reopen earlier weeks from the archive.</string>
+    <string name="nw_fill_coach">Coach plan</string>
+    <string name="nw_fill_cut">Fat-loss week</string>
+    <string name="nw_copy_prev">Copy last week</string>
+    <string name="nw_clear">Clear week</string>
+    <string name="nw_clear_confirm">Delete all entries of this week?</string>
+    <string name="nw_cut_hint">The fat-loss week picks 10 dishes from the fat-loss recipes so that energy and protein hit the current phase target; portions are scaled. Every tap gives a new selection.</string>
+    <string name="nw_planned_meals">Planned meals</string>
+    <string name="nw_week_cost">Week cost (coach figures)</string>
+    <string name="nw_add">+ choose recipe</string>
+    <string name="nw_all_types">All meal types</string>
+    <string name="nw_remove">Remove</string>
+    <string name="nw_archive">Archive</string>
+    <string name="nw_shopping_rest">From today to Sunday.</string>
+    <string name="nw_shopping_note">Raw weights, rounded up; spices, salt and herbs not included.</string>
+    <string name="nr_new">Own recipe</string>
+    <string name="nr_edit">Edit</string>
+    <string name="nr_name">Name</string>
+    <string name="nr_add_food">Search and add an ingredient</string>
+    <string name="nr_steps_hint">Method (one step per line)</string>
+    <string name="nr_add_to_week">Into the weekly store</string>
+    <string name="nr_add">Add to the current week</string>
+    <string name="nr_added">Saved ✓</string>
+    <string name="nr_cost">Cost according to the coach: %1$s SEK</string>
+    <string name="nr_stated_note">Nutrients as stated in the coach plan. Computed from the food database: %1$s kcal (differences come from product choice and fibre energy).</string>
 </resources>

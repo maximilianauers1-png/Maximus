@@ -114,6 +114,12 @@ object ModuleContext {
         p.goalWeightKg?.let { append(", Zielgewicht ${Fmt.num(it, 4)} kg") }
         append(".\n")
         append("Grundumsatz ${Fmt.num(t.bmr, 4)} kcal, Gesamtumsatz ${Fmt.num(t.tdee, 4)} kcal (${if (t.tdeeSource.name == "ADAPTIVE") "aus dem Protokoll geschätzt" else "Formel"}).\n")
+        t.coach?.let { c ->
+            append("Coach-Plan (Mikkel Leicht, Erhaltung 3700 kcal, 205 g Protein, 475 g Kohlenhydrate, 110 g Fett) ist aktiv. ")
+            append("Phase: ${c.phase.name}, Zielrate ${Fmt.num(c.phase.targetRatePercent, 2)} % Körpergewicht pro Woche, ")
+            append("Defizit ${Fmt.num(c.plannedDeficit, 3)} kcal, Check-in-Korrekturen ${Fmt.num(c.adjustment, 3)} kcal. ")
+            append("Ziel des Athleten: Fett verlieren, Muskelmasse und Kraft erhalten bzw. aufbauen.\n")
+        }
         append("Tagesziel: ${Fmt.num(t.macros.kcal, 4)} kcal, Protein ${Fmt.num(t.macros.proteinG, 3)} g, Fett ${Fmt.num(t.macros.fatG, 3)} g, ")
         append("Kohlenhydrate ${Fmt.num(t.macros.carbG, 3)} g, Ballaststoffe ${Fmt.num(t.macros.fiberG, 3)} g.\n")
         val recent = log.filter { it.epochDay > today - 14 }.sortedBy { it.epochDay }

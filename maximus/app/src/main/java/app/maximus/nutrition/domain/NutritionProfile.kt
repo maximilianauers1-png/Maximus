@@ -15,7 +15,15 @@ data class NutritionProfile(
     val fatPerKg: Double = 1.0,
     val kcalOverride: Double? = null,
     val useAdaptiveTdee: Boolean = false,
-    val plan: PlanSettings = PlanSettings()
+    val plan: PlanSettings = PlanSettings(),
+    /** Coach mode: targets come from the coach plan and the selected phase instead of the BMR formulas. */
+    val coachMode: Boolean = true,
+    val phase: CoachPhase = CoachPhase.MAINTENANCE,
+    val phaseStartDay: Long? = null,
+    /** Sum of accepted weekly check-in corrections, kcal/d. */
+    val coachAdjustKcal: Double = 0.0,
+    val lastCheckInDay: Long? = null,
+    val targetBodyFatPercent: Double = 12.0
 ) {
     val body: Body get() = Body(sex, ageYears, heightCm, weightKg, bodyFatPercent)
 
@@ -26,7 +34,9 @@ data class NutritionProfile(
         "protein" to proteinPerKg.toString(), "fat" to fatPerKg.toString(), "kcal" to (kcalOverride?.toString() ?: ""),
         "adaptive" to useAdaptiveTdee.toString(),
         "meals" to plan.mealsPerDay.toString(), "distinct" to plan.distinctRecipes.toString(),
-        "veg" to plan.vegetarianOnly.toString(), "excluded" to plan.excluded.sorted().joinToString(","), "seed" to plan.seed.toString()
+        "veg" to plan.vegetarianOnly.toString(), "excluded" to plan.excluded.sorted().joinToString(","), "seed" to plan.seed.toString(),
+        "coach" to coachMode.toString(), "phase" to phase.name, "phaseStart" to (phaseStartDay?.toString() ?: ""),
+        "coachAdjust" to coachAdjustKcal.toString(), "checkIn" to (lastCheckInDay?.toString() ?: ""), "targetBf" to targetBodyFatPercent.toString()
     ).mapKeys { PREFIX + it.key }
 
     companion object {
@@ -58,7 +68,13 @@ data class NutritionProfile(
                     vegetarianOnly = m["veg"]?.toBooleanStrictOrNull() ?: false,
                     excluded = m["excluded"].orEmpty().split(',').filter { it.isNotBlank() }.toSet(),
                     seed = m["seed"]?.toLongOrNull() ?: 1L
-                )
+                ),
+                coachMode = m["coach"]?.toBooleanStrictOrNull() ?: d.coachMode,
+                phase = enumOf(CoachPhase.entries.toTypedArray(), "phase", d.phase),
+                phaseStartDay = m["phaseStart"]?.toLongOrNull(),
+                coachAdjustKcal = dbl("coachAdjust")?.coerceIn(-2000.0, 2000.0) ?: 0.0,
+                lastCheckInDay = m["checkIn"]?.toLongOrNull(),
+                targetBodyFatPercent = dbl("targetBf")?.coerceIn(5.0, 35.0) ?: d.targetBodyFatPercent
             )
         }
     }
@@ -84,7 +100,9 @@ data class DerivedTargets(
     val projection: GoalProjection?,
     val macros: MacroTargets,
     val warnings: List<MacroWarning>,
-    val belowBmr: Boolean
+    val belowBmr: Boolean,
+    /** Present in coach mode: the phase targets that [macros] were taken from. */
+    val coach: CoachTargets? = null
 )
 
 object NutritionTargets {
@@ -116,6 +134,11 @@ object NutritionTargets {
                 traj.map { it.weightKg }, WeightModel.linearTrajectory(tdee, body.weightKg, lin, days),
                 traj.last().fatKg / traj.last().weightKg
             )
+        }
+        if (p.coachMode) {
+            val c = CoachEngine.targets(p.phase, body.weightKg, p.bodyFatPercent, p.coachAdjustKcal, if (p.useAdaptiveTdee) adaptive else null)
+            return DerivedTargets(bmr, tdee, if (useAdaptive) TdeeSource.ADAPTIVE else TdeeSource.FORMULA, projection, c.macros,
+                MacroCalculator.warnings(c.macros, body.weightKg), c.macros.kcal < bmr, c)
         }
         val kcal = p.kcalOverride ?: projection?.intakeKcal ?: tdee
         val macros = MacroCalculator.targets(kcal, body.weightKg, p.proteinPerKg, p.fatPerKg)
