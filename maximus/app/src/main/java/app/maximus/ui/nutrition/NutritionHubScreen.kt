@@ -14,6 +14,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -46,7 +47,6 @@ import app.maximus.nutrition.domain.Recipe
 import app.maximus.nutrition.domain.Recipes
 import app.maximus.nutrition.domain.WeekPlan
 import app.maximus.ui.components.Glyph
-import app.maximus.ui.components.GlyphButton
 import app.maximus.ui.components.GlyphIcon
 import app.maximus.ui.components.MaximusTopBar
 import java.time.LocalDate
@@ -155,7 +155,7 @@ fun NutritionHubScreen(services: AppServices, onBack: () -> Unit) {
             val title = if (page == NutritionPage.GOALS || page == NutritionPage.TOOLS) page.label else R.string.module_nutrition
             MaximusTopBar(stringResource(title), { back() }) {
                 if (page != NutritionPage.GOALS && page != NutritionPage.TOOLS) {
-                    GlyphButton(Glyph.GEAR, stringResource(R.string.nu_tab_goals), { navigate(NutritionPage.GOALS) })
+                    TextButton(onClick = { navigate(NutritionPage.GOALS) }) { Text(stringResource(R.string.nu_tab_goals)) }
                 }
             }
         },
