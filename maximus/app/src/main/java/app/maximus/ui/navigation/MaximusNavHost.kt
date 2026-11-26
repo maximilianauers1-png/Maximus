@@ -37,6 +37,7 @@ object Routes {
     const val STRONGMAN = "strongman"
     const val PROGRAM = "strongman/program/{id}"
     const val LAB = "lab"
+    const val SIMULATIONS = "simulations"
     const val AI = "ai"
     const val CHAT = "chat"
     fun note(id: Long) = "core/note/$id"
@@ -130,6 +131,14 @@ fun MaximusNavHost(services: AppServices) {
         composable(Routes.LAB) {
             ModuleTheme(ModuleStyle.LAB) {
                 LabHubScreen(services = services, onBack = { navController.popBackStack() }, onOpenChat = { navController.navigate(Routes.CHAT) })
+            }
+        }
+        composable(Routes.SIMULATIONS) {
+            ModuleTheme(ModuleStyle.LAB) {
+                LabHubScreen(
+                    services = services, onBack = { navController.popBackStack() },
+                    onOpenChat = { navController.navigate(Routes.CHAT) }, simulationsOnly = true
+                )
             }
         }
         composable(Routes.AI) {

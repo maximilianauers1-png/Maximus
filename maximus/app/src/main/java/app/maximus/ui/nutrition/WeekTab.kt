@@ -70,11 +70,11 @@ import kotlinx.coroutines.launch
  * generated from the fat-loss recipes, copied from the previous week and reopened from the archive.
  */
 @Composable
-fun WeekTab(d: DerivedTargets, today: Long, book: RecipeBook, repo: NutritionRepository) {
+fun WeekTab(d: DerivedTargets, today: Long, book: RecipeBook, repo: NutritionRepository, initialMonday: Long = WeekBook.monday(today)) {
     val de = isGerman()
     val locale = LocalConfiguration.current.locales[0]
     val scope = rememberCoroutineScope()
-    var monday by rememberSaveable { mutableLongStateOf(WeekBook.monday(today)) }
+    var monday by rememberSaveable(initialMonday) { mutableLongStateOf(initialMonday) }
     val weekId = WeekBook.weekId(monday)
     val week by remember(weekId) { repo.week(weekId) }.collectAsState(initial = WeekBook(weekId))
     val archive by repo.storedWeeks.collectAsState(initial = emptyList())

@@ -10,7 +10,9 @@ data class PlanSettings(
     val distinctRecipes: Int = 8,
     val vegetarianOnly: Boolean = false,
     val excluded: Set<String> = emptySet(),
-    val seed: Long = 1L
+    val seed: Long = 1L,
+    val trainingDays: Set<Int> = emptySet(),
+    val trainingCarbBoostG: Int = 0
 ) {
     init {
         require(mealsPerDay in MealPlanner.MIN_MEALS..MealPlanner.MAX_MEALS)
@@ -26,11 +28,17 @@ data class PlannedDay(val meals: List<PlannedMeal>) {
     val totals: Nutrients get() = meals.fold(Nutrients.ZERO) { a, m -> a + m.nutrients }
 }
 
+data class MealOverride(val day: Int, val slot: Int, val mealCount: Int, val recipeKey: String, val portions: Double)
+
 data class WeekPlan(val days: List<PlannedDay>, val cost: Double) {
     val distinctRecipes: Int get() = days.flatMap { d -> d.meals.map { it.recipe.key } }.toSet().size
 }
 
 data class ShoppingItem(val food: Food, val grams: Double)
+
+data class PrepBatch(val recipe: Recipe, val meals: List<Pair<Int, PlannedMeal>>) {
+    val portions: Double get() = meals.sumOf { it.second.portions }
+}
 
 /**
  * Weekly plan generator.
@@ -53,6 +61,22 @@ object MealPlanner {
     const val SAMPLES = 400
     const val MIN_PORTION = 0.5
     const val MAX_PORTION = 3.0
+    const val MAX_TRAINING_CARB_BOOST = 100
+
+    /** Shift carbs to training days while preserving protein, fat and the weekly energy budget. */
+    fun weeklyTargets(base: MacroTargets, settings: PlanSettings, bmr: Double): List<MacroTargets> {
+        val training = settings.trainingDays.count { it in 1..7 }
+        val rest = 7 - training
+        if (training == 0 || rest == 0 || settings.trainingCarbBoostG <= 0) return List(7) { base }
+        val movableCarbs = minOf(base.carbG, (base.kcal - bmr) / Atwater.CARB).coerceAtLeast(0.0)
+        val boost = minOf(settings.trainingCarbBoostG.toDouble(), movableCarbs * rest / training)
+        if (boost <= 0.0) return List(7) { base }
+        return (1..7).map { day ->
+            val change = if (day in settings.trainingDays) boost else -boost * training / rest
+            val kcal = base.kcal + change * Atwater.CARB
+            base.copy(kcal = kcal, carbG = base.carbG + change, fiberG = base.fiberG * (kcal / base.kcal))
+        }
+    }
 
     fun slots(mealsPerDay: Int): List<MealType> = when (mealsPerDay) {
         2 -> listOf(MealType.MAIN, MealType.MAIN)
@@ -66,7 +90,10 @@ object MealPlanner {
     fun eligible(recipes: List<Recipe>, s: PlanSettings): List<Recipe> =
         recipes.filter { it.key !in s.excluded && (!s.vegetarianOnly || it.vegetarian) }
 
-    fun plan(target: MacroTargets, s: PlanSettings, recipes: List<Recipe> = Recipes.all, days: Int = 7): WeekPlan? {
+    fun plan(target: MacroTargets, s: PlanSettings, recipes: List<Recipe> = Recipes.all, days: Int = 7): WeekPlan? =
+        plan(List(days) { target }, s, recipes)
+
+    fun plan(targets: List<MacroTargets>, s: PlanSettings, recipes: List<Recipe> = Recipes.all): WeekPlan? {
         val slots = slots(s.mealsPerDay)
         val perType = slots.groupingBy { it }.eachCount()
         val candidates = eligible(recipes, s).groupBy { it.type }
@@ -76,8 +103,8 @@ object MealPlanner {
         var best: WeekPlan? = null
         repeat(SAMPLES) {
             val pools = sizes.mapValues { (t, n) -> candidates.getValue(t).shuffled(rnd).take(n) }
-            val plan = assemble(slots, pools, target, days)
-            if (best == null || plan.cost < best!!.cost) best = plan
+            val plan = assemble(slots, pools, targets)
+            if (best == null || plan.cost < best.cost) best = plan
         }
         return best
     }
@@ -88,10 +115,10 @@ object MealPlanner {
         return perType.mapValues { (t, c) -> max(1, (distinct.toDouble() * c / total).roundToInt()).coerceAtMost(available[t] ?: 1) }
     }
 
-    private fun assemble(slots: List<MealType>, pools: Map<MealType, List<Recipe>>, target: MacroTargets, days: Int): WeekPlan {
+    private fun assemble(slots: List<MealType>, pools: Map<MealType, List<Recipe>>, targets: List<MacroTargets>): WeekPlan {
         var cost = 0.0
-        val out = ArrayList<PlannedDay>(days)
-        for (d in 0 until days) {
+        val out = ArrayList<PlannedDay>(targets.size)
+        for ((d, target) in targets.withIndex()) {
             val seen = HashMap<MealType, Int>()
             val picks = slots.map { t ->
                 val k = seen.getOrDefault(t, 0); seen[t] = k + 1
@@ -119,5 +146,27 @@ object MealPlanner {
         for (d in plan.days) for (m in d.meals) for ((k, g) in m.recipe.items) grams[k] = (grams[k] ?: 0.0) + g * m.portions
         return grams.map { (k, g) -> ShoppingItem(Foods.byKey.getValue(k), g) }
             .sortedWith(compareBy({ it.food.category.ordinal }, { it.food.nameDe }))
+    }
+
+    fun prepBatches(plan: WeekPlan, days: IntRange): List<PrepBatch> = days
+        .flatMap { day -> plan.days[day].meals.map { day to it } }
+        .groupBy { (_, meal) -> meal.recipe.key }
+        .values.map { meals -> PrepBatch(meals.first().second.recipe, meals) }
+
+    fun applyOverrides(
+        plan: WeekPlan, targets: List<MacroTargets>, settings: PlanSettings, overrides: List<MealOverride>,
+        catalog: List<Recipe> = Recipes.all
+    ): WeekPlan {
+        if (overrides.isEmpty()) return plan
+        val recipes = eligible(catalog, settings).associateBy { it.key }
+        val bySlot = overrides.filter { it.mealCount == settings.mealsPerDay }.associateBy { it.day to it.slot }
+        val days = plan.days.mapIndexed { day, planned ->
+            PlannedDay(planned.meals.mapIndexed mealSlot@ { slot, meal ->
+                val edit = bySlot[day to slot] ?: return@mealSlot meal
+                val recipe = recipes[edit.recipeKey]?.takeIf { it.type == meal.type } ?: return@mealSlot meal
+                meal.copy(recipe = recipe, portions = edit.portions)
+            })
+        }
+        return WeekPlan(days, days.indices.sumOf { dayCost(days[it].totals, targets[it]) })
     }
 }

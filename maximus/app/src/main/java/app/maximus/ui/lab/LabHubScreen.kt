@@ -20,7 +20,9 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import app.maximus.R
 import app.maximus.chat.domain.Focus
 import app.maximus.chat.domain.ModuleContext
 import app.maximus.core.app.AppServices
@@ -66,7 +68,7 @@ private val TABS = listOf("Übersicht", "Kompendium", "Rechner", "Mathe-Werkzeug
 
 @Suppress("DEPRECATION")
 @Composable
-fun LabHubScreen(services: AppServices, onBack: () -> Unit, onOpenChat: () -> Unit = {}) {
+fun LabHubScreen(services: AppServices, onBack: () -> Unit, onOpenChat: () -> Unit = {}, simulationsOnly: Boolean = false) {
     var ask by remember { mutableStateOf<AskRequest?>(null) }
     var tab by rememberSaveable { mutableIntStateOf(0) }
     var chapterKey by rememberSaveable { mutableStateOf<String?>(null) }
@@ -106,7 +108,7 @@ fun LabHubScreen(services: AppServices, onBack: () -> Unit, onOpenChat: () -> Un
         quiz != null -> if (quiz?.daily == true) "Tageschallenge" else "Training"
         calcKey != null -> Calculators.byKey[calcKey]?.title ?: "Rechner"
         chapterKey != null -> Compendium.byKey[chapterKey]?.title ?: "Kapitel"
-        else -> "Physik- und Mathe-Labor"
+        else -> stringResource(if (simulationsOnly) R.string.module_simlab else R.string.module_trainer)
     }
 
     Scaffold(topBar = {
@@ -122,6 +124,7 @@ fun LabHubScreen(services: AppServices, onBack: () -> Unit, onOpenChat: () -> Un
                 q != null -> QuizRunner(ctx, q, onClose = { quiz = null })
                 ck != null -> CalculatorScreen(ctx, ck)
                 chk != null -> ChapterScreen(ctx, chk)
+                simulationsOnly -> CalculatorsTab(ctx, simulationsOnly = true)
                 else -> Column(Modifier.fillMaxSize()) {
                     ScrollableTabRow(
                         selectedTabIndex = tab, edgePadding = 12.dp,

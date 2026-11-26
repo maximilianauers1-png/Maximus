@@ -87,7 +87,8 @@ fun logGrid(a: Double, b: Double, n: Int = 200): List<Double> {
 object Calculators {
     val all: List<Calculator> by lazy {
         ThermoPhysics.calculators + ElectroPhysics.calculators + QuantumPhysics.calculators +
-            SemiconductorPhysics.calculators + CaloricPhysics.calculators + QftPhysics.calculators + MechanicsPhysics.calculators + MathTools.calculators
+            SemiconductorPhysics.calculators + CaloricPhysics.calculators + QftPhysics.calculators +
+            MechanicsPhysics.calculators + MathTools.calculators + Simulations.additional
     }
     val byKey: Map<String, Calculator> by lazy { all.associateBy { it.key } }
     fun forTopic(t: Topic) = all.filter { it.topic == t }

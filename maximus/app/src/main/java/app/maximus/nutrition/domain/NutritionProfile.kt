@@ -35,17 +35,19 @@ data class NutritionProfile(
         "adaptive" to useAdaptiveTdee.toString(),
         "meals" to plan.mealsPerDay.toString(), "distinct" to plan.distinctRecipes.toString(),
         "veg" to plan.vegetarianOnly.toString(), "excluded" to plan.excluded.sorted().joinToString(","), "seed" to plan.seed.toString(),
+        "trainingDays" to plan.trainingDays.sorted().joinToString(","), "trainingCarbs" to plan.trainingCarbBoostG.toString(),
         "coach" to coachMode.toString(), "phase" to phase.name, "phaseStart" to (phaseStartDay?.toString() ?: ""),
         "coachAdjust" to coachAdjustKcal.toString(), "checkIn" to (lastCheckInDay?.toString() ?: ""), "targetBf" to targetBodyFatPercent.toString()
     ).mapKeys { PREFIX + it.key }
 
     companion object {
         const val PREFIX = "nutrition."
+        const val MAX_GOAL_WEEKS = 520
 
         fun fromMap(raw: Map<String, String>): NutritionProfile {
             val m = raw.filterKeys { it.startsWith(PREFIX) }.mapKeys { it.key.removePrefix(PREFIX) }
             val d = NutritionProfile()
-            fun dbl(k: String) = m[k]?.toDoubleOrNull()
+            fun dbl(k: String) = m[k]?.toDoubleOrNull()?.takeIf { it.isFinite() }
             fun <E : Enum<E>> enumOf(values: Array<E>, k: String, def: E) = values.firstOrNull { it.name == m[k] } ?: def
             val meals = m["meals"]?.toIntOrNull()?.coerceIn(MealPlanner.MIN_MEALS, MealPlanner.MAX_MEALS) ?: d.plan.mealsPerDay
             val distinct = m["distinct"]?.toIntOrNull()?.coerceIn(MealPlanner.MIN_DISTINCT, MealPlanner.MAX_DISTINCT) ?: d.plan.distinctRecipes
@@ -67,7 +69,10 @@ data class NutritionProfile(
                     mealsPerDay = meals, distinctRecipes = distinct,
                     vegetarianOnly = m["veg"]?.toBooleanStrictOrNull() ?: false,
                     excluded = m["excluded"].orEmpty().split(',').filter { it.isNotBlank() }.toSet(),
-                    seed = m["seed"]?.toLongOrNull() ?: 1L
+                    seed = m["seed"]?.toLongOrNull() ?: 1L,
+                    trainingDays = m["trainingDays"]?.split(',')?.mapNotNull { it.toIntOrNull()?.takeIf { day -> day in 1..7 } }
+                        ?.toSet() ?: d.plan.trainingDays,
+                    trainingCarbBoostG = m["trainingCarbs"]?.toIntOrNull()?.coerceIn(0, MealPlanner.MAX_TRAINING_CARB_BOOST) ?: 0
                 ),
                 coachMode = m["coach"]?.toBooleanStrictOrNull() ?: d.coachMode,
                 phase = enumOf(CoachPhase.entries.toTypedArray(), "phase", d.phase),
@@ -115,15 +120,16 @@ object NutritionTargets {
         val body = p.body
         val formula = if (Energy.bmr(body, p.formula) == null) BmrFormula.MIFFLIN_ST_JEOR else p.formula
         val bmr = Energy.bmr(body, formula)!!
-        val useAdaptive = p.useAdaptiveTdee && adaptive != null
-        val tdee = if (useAdaptive) adaptive!!.tdee else bmr * p.activity.pal
+        val measuredTdee = adaptive?.tdee?.takeIf { p.useAdaptiveTdee && it.isFinite() && it > 0.0 }
+        val tdee = measuredTdee ?: bmr * p.activity.pal
         val bmrOf: (Double) -> Double = { m -> Energy.bmr(body.copy(weightKg = m, bodyFatPercent = null), BmrFormula.MIFFLIN_ST_JEOR)!! }
 
         val projection = run {
             val goal = p.goalWeightKg ?: return@run null
             val day = p.goalEpochDay ?: return@run null
-            val days = (day - today).toInt()
-            if (days < 7) return@run null
+            val daysRemaining = day - today
+            if (daysRemaining !in 7L..7L * NutritionProfile.MAX_GOAL_WEEKS) return@run null
+            val days = daysRemaining.toInt()
             val input = WeightModel.Input(body, tdee, bmrOf)
             val ei = WeightModel.intakeFor(input, goal, days) ?: return@run null
             val traj = WeightModel.simulate(input, ei, days)
@@ -136,13 +142,13 @@ object NutritionTargets {
             )
         }
         if (p.coachMode) {
-            val c = CoachEngine.targets(p.phase, body.weightKg, p.bodyFatPercent, p.coachAdjustKcal, if (p.useAdaptiveTdee) adaptive else null)
-            return DerivedTargets(bmr, tdee, if (useAdaptive) TdeeSource.ADAPTIVE else TdeeSource.FORMULA, projection, c.macros,
+            val c = CoachEngine.targets(p.phase, body.weightKg, p.bodyFatPercent, p.coachAdjustKcal, adaptive?.takeIf { measuredTdee != null })
+            return DerivedTargets(bmr, tdee, if (measuredTdee != null) TdeeSource.ADAPTIVE else TdeeSource.FORMULA, projection, c.macros,
                 MacroCalculator.warnings(c.macros, body.weightKg), c.macros.kcal < bmr, c)
         }
         val kcal = p.kcalOverride ?: projection?.intakeKcal ?: tdee
         val macros = MacroCalculator.targets(kcal, body.weightKg, p.proteinPerKg, p.fatPerKg)
-        return DerivedTargets(bmr, tdee, if (useAdaptive) TdeeSource.ADAPTIVE else TdeeSource.FORMULA, projection, macros,
+        return DerivedTargets(bmr, tdee, if (measuredTdee != null) TdeeSource.ADAPTIVE else TdeeSource.FORMULA, projection, macros,
             MacroCalculator.warnings(macros, body.weightKg), kcal < bmr)
     }
 }

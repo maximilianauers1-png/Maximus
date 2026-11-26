@@ -89,7 +89,7 @@ fun CoachTab(
     week: WeekBook,
     book: RecipeBook,
     repo: NutritionRepository,
-    onSave: (NutritionProfile) -> Unit
+    onSave: ((NutritionProfile) -> NutritionProfile) -> Unit
 ) {
     val de = isGerman()
     val scope = rememberCoroutineScope()
@@ -105,7 +105,7 @@ fun CoachTab(
                 Text(stringResource(R.string.nc_coach_line, CoachPlan.COACH_NAME), style = MaterialTheme.typography.bodyMedium)
                 Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.padding(top = 4.dp)) {
                     Text(stringResource(R.string.nc_mode), modifier = Modifier.weight(1f))
-                    Switch(p.coachMode, { onSave(p.copy(coachMode = it)) })
+                    Switch(p.coachMode, { onSave { current -> current.copy(coachMode = it) } })
                 }
                 if (!p.coachMode) {
                     Text(stringResource(R.string.nc_mode_off), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.tertiary)
@@ -114,7 +114,9 @@ fun CoachTab(
                     FlowRow(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
                         CoachPhase.entries.forEach { ph ->
                             FilterChip(p.phase == ph, {
-                                if (p.phase != ph) onSave(p.copy(phase = ph, phaseStartDay = today, coachAdjustKcal = 0.0, lastCheckInDay = null))
+                                if (p.phase != ph) onSave { current ->
+                                    if (current.phase == ph) current else current.copy(phase = ph, phaseStartDay = today, coachAdjustKcal = 0.0, lastCheckInDay = null)
+                                }
                             }, label = { Text(phaseLabel(ph)) })
                         }
                     }
@@ -220,11 +222,13 @@ fun CoachTab(
                     Text(stringResource(R.string.nc_change_from_carbs), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
                     Button(
                         enabled = due,
-                        onClick = { onSave(p.copy(coachAdjustKcal = p.coachAdjustKcal + ci.kcalChange, lastCheckInDay = today)) },
+                        onClick = { onSave { current ->
+                            if (current.lastCheckInDay == today) current else current.copy(coachAdjustKcal = current.coachAdjustKcal + ci.kcalChange, lastCheckInDay = today)
+                        } },
                         modifier = Modifier.fillMaxWidth().padding(top = 6.dp)
                     ) { Text(stringResource(R.string.nc_apply)) }
                 } else if (ci.verdict == CheckInVerdict.ON_TRACK && due) {
-                    OutlinedButton(onClick = { onSave(p.copy(lastCheckInDay = today)) }, modifier = Modifier.fillMaxWidth().padding(top = 6.dp)) { Text(stringResource(R.string.nc_confirm_checkin)) }
+                    OutlinedButton(onClick = { onSave { current -> current.copy(lastCheckInDay = today) } }, modifier = Modifier.fillMaxWidth().padding(top = 6.dp)) { Text(stringResource(R.string.nc_confirm_checkin)) }
                 }
                 if (!due) Text(stringResource(R.string.nc_next_checkin, fmtDay(p.lastCheckInDay!! + 7)), style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.outline)
                 ci.notes.forEach { n ->
@@ -254,7 +258,7 @@ fun CoachTab(
                 trend?.let { t ->
                     ResultLine(stringResource(R.string.nc_weight_trend), "${fmt(t, 1)} kg")
                     if (kotlin.math.abs(t - p.weightKg) >= 0.3) {
-                        OutlinedButton(onClick = { onSave(p.copy(weightKg = Math.round(t * 10) / 10.0)) }, modifier = Modifier.fillMaxWidth()) { Text(stringResource(R.string.nc_use_trend)) }
+                        OutlinedButton(onClick = { onSave { current -> current.copy(weightKg = Math.round(t * 10) / 10.0) } }, modifier = Modifier.fillMaxWidth()) { Text(stringResource(R.string.nc_use_trend)) }
                     }
                 }
                 Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
@@ -264,7 +268,7 @@ fun CoachTab(
                 val bfV = parseDecimal(bf)?.takeIf { it in 3.0..60.0 }
                 val tV = parseDecimal(target)?.takeIf { it in 5.0..35.0 }
                 if ((bfV != p.bodyFatPercent || tV != p.targetBodyFatPercent) && tV != null) {
-                    Button(onClick = { onSave(p.copy(bodyFatPercent = bfV, targetBodyFatPercent = tV)) }, modifier = Modifier.fillMaxWidth()) { Text(stringResource(R.string.save)) }
+                    Button(onClick = { onSave { current -> current.copy(bodyFatPercent = bfV, targetBodyFatPercent = tV) } }, modifier = Modifier.fillMaxWidth()) { Text(stringResource(R.string.save)) }
                 }
                 val pbf = p.bodyFatPercent
                 if (pbf == null) {

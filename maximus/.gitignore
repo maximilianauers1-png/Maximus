@@ -9,3 +9,7 @@ app/build/
 .idea/deploymentTargetSelector.xml
 *.iml
 captures/
+
+# Lokale IDE- und SDK-Konfiguration
+/.idea/
+/local.properties

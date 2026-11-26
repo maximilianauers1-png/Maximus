@@ -40,6 +40,7 @@ import app.maximus.lab.domain.Curve
 import app.maximus.lab.domain.Fmt
 import app.maximus.lab.domain.LabRules
 import app.maximus.lab.domain.Param
+import app.maximus.lab.domain.Simulations
 import app.maximus.lab.domain.Topic
 import app.maximus.ui.charts.ChartFrame
 import app.maximus.ui.charts.LineSeries
@@ -52,14 +53,18 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 
 @Composable
-fun CalculatorsTab(ctx: LabContext) {
+fun CalculatorsTab(ctx: LabContext, simulationsOnly: Boolean = false) {
     var topic by rememberSaveable { mutableStateOf<Topic?>(null) }
-    val list = remember(topic) { topic?.let { Calculators.forTopic(it) } ?: Calculators.all }
+    val list = remember(topic, simulationsOnly) {
+        if (simulationsOnly) Simulations.featured else topic?.let(Calculators::forTopic) ?: Calculators.all
+    }
     LazyColumn(contentPadding = PaddingValues(16.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) {
-        item { TopicChips(topic, { topic = it }) }
-        item {
-            Text("${list.size} Rechner und Simulationen. Ein neu benutzter Rechner bringt 5 XP.",
-                style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+        if (!simulationsOnly) {
+            item { TopicChips(topic, { topic = it }) }
+            item {
+                Text("${list.size} Rechner und Simulationen. Ein neu benutzter Rechner bringt 5 XP.",
+                    style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+            }
         }
         items(list, key = { it.key }) { c ->
             val used = c.key in ctx.progress.usedCalculators

@@ -57,7 +57,9 @@ fun SteelRule(modifier: Modifier = Modifier, lozenge: Boolean = true) {
     }
 }
 
-enum class Glyph { BACK, GEAR, PULSE, LOCK, PLUS, CHEVRON_LEFT, CHEVRON_RIGHT, STAR, STAR_FILLED, EYE, COPY, SHIELD, SEND, STOP, HISTORY, TRASH, REFRESH, PIN, CHIP }
+enum class Glyph { BACK, GEAR, PULSE, LOCK, PLUS, CHEVRON_LEFT, CHEVRON_RIGHT, STAR, STAR_FILLED, EYE, COPY, SHIELD, SEND, STOP, HISTORY, TRASH, REFRESH, PIN, CHIP,
+    TODAY, CALENDAR, BOWL, BOOK, BAG, CHECK
+}
 
 /** Small line icons drawn on a 24-unit grid (no icon library needed). */
 @Composable
@@ -76,6 +78,39 @@ fun GlyphIcon(glyph: Glyph, modifier: Modifier = Modifier, tint: Color = Materia
             Glyph.CHEVRON_RIGHT -> drawPath(p(9f, 5f, 16f, 12f, 9f, 19f), tint, style = stroke)
             Glyph.PLUS -> { drawPath(p(12f, 5f, 12f, 19f), tint, style = stroke); drawPath(p(5f, 12f, 19f, 12f), tint, style = stroke) }
             Glyph.PULSE -> drawPath(p(3f, 13f, 7.5f, 13f, 10f, 6f, 14f, 18f, 16.5f, 11f, 21f, 11f), tint, style = stroke)
+            Glyph.TODAY -> {
+                drawCircle(tint, 9f * u, Offset(12f * u, 12f * u), style = stroke)
+                drawCircle(tint, 4f * u, Offset(12f * u, 12f * u), style = stroke)
+            }
+            Glyph.CALENDAR -> {
+                drawPath(p(3f, 6f, 21f, 6f, 21f, 21f, 3f, 21f, closed = true), tint, style = stroke)
+                drawPath(p(3f, 10f, 21f, 10f), tint, style = stroke)
+                drawPath(p(8f, 3f, 8f, 8f), tint, style = stroke)
+                drawPath(p(16f, 3f, 16f, 8f), tint, style = stroke)
+            }
+            Glyph.BOWL -> {
+                drawPath(Path().apply {
+                    moveTo(3f * u, 11f * u); lineTo(21f * u, 11f * u)
+                    cubicTo(20f * u, 21f * u, 4f * u, 21f * u, 3f * u, 11f * u)
+                }, tint, style = stroke)
+                drawPath(p(9f, 21f, 15f, 21f), tint, style = stroke)
+                drawPath(p(9f, 7f, 11f, 3f), tint, style = stroke)
+                drawPath(p(14f, 7f, 16f, 3f), tint, style = stroke)
+            }
+            Glyph.BOOK -> {
+                drawPath(p(5f, 3f, 20f, 3f, 20f, 21f, 5f, 21f, closed = true), tint, style = stroke)
+                drawPath(p(9f, 8f, 16f, 8f), tint, style = stroke)
+                drawPath(p(9f, 13f, 16f, 13f), tint, style = stroke)
+            }
+            Glyph.BAG -> {
+                drawPath(p(5f, 8f, 19f, 8f, 21f, 21f, 3f, 21f, closed = true), tint, style = stroke)
+                drawPath(Path().apply {
+                    moveTo(9f * u, 10f * u); lineTo(9f * u, 6f * u)
+                    cubicTo(9f * u, 2f * u, 15f * u, 2f * u, 15f * u, 6f * u)
+                    lineTo(15f * u, 10f * u)
+                }, tint, style = stroke)
+            }
+            Glyph.CHECK -> drawPath(p(4f, 12f, 9f, 17f, 20f, 6f), tint, style = stroke)
             Glyph.GEAR -> {
                 drawCircle(tint, radius = 3.2f * u, center = Offset(12f * u, 12f * u), style = stroke)
                 for (k in 0 until 8) {
