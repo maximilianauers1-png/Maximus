@@ -7,17 +7,17 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.lazy.grid.GridCells
-import androidx.compose.foundation.lazy.grid.GridItemSpan
-import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
-import androidx.compose.foundation.lazy.grid.items
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
@@ -51,26 +51,34 @@ private val modules = listOf(
     ModuleEntry(R.string.module_strongman, R.string.home_strongman, Routes.STRONGMAN, Glyph.BARBELL),
     ModuleEntry(R.string.module_nutrition, R.string.home_nutrition, Routes.NUTRITION, Glyph.BOWL),
     ModuleEntry(R.string.module_chat, R.string.home_chat, Routes.CHAT, Glyph.CHIP),
-    ModuleEntry(R.string.module_core, R.string.home_core, Routes.CORE, Glyph.BOOK),
-    ModuleEntry(R.string.module_trainer, R.string.home_lab, Routes.LAB, Glyph.FLASK),
+    ModuleEntry(R.string.home_title_core, R.string.home_core, Routes.CORE, Glyph.BOOK),
+    ModuleEntry(R.string.home_title_trainer, R.string.home_lab, Routes.LAB, Glyph.FLASK),
     ModuleEntry(R.string.module_simlab, R.string.home_simulation, Routes.SIMULATIONS, Glyph.PULSE),
-    ModuleEntry(R.string.module_ai, R.string.home_ai, Routes.AI, Glyph.CHIP),
-    ModuleEntry(R.string.module_dnd, R.string.home_dnd, Routes.DND, Glyph.DICE)
+    ModuleEntry(R.string.home_title_ai, R.string.home_ai, Routes.AI, Glyph.CHIP),
+    ModuleEntry(R.string.home_title_dnd, R.string.home_dnd, Routes.DND, Glyph.DICE)
 )
 
 @Composable
 fun HomeScreen(onOpenSettings: () -> Unit, onOpenDiagnostics: () -> Unit, onOpenModule: (String) -> Unit) {
     Scaffold(containerColor = MaterialTheme.colorScheme.background) { padding ->
-        LazyVerticalGrid(
-            columns = GridCells.Adaptive(minSize = 148.dp),
-            modifier = Modifier.fillMaxSize().padding(padding),
-            contentPadding = PaddingValues(start = 16.dp, end = 16.dp, top = 8.dp, bottom = 24.dp),
-            horizontalArrangement = Arrangement.spacedBy(10.dp),
-            verticalArrangement = Arrangement.spacedBy(10.dp)
-        ) {
-            item(span = { GridItemSpan(maxLineSpan) }) { Hero(onOpenSettings, onOpenDiagnostics) }
-            items(modules, key = { it.route }) { module ->
-                ModuleCard(module) { onOpenModule(module.route) }
+        BoxWithConstraints(Modifier.fillMaxSize().padding(padding)) {
+            val columns = if (maxWidth >= 720.dp) 4 else if (maxWidth >= 300.dp) 2 else 1
+            LazyColumn(
+                modifier = Modifier.fillMaxSize(),
+                contentPadding = PaddingValues(start = 16.dp, end = 16.dp, top = 8.dp, bottom = 24.dp),
+                verticalArrangement = Arrangement.spacedBy(10.dp)
+            ) {
+                item(key = "hero") { Hero(onOpenSettings, onOpenDiagnostics) }
+                items(modules.chunked(columns), key = { it.first().route }) { row ->
+                    Row(
+                        Modifier.fillMaxWidth().height(IntrinsicSize.Min),
+                        horizontalArrangement = Arrangement.spacedBy(10.dp)
+                    ) {
+                        row.forEach { module ->
+                            ModuleCard(module, Modifier.weight(1f).fillMaxHeight()) { onOpenModule(module.route) }
+                        }
+                    }
+                }
             }
         }
     }
@@ -90,7 +98,7 @@ private fun Hero(onOpenSettings: () -> Unit, onOpenDiagnostics: () -> Unit) {
             )
             Box(
                 Modifier.fillMaxSize().background(
-                    Brush.verticalGradient(0f to Color.Transparent, 0.5f to Color.Transparent, 1f to Color(0xED110E0D))
+                    Brush.verticalGradient(0f to Color.Transparent, 0.5f to Color.Transparent, 1f to colors.background.copy(alpha = 0.93f))
                 )
             )
             Surface(
@@ -114,21 +122,24 @@ private fun Hero(onOpenSettings: () -> Unit, onOpenDiagnostics: () -> Unit) {
 }
 
 @Composable
-private fun ModuleCard(module: ModuleEntry, onClick: () -> Unit) {
+private fun ModuleCard(module: ModuleEntry, modifier: Modifier, onClick: () -> Unit) {
     val colors = MaterialTheme.colorScheme
-    PlateCard(onClick = onClick) {
+    PlateCard(modifier = modifier, onClick = onClick) {
         Column(
-            Modifier.fillMaxWidth().heightIn(min = 122.dp).padding(12.dp),
+            Modifier.fillMaxSize().heightIn(min = 122.dp).padding(12.dp),
             verticalArrangement = Arrangement.spacedBy(5.dp)
         ) {
             Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween, verticalAlignment = Alignment.CenterVertically) {
                 GlyphIcon(module.icon, tint = colors.primary, size = 22.dp)
                 GlyphIcon(Glyph.CHEVRON_RIGHT, tint = colors.outline, size = 15.dp)
             }
-            Text(stringResource(module.title), style = MaterialTheme.typography.titleMedium)
+            Text(
+                stringResource(module.title), style = MaterialTheme.typography.titleMedium,
+                minLines = 2, maxLines = 2, overflow = TextOverflow.Ellipsis
+            )
             Text(
                 stringResource(module.description), style = MaterialTheme.typography.bodySmall,
-                color = colors.onSurfaceVariant, maxLines = 2, overflow = TextOverflow.Ellipsis
+                color = colors.onSurfaceVariant, minLines = 2, maxLines = 2, overflow = TextOverflow.Ellipsis
             )
         }
     }

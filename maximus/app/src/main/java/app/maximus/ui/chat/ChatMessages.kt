@@ -52,7 +52,7 @@ import app.maximus.ui.theme.Palette
 
 internal fun focusColor(focus: Focus?): Color = when (focus) {
     Focus.SCIENCE, Focus.CODE -> Palette.Slate
-    else -> Palette.Copper
+    else -> Palette.Silver
 }
 
 @Composable
@@ -65,7 +65,7 @@ fun UserBubble(message: ChatMessage, onCopy: (String) -> Unit) {
                 .clickable { onCopy(message.text) }
                 .padding(horizontal = 12.dp, vertical = 9.dp)
         ) {
-            SelectionContainer { Text(message.text, style = MaterialTheme.typography.bodyLarge, color = Palette.Linen) }
+            SelectionContainer { Text(message.text, style = MaterialTheme.typography.bodyLarge, color = Palette.White) }
         }
     }
 }

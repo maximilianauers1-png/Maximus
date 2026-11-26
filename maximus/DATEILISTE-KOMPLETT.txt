@@ -88,6 +88,7 @@ app/src/main/java/app/maximus/dnd/domain/BuildGuides.kt
 app/src/main/java/app/maximus/dnd/domain/Character.kt
 app/src/main/java/app/maximus/dnd/domain/ClassMechanics.kt
 app/src/main/java/app/maximus/dnd/domain/Dice.kt
+app/src/main/java/app/maximus/dnd/domain/Initiative.kt
 app/src/main/java/app/maximus/dnd/domain/Monster.kt
 app/src/main/java/app/maximus/dnd/domain/Rules.kt
 app/src/main/java/app/maximus/dnd/domain/Spells.kt
@@ -203,10 +204,12 @@ app/src/main/java/app/maximus/ui/dnd/DndCommon.kt
 app/src/main/java/app/maximus/ui/dnd/DndHubScreen.kt
 app/src/main/java/app/maximus/ui/dnd/EditorScreen.kt
 app/src/main/java/app/maximus/ui/dnd/EncounterTab.kt
+app/src/main/java/app/maximus/ui/dnd/InitiativeTab.kt
 app/src/main/java/app/maximus/ui/dnd/QuickRollBubble.kt
 app/src/main/java/app/maximus/ui/dnd/ReferenceTab.kt
 app/src/main/java/app/maximus/ui/dnd/RollEngine.kt
 app/src/main/java/app/maximus/ui/dnd/SheetScreen.kt
+app/src/main/java/app/maximus/ui/dnd/TableTab.kt
 app/src/main/java/app/maximus/ui/lab/CalculatorsTab.kt
 app/src/main/java/app/maximus/ui/lab/CompendiumTab.kt
 app/src/main/java/app/maximus/ui/lab/ConstantsTab.kt
@@ -292,6 +295,7 @@ app/src/test/java/app/maximus/core/security/SqlCipherKeyFormatTest.kt
 app/src/test/java/app/maximus/dnd/domain/BuildGuidesTest.kt
 app/src/test/java/app/maximus/dnd/domain/CharacterTest.kt
 app/src/test/java/app/maximus/dnd/domain/DiceTest.kt
+app/src/test/java/app/maximus/dnd/domain/InitiativeTest.kt
 app/src/test/java/app/maximus/dnd/domain/MonsterTest.kt
 app/src/test/java/app/maximus/lab/domain/LabGameTest.kt
 app/src/test/java/app/maximus/lab/domain/LabMechanicsTest.kt

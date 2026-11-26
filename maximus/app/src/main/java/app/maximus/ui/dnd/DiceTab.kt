@@ -132,7 +132,7 @@ fun DiceTab(services: AppServices) {
                 Row(modifier = Modifier.fillMaxWidth().padding(horizontal = 14.dp, vertical = 8.dp), verticalAlignment = Alignment.CenterVertically) {
                     Column(modifier = Modifier.weight(1f)) {
                         Text("Floating dice bubble", style = MaterialTheme.typography.titleMedium)
-                        Text("A draggable d20 on every D&D screen; tap it to open or close the quick-roll window.", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                        Text("A draggable d20 on character and rules screens; tap it to open the quick-roll window.", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
                     }
                     Switch(checked = bubble, onCheckedChange = { on -> scope.launch { services.dnd.setBubbleEnabled(on) } })
                 }

@@ -37,7 +37,7 @@ data class RollRequest(
     val critRange: Int = 20
 )
 
-private fun d20Expression(modifier: Int, advantage: Int): String {
+internal fun d20Expression(modifier: Int, advantage: Int): String {
     val dice = when {
         advantage > 0 -> "2d20kh1"
         advantage < 0 -> "2d20kl1"
@@ -135,7 +135,7 @@ fun RollDialog(request: RollRequest, onDismiss: () -> Unit, onLog: (String, Int,
     )
 }
 
-private fun detailText(r: RollResult): String = r.pools.joinToString("; ") { p ->
+internal fun detailText(r: RollResult): String = r.pools.joinToString("; ") { p ->
     p.dice.joinToString(" ") { d -> if (d.kept) "${d.value}" else "(${d.value})" }
 }
 

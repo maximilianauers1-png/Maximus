@@ -7,8 +7,10 @@ import androidx.room.Insert
 import androidx.room.PrimaryKey
 import androidx.room.Query
 import androidx.room.Update
+import androidx.room.withTransaction
 import app.maximus.data.db.AppMetaEntity
 import app.maximus.data.db.MaximusDatabase
+import app.maximus.dnd.domain.Initiative
 import dagger.Lazy
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -84,7 +86,7 @@ interface DndDao {
     @Query("DELETE FROM dnd_monster WHERE id = :id")
     suspend fun deleteMonster(id: Long)
 
-    @Query("SELECT * FROM dnd_roll ORDER BY epochMillis DESC LIMIT :limit")
+    @Query("SELECT * FROM dnd_roll ORDER BY epochMillis DESC, id DESC LIMIT :limit")
     fun observeRolls(limit: Int): Flow<List<DndRollEntity>>
 
     @Insert
@@ -100,7 +102,7 @@ interface DndDao {
     suspend fun deleteRoll(id: Long)
 
     /** Keeps the newest [keep] non-favourite rolls and deletes the rest. */
-    @Query("DELETE FROM dnd_roll WHERE favorite = 0 AND id NOT IN (SELECT id FROM dnd_roll WHERE favorite = 0 ORDER BY epochMillis DESC LIMIT :keep)")
+    @Query("DELETE FROM dnd_roll WHERE favorite = 0 AND id NOT IN (SELECT id FROM dnd_roll WHERE favorite = 0 ORDER BY epochMillis DESC, id DESC LIMIT :keep)")
     suspend fun trimHistory(keep: Int)
 }
 
@@ -111,6 +113,7 @@ class DndRepository @Inject constructor(private val database: Lazy<MaximusDataba
 
     companion object {
         const val HISTORY_LIMIT = 300
+        private const val KEY_INITIATIVE = "dnd.initiative"
         const val KEY_BUBBLE = "dnd.quick_roll_bubble"
     }
 
@@ -120,6 +123,19 @@ class DndRepository @Inject constructor(private val database: Lazy<MaximusDataba
 
     suspend fun setBubbleEnabled(on: Boolean) = withContext(io) {
         database.get().appMetaDao().upsert(AppMetaEntity(KEY_BUBBLE, if (on) "1" else "0"))
+    }
+
+    val initiative: Flow<Initiative> = flow { emitAll(database.get().appMetaDao().observe(KEY_INITIATIVE)) }
+        .map(DndCodec::decodeInitiative).flowOn(io)
+
+    suspend fun updateInitiative(transform: (Initiative) -> Initiative) = withContext(io) {
+        val db = database.get()
+        db.withTransaction {
+            val meta = db.appMetaDao()
+            val current = DndCodec.decodeInitiative(meta.get(KEY_INITIATIVE))
+            val updated = transform(current)
+            if (updated != current) meta.upsert(AppMetaEntity(KEY_INITIATIVE, DndCodec.encode(updated)))
+        }
     }
 
     val characters: Flow<List<DndCharacterEntity>> = flow { emitAll(dao().observeCharacters()) }.flowOn(io)

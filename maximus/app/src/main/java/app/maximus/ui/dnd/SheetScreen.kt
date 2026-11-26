@@ -63,12 +63,19 @@ import kotlinx.coroutines.launch
 private val SHEET_TABS = listOf("Core", "Skills", "Combat", "Spells", "Gear", "Features", "Story")
 
 @Composable
-fun CharacterSheetScreen(services: AppServices, characterId: Long, onBack: () -> Unit, onEdit: (Long) -> Unit, onOpenChat: () -> Unit = {}) {
+fun CharacterSheetScreen(
+    services: AppServices,
+    characterId: Long,
+    onBack: () -> Unit,
+    onEdit: (Long) -> Unit,
+    onOpenChat: () -> Unit = {},
+    startInCombat: Boolean = false
+) {
     var ask by remember { mutableStateOf(false) }
     val scope = rememberCoroutineScope()
     var build by remember { mutableStateOf<CharacterBuild?>(null) }
     var loaded by remember { mutableStateOf(false) }
-    var tab by rememberSaveable { mutableIntStateOf(0) }
+    var tab by rememberSaveable { mutableIntStateOf(if (startInCombat) 2 else 0) }
     var roll by remember { mutableStateOf<RollRequest?>(null) }
 
     LaunchedEffect(characterId) {

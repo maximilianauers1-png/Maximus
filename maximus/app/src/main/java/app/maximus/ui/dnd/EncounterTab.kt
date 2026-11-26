@@ -20,13 +20,11 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import app.maximus.core.app.AppServices
 import app.maximus.dnd.domain.ChallengeRating
 import app.maximus.dnd.domain.Encounter
 import app.maximus.ui.components.EmptyState
@@ -40,13 +38,17 @@ import app.maximus.ui.strongman.fmt
  * planner works without a monster editor.
  */
 @Composable
-fun EncounterTab(@Suppress("UNUSED_PARAMETER") services: AppServices) {
+fun EncounterTab() {
     var partySize by rememberSaveable { mutableIntStateOf(4) }
     var partyLevel by rememberSaveable { mutableIntStateOf(3) }
-    var picks by remember { mutableStateOf<Map<Double, Int>>(emptyMap()) }
+    var picks by rememberSaveable { mutableStateOf(IntArray(ChallengeRating.TABLE.size)) }
 
-    val chosen = picks.filterValues { it > 0 }.toSortedMap()
-    val xpList = chosen.flatMap { (cr, count) -> List(count) { ChallengeRating.row(cr).xp } }
+    fun change(index: Int, delta: Int) {
+        picks = picks.copyOf().also { it[index] = (it[index] + delta).coerceIn(0, 20) }
+    }
+
+    val chosen = picks.indices.filter { picks[it] > 0 }
+    val xpList = chosen.flatMap { index -> List(picks[index]) { ChallengeRating.TABLE[index].xp } }
     val levels = List(partySize) { partyLevel }
     val thresholds = Encounter.thresholds(levels)
     val (difficulty, adjusted) = Encounter.difficulty(levels, xpList)
@@ -67,10 +69,10 @@ fun EncounterTab(@Suppress("UNUSED_PARAMETER") services: AppServices) {
         item {
             SectionCard("Add enemies by challenge rating") {
                 FlowRow(horizontalArrangement = Arrangement.spacedBy(6.dp), verticalArrangement = Arrangement.spacedBy(4.dp)) {
-                    ChallengeRating.TABLE.forEach { row ->
+                    ChallengeRating.TABLE.forEachIndexed { index, row ->
                         FilterChip(
-                            selected = (picks[row.cr] ?: 0) > 0,
-                            onClick = { picks = picks + (row.cr to ((picks[row.cr] ?: 0) + 1).coerceAtMost(20)) },
+                            selected = picks[index] > 0,
+                            onClick = { change(index, 1) },
                             label = { Text("CR ${ChallengeRating.format(row.cr)}") }
                         )
                     }
@@ -78,14 +80,16 @@ fun EncounterTab(@Suppress("UNUSED_PARAMETER") services: AppServices) {
             }
         }
         if (chosen.isEmpty()) item { EmptyState("Tap a challenge rating to add enemies.") }
-        items(chosen.entries.toList(), key = { it.key }) { (cr, n) ->
+        items(chosen, key = { it }) { index ->
+            val row = ChallengeRating.TABLE[index]
+            val n = picks[index]
             PlateCard {
                 Row(modifier = Modifier.padding(horizontal = 14.dp, vertical = 10.dp), verticalAlignment = Alignment.CenterVertically) {
-                    Text("CR ${ChallengeRating.format(cr)}", modifier = Modifier.weight(1f), style = MaterialTheme.typography.titleMedium)
-                    Text("${ChallengeRating.row(cr).xp} XP each", style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.primary, modifier = Modifier.padding(end = 8.dp))
-                    TextButton(onClick = { picks = picks + (cr to (n - 1).coerceAtLeast(0)) }) { Text("−") }
+                    Text("CR ${ChallengeRating.format(row.cr)}", modifier = Modifier.weight(1f), style = MaterialTheme.typography.titleMedium)
+                    Text("${row.xp} XP each", style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.primary, modifier = Modifier.padding(end = 8.dp))
+                    TextButton(onClick = { change(index, -1) }) { Text("−") }
                     Text("$n", style = MaterialTheme.typography.titleMedium)
-                    TextButton(onClick = { picks = picks + (cr to (n + 1).coerceAtMost(20)) }) { Text("+") }
+                    TextButton(onClick = { change(index, 1) }) { Text("+") }
                 }
             }
         }

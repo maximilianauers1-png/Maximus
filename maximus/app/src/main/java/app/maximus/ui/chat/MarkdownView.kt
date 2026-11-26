@@ -163,7 +163,7 @@ private fun CodeBlock(language: String, code: String, closed: Boolean, onCopy: (
             GlyphButton(Glyph.COPY, "Code kopieren", { onCopy(code) }, tint = MaterialTheme.colorScheme.onSurfaceVariant)
         }
         Box(Modifier.fillMaxWidth().horizontalScroll(rememberScrollState()).padding(horizontal = 12.dp, vertical = 10.dp)) {
-            Text(highlighted, style = MaterialTheme.typography.bodyMedium.copy(fontFamily = FontFamily.Monospace, fontSize = 13.sp, lineHeight = 19.sp), color = Palette.Linen, softWrap = false)
+            Text(highlighted, style = MaterialTheme.typography.bodyMedium.copy(fontFamily = FontFamily.Monospace, fontSize = 13.sp, lineHeight = 19.sp), color = Palette.White, softWrap = false)
         }
     }
 }

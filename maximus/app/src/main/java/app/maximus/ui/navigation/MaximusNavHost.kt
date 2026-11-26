@@ -30,7 +30,7 @@ object Routes {
     const val NOTE = "core/note/{id}"
     const val NUTRITION = "nutrition"
     const val DND = "dnd"
-    const val DND_SHEET = "dnd/sheet/{id}"
+    const val DND_SHEET = "dnd/sheet/{id}?combat={combat}"
     const val DND_EDIT = "dnd/edit/{id}"
     const val STRONGMAN = "strongman"
     const val PROGRAM = "strongman/program/{id}"
@@ -39,7 +39,7 @@ object Routes {
     const val AI = "ai"
     const val CHAT = "chat"
     fun note(id: Long) = "core/note/$id"
-    fun dndSheet(id: Long) = "dnd/sheet/$id"
+    fun dndSheet(id: Long, combat: Boolean = false) = "dnd/sheet/$id?combat=$combat"
     fun dndEdit(id: Long) = "dnd/edit/$id"
     fun program(id: Long) = "strongman/program/$id"
 }
@@ -82,15 +82,22 @@ fun MaximusNavHost(services: AppServices) {
             DndHubScreen(
                 services = services,
                 onBack = { navController.popBackStack() },
-                onOpenSheet = { id -> navController.navigate(Routes.dndSheet(id)) },
+                onOpenSheet = { id, combat -> navController.navigate(Routes.dndSheet(id, combat)) },
                 onEditCharacter = { id -> navController.navigate(Routes.dndEdit(id)) },
                 onOpenChat = { navController.navigate(Routes.CHAT) }
             )
         }
-        composable(Routes.DND_SHEET, arguments = listOf(navArgument("id") { type = NavType.LongType })) { entry ->
+        composable(
+            Routes.DND_SHEET,
+            arguments = listOf(
+                navArgument("id") { type = NavType.LongType },
+                navArgument("combat") { type = NavType.BoolType; defaultValue = false }
+            )
+        ) { entry ->
             CharacterSheetScreen(
                 services = services,
                 characterId = entry.arguments?.getLong("id") ?: 0L,
+                startInCombat = entry.arguments?.getBoolean("combat") ?: false,
                 onBack = { navController.popBackStack() },
                 onEdit = { id -> navController.navigate(Routes.dndEdit(id)) },
                 onOpenChat = { navController.navigate(Routes.CHAT) }

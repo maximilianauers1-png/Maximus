@@ -1,4 +1,4 @@
-MAXIMUS - Gesamtpaket (Version 0.11.2-p10, Datenbankversion 5)
+MAXIMUS - Gesamtpaket (Version 0.11.3-p10, Datenbankversion 5)
 
 Dieses Paket enthaelt das KOMPLETTE Projekt in einem Stueck. Es ersetzt alle
 frueheren Teilpakete (p2, p1-update, p3-update, ritterbild, p4-update,
@@ -26,6 +26,14 @@ Hinweis zu Daten: Run kann eine vorhandene Installation mit demselben
 Signaturschluessel aktualisieren. Verwende moeglichst denselben Rechner, der
 die vorhandene App gebaut hat. Bei einem Signaturkonflikt zuerst eine
 Datensicherung exportieren.
+
+NEU in 0.11.3: Spieltisch fuer D&D
+- Schnellwuerfe mit W20-Modifikator, Vorteil und Nachteil. Formeln und Verlauf
+  sind vom Spieltisch aus erreichbar.
+- Unter Kampf: Initiative, Runden und optionale Kampf-TP lokal speichern.
+  Figuren koennen aus dem Charakterbestand uebernommen werden. Kampf-TP
+  werden im Kampfstand gefuehrt. Der Spieltisch oeffnet den Live-Charakterbogen.
+- Unter Kampf bleibt auch der Begegnungsplaner erreichbar.
 
 NEU: Ernaehrung mit Tagesuebersicht, Wochen-Generator, Einkaufsliste und Vorkochen.
 Coach und gespeicherte Wochen bleiben ueber die Tagesuebersicht erreichbar.
@@ -94,7 +102,7 @@ NEU in 0.8: Labor-Ausbau
 - D&D: Monster-Editor entfernt; der Encounter-Planer arbeitet jetzt mit Herausforderungsgraden.
 
 NEU in 0.11.2: Startmotiv und Strongman
-- Einheitliches Design in Anthrazit und Kupfer. Das Athletenmotiv ist Standard.
+- Einheitliches Design in Schwarz, Weiss und Silber. Das Athletenmotiv ist Standard.
   Das bisherige Ritterbild ist unter Einstellungen > Startmotiv waehlbar.
 - Strongman ist unten in Training, Rechner, Coach und Arena unterteilt.
   Im Training finden sich Logbuch, Programme, Werkzeuge und Uebungen.

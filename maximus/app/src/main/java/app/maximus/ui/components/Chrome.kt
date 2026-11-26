@@ -237,7 +237,7 @@ fun MaximusTopBar(
             colors = TopAppBarDefaults.topAppBarColors(
                 containerColor = MaterialTheme.colorScheme.background,
                 scrolledContainerColor = MaterialTheme.colorScheme.surfaceContainer,
-                titleContentColor = MaterialTheme.colorScheme.onBackground
+                titleContentColor = MaterialTheme.colorScheme.primary
             )
         )
         Hairline()

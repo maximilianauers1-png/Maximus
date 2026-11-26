@@ -4,7 +4,9 @@ import app.maximus.dnd.domain.Ability
 import app.maximus.dnd.domain.AttackEntry
 import app.maximus.dnd.domain.CharacterBuild
 import app.maximus.dnd.domain.ClassLevel
+import app.maximus.dnd.domain.Combatant
 import app.maximus.dnd.domain.Currency
+import app.maximus.dnd.domain.Initiative
 import app.maximus.dnd.domain.HomebrewEntry
 import app.maximus.dnd.domain.HomebrewKind
 import app.maximus.dnd.domain.HpMethod
@@ -24,6 +26,33 @@ import org.json.JSONObject
  */
 object DndCodec {
     private const val VERSION = 1
+
+    fun encode(initiative: Initiative): String = JSONObject()
+        .put("round", initiative.round)
+        .put("active", initiative.activeId ?: JSONObject.NULL)
+        .put("combatants", JSONArray().apply {
+            initiative.combatants.forEach { entry ->
+                put(JSONObject().put("id", entry.id).put("name", entry.name)
+                    .put("initiative", entry.initiative).put("maxHp", entry.maxHp ?: JSONObject.NULL)
+                    .put("hp", entry.hp ?: JSONObject.NULL))
+            }
+        }).toString()
+
+    fun decodeInitiative(json: String?): Initiative {
+        val root = json?.let { runCatching { JSONObject(it) }.getOrNull() } ?: return Initiative()
+        val entries = root.optJSONArray("combatants") ?: return Initiative()
+        val combatants = (0 until entries.length()).mapNotNull { index ->
+            val entry = entries.optJSONObject(index) ?: return@mapNotNull null
+            val id = entry.optString("id").takeIf { it.isNotBlank() } ?: return@mapNotNull null
+            val name = entry.optString("name").takeIf { it.isNotBlank() } ?: return@mapNotNull null
+            val maximum = entry.optInt("maxHp").takeIf { it > 0 }
+            Combatant(id, name, entry.optInt("initiative"), maximum,
+                maximum?.let { entry.optInt("hp", it).coerceIn(0, it) })
+        }.distinctBy { it.id }
+        if (combatants.isEmpty()) return Initiative()
+        val activeId = root.optString("active").takeIf { id -> combatants.any { it.id == id } }
+        return Initiative(combatants, root.optInt("round", 1).coerceAtLeast(1), activeId)
+    }
 
     fun encode(b: CharacterBuild): String {
         val o = JSONObject()

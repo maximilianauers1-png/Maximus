@@ -57,7 +57,7 @@ import kotlinx.coroutines.delay
 
 fun topicColor(topic: Topic): Color = when (topic) {
     Topic.QUANTUM, Topic.QFT, Topic.MATH -> Palette.Slate
-    else -> Palette.Copper
+    else -> Palette.Silver
 }
 
 /** Formula in a framed plate, set in a serif face for the mathematical look. */
