@@ -74,6 +74,9 @@ interface StrongmanDao {
     @Query("SELECT * FROM workout_session ORDER BY epochDay DESC, id DESC")
     fun observeSessions(): Flow<List<WorkoutSessionEntity>>
 
+    @Query("SELECT EXISTS(SELECT 1 FROM set_log WHERE epochDay = :day)")
+    fun observeTrainingLogged(day: Long): Flow<Boolean>
+
     @Insert
     suspend fun insertSession(session: WorkoutSessionEntity): Long
 

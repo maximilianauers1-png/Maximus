@@ -1,6 +1,9 @@
 package app.maximus.ui.navigation
 
 import androidx.compose.runtime.Composable
+import androidx.navigation.NavBackStackEntry
+import androidx.navigation.NavGraphBuilder
+import androidx.navigation.NamedNavArgument
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -18,6 +21,8 @@ import app.maximus.ui.screens.HomeScreen
 import app.maximus.ui.screens.SettingsScreen
 import app.maximus.ui.strongman.ProgramEditorScreen
 import app.maximus.ui.strongman.StrongmanHubScreen
+import app.maximus.ui.theme.ModulePalette
+import app.maximus.ui.theme.ModuleTheme
 
 object Routes {
     const val HOME = "home"
@@ -48,30 +53,30 @@ fun MaximusNavHost(services: AppServices) {
                 onOpenModule = { route -> navController.navigate(route) }
             )
         }
-        composable(Routes.SETTINGS) {
+        moduleScreen(Routes.SETTINGS, ModulePalette.GENERAL) {
             SettingsScreen(onBack = { navController.popBackStack() }, services = services)
         }
-        composable(Routes.DIAGNOSTICS) {
+        moduleScreen(Routes.DIAGNOSTICS, ModulePalette.GENERAL) {
             DiagnosticsScreen(repository = services.diagnostics, onBack = { navController.popBackStack() })
         }
-        composable(Routes.CORE) {
+        moduleScreen(Routes.CORE, ModulePalette.GENERAL) {
             CoreHubScreen(
                 services = services,
                 onBack = { navController.popBackStack() },
                 onOpenNote = { id -> navController.navigate(Routes.note(id)) }
             )
         }
-        composable(Routes.NOTE, arguments = listOf(navArgument("id") { type = NavType.LongType })) { entry ->
+        moduleScreen(Routes.NOTE, ModulePalette.GENERAL, arguments = listOf(navArgument("id") { type = NavType.LongType })) { entry ->
             NoteEditorScreen(
                 services = services,
                 noteId = entry.arguments?.getLong("id") ?: 0L,
                 onBack = { navController.popBackStack() }
             )
         }
-        composable(Routes.NUTRITION) {
+        moduleScreen(Routes.NUTRITION, ModulePalette.NUTRITION) {
             NutritionHubScreen(services = services, onBack = { navController.popBackStack() })
         }
-        composable(Routes.DND) {
+        moduleScreen(Routes.DND, ModulePalette.DND) {
             DndHubScreen(
                 services = services,
                 onBack = { navController.popBackStack() },
@@ -79,7 +84,7 @@ fun MaximusNavHost(services: AppServices) {
                 onEditCharacter = { id -> navController.navigate(Routes.dndEdit(id)) }
             )
         }
-        composable(Routes.DND_SHEET, arguments = listOf(navArgument("id") { type = NavType.LongType })) { entry ->
+        moduleScreen(Routes.DND_SHEET, ModulePalette.DND, arguments = listOf(navArgument("id") { type = NavType.LongType })) { entry ->
             CharacterSheetScreen(
                 services = services,
                 characterId = entry.arguments?.getLong("id") ?: 0L,
@@ -87,7 +92,7 @@ fun MaximusNavHost(services: AppServices) {
                 onEdit = { id -> navController.navigate(Routes.dndEdit(id)) }
             )
         }
-        composable(Routes.DND_EDIT, arguments = listOf(navArgument("id") { type = NavType.LongType })) { entry ->
+        moduleScreen(Routes.DND_EDIT, ModulePalette.DND, arguments = listOf(navArgument("id") { type = NavType.LongType })) { entry ->
             CharacterEditorScreen(
                 services = services,
                 characterId = entry.arguments?.getLong("id") ?: 0L,
@@ -98,19 +103,30 @@ fun MaximusNavHost(services: AppServices) {
                 }
             )
         }
-        composable(Routes.STRONGMAN) {
+        moduleScreen(Routes.STRONGMAN, ModulePalette.STRONGMAN) {
             StrongmanHubScreen(
                 repository = services.strongman,
                 onBack = { navController.popBackStack() },
                 onOpenProgram = { id -> navController.navigate(Routes.program(id)) }
             )
         }
-        composable(Routes.PROGRAM, arguments = listOf(navArgument("id") { type = NavType.LongType })) { entry ->
+        moduleScreen(Routes.PROGRAM, ModulePalette.STRONGMAN, arguments = listOf(navArgument("id") { type = NavType.LongType })) { entry ->
             ProgramEditorScreen(
                 repository = services.strongman,
                 programId = entry.arguments?.getLong("id") ?: 0L,
                 onBack = { navController.popBackStack() }
             )
         }
+    }
+}
+
+private fun NavGraphBuilder.moduleScreen(
+    route: String,
+    palette: ModulePalette,
+    arguments: List<NamedNavArgument> = emptyList(),
+    content: @Composable (NavBackStackEntry) -> Unit
+) {
+    composable(route, arguments = arguments) { entry ->
+        ModuleTheme(palette) { content(entry) }
     }
 }
