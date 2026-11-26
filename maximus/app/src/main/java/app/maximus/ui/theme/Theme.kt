@@ -130,3 +130,55 @@ fun MaximusTheme(
 ) {
     MaterialTheme(colorScheme = Scheme, typography = Type, shapes = ShapeSet, content = content)
 }
+
+enum class ModulePalette(val accent: Color, val accentSurface: Color, val ink: Color) {
+    GENERAL(Color(0xFFE0C39B), Color(0xFF393024), Color(0xFF241B10)),
+    NUTRITION(Color(0xFFB9D7A8), Color(0xFF2B3B2B), Color(0xFF162614)),
+    STRONGMAN(Color(0xFFA9C9E9), Color(0xFF253747), Color(0xFF102337)),
+    DND(Color(0xFFD4B7E6), Color(0xFF392C42), Color(0xFF2C1938))
+}
+
+@Composable
+fun ModuleTheme(palette: ModulePalette, content: @Composable () -> Unit) {
+    val nutrition = palette == ModulePalette.NUTRITION
+    val ground = if (nutrition) Color(0xFF101612) else Color(0xFF111417)
+    val scheme = Scheme.copy(
+        primary = palette.accent,
+        onPrimary = palette.ink,
+        primaryContainer = palette.accentSurface,
+        onPrimaryContainer = palette.accent,
+        inversePrimary = palette.accentSurface,
+        secondary = if (nutrition) Color(0xFFC9D3AD) else Color(0xFFB6C8D4),
+        onSecondary = Color(0xFF1C281C),
+        secondaryContainer = if (nutrition) Color(0xFF2C3726) else Color(0xFF29343C),
+        onSecondaryContainer = if (nutrition) Color(0xFFD9E3C3) else Color(0xFFD8E6F0),
+        tertiary = if (nutrition) Color(0xFFF2C58E) else Color(0xFFE4A99C),
+        onTertiary = Color(0xFF352416),
+        tertiaryContainer = Color(0xFF483223),
+        onTertiaryContainer = Color(0xFFFFDFC2),
+        background = ground,
+        onBackground = Color(0xFFF0F1EA),
+        surface = ground,
+        onSurface = Color(0xFFF0F1EA),
+        onSurfaceVariant = if (nutrition) Color(0xFFB5BFB2) else Color(0xFFBAC2C8),
+        surfaceVariant = if (nutrition) Color(0xFF303A31) else Color(0xFF32393F),
+        surfaceTint = palette.accent,
+        inverseOnSurface = ground,
+        outline = if (nutrition) Color(0xFF8A9988) else Color(0xFF89949F),
+        outlineVariant = if (nutrition) Color(0xFF344135) else Color(0xFF333A42),
+        surfaceDim = ground,
+        surfaceBright = if (nutrition) Color(0xFF38453B) else Color(0xFF363E47),
+        surfaceContainerLowest = if (nutrition) Color(0xFF0B100D) else Color(0xFF0C0E11),
+        surfaceContainerLow = if (nutrition) Color(0xFF181F19) else Color(0xFF191D22),
+        surfaceContainer = if (nutrition) Color(0xFF1E2720) else Color(0xFF1F242A),
+        surfaceContainerHigh = if (nutrition) Color(0xFF263027) else Color(0xFF272D34),
+        surfaceContainerHighest = if (nutrition) Color(0xFF303A31) else Color(0xFF30373F)
+    )
+    val typography = if (nutrition) Type.copy(
+        displaySmall = Type.displaySmall.copy(fontFamily = Inter, fontWeight = FontWeight.SemiBold),
+        headlineMedium = Type.headlineMedium.copy(fontFamily = Inter),
+        headlineSmall = Type.headlineSmall.copy(fontFamily = Inter),
+        titleLarge = Type.titleLarge.copy(fontFamily = Inter)
+    ) else Type
+    MaterialTheme(colorScheme = scheme, typography = typography, shapes = ShapeSet, content = content)
+}

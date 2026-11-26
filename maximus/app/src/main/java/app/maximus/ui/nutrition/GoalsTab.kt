@@ -16,6 +16,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Slider
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableDoubleStateOf
@@ -41,14 +42,21 @@ import app.maximus.ui.charts.ChartFrame
 import app.maximus.ui.charts.drawTrendChart
 import app.maximus.ui.strongman.NumberField
 import app.maximus.ui.strongman.ResultLine
-import app.maximus.ui.strongman.SectionCard
 import app.maximus.ui.strongman.fmt
 import app.maximus.ui.strongman.parseDecimal
 import kotlin.math.max
 import kotlin.math.min
 
 @Composable
-fun GoalsTab(p: NutritionProfile, d: DerivedTargets, adaptive: TdeeEstimate?, today: Long, onSave: (NutritionProfile) -> Unit) {
+fun GoalsTab(
+    p: NutritionProfile,
+    d: DerivedTargets,
+    adaptive: TdeeEstimate?,
+    today: Long,
+    latestWeight: Double?,
+    onOpenTools: () -> Unit,
+    onSave: (NutritionProfile) -> Unit
+) {
     var sex by remember(p) { mutableStateOf(p.sex) }
     var age by remember(p) { mutableStateOf(p.ageYears.toString()) }
     var height by remember(p) { mutableStateOf(fmt(p.heightCm, 0)) }
@@ -62,33 +70,45 @@ fun GoalsTab(p: NutritionProfile, d: DerivedTargets, adaptive: TdeeEstimate?, to
     var fat by remember(p) { mutableDoubleStateOf(p.fatPerKg) }
     var kcalOverride by remember(p) { mutableStateOf(p.kcalOverride?.let { fmt(it, 0) } ?: "") }
     var useAdaptive by remember(p) { mutableStateOf(p.useAdaptiveTdee) }
+    val initialWeeks = p.goalEpochDay?.let { ((it - today) / 7).coerceAtLeast(1).toString() }.orEmpty()
 
     fun edited(): NutritionProfile? {
-        val a = age.trim().toIntOrNull() ?: return null
-        val h = parseDecimal(height) ?: return null
-        val w = parseDecimal(weight) ?: return null
+        val a = age.trim().toIntOrNull()?.takeIf { it in 14..100 } ?: return null
+        val h = parseDecimal(height)?.takeIf { it in 120.0..230.0 } ?: return null
+        val w = parseDecimal(weight)?.takeIf { it in 35.0..250.0 } ?: return null
         val wk = weeks.trim().toIntOrNull()
         val g = parseDecimal(goal)
+        val bodyFat = parseDecimal(bf)
+        val manualEnergy = parseDecimal(kcalOverride)
+        if (bf.isNotBlank() && (bodyFat == null || bodyFat !in 3.0..60.0)) return null
+        if (kcalOverride.isNotBlank() && (manualEnergy == null || manualEnergy !in 1000.0..9000.0)) return null
+        val hasGoal = goal.isNotBlank() || weeks.isNotBlank()
+        if (hasGoal && (g == null || g !in 35.0..250.0 || wk == null || wk !in 1..NutritionProfile.MAX_GOAL_WEEKS)) return null
         return p.copy(
-            sex = sex, ageYears = a, heightCm = h, weightKg = w, bodyFatPercent = parseDecimal(bf),
+            sex = sex, ageYears = a, heightCm = h, weightKg = w, bodyFatPercent = bodyFat,
             formula = formula, activity = activity,
-            goalWeightKg = if (g != null && wk != null) g else null,
-            goalEpochDay = if (g != null && wk != null && wk > 0) today + 7L * wk else null,
-            proteinPerKg = protein, fatPerKg = fat, kcalOverride = parseDecimal(kcalOverride), useAdaptiveTdee = useAdaptive
-        ).let { NutritionProfile.fromMap(it.toMap()) }
+            goalWeightKg = g,
+            goalEpochDay = if (wk == null) null else if (weeks == initialWeeks) p.goalEpochDay else today + 7L * wk,
+            proteinPerKg = protein, fatPerKg = fat, kcalOverride = manualEnergy, useAdaptiveTdee = useAdaptive
+        )
     }
 
     LazyColumn(contentPadding = PaddingValues(16.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
         item { TargetsCard(d, p) }
         if (d.projection != null) item { ProjectionCard(d, p) }
         item {
-            SectionCard(stringResource(R.string.nu_profile)) {
+            NutritionCard(stringResource(R.string.nu_profile)) {
                 FlowRow(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
                     BioSex.entries.forEach { s -> FilterChip(sex == s, { sex = s }, label = { Text(stringResource(if (s == BioSex.MALE) R.string.sm_male else R.string.sm_female)) }) }
                 }
                 Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                     NumberField(stringResource(R.string.nu_age), age, { age = it }, Modifier.weight(1f), integer = true)
                     NumberField(stringResource(R.string.nu_height), height, { height = it }, Modifier.weight(1f), suffix = "cm")
+                }
+                if (latestWeight != null && latestWeight in 35.0..250.0 && parseDecimal(weight) != latestWeight) {
+                    TextButton(onClick = { weight = fmt(latestWeight, 1) }) {
+                        Text(stringResource(R.string.nu_use_latest_weight, fmt(latestWeight, 1)))
+                    }
                 }
                 Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                     NumberField(stringResource(R.string.nu_weight), weight, { weight = it }, Modifier.weight(1f), suffix = "kg")
@@ -105,7 +125,7 @@ fun GoalsTab(p: NutritionProfile, d: DerivedTargets, adaptive: TdeeEstimate?, to
             }
         }
         item {
-            SectionCard(stringResource(R.string.nu_goal)) {
+            NutritionCard(stringResource(R.string.nu_goal)) {
                 Text(stringResource(R.string.nu_goal_explain), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
                 Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                     NumberField(stringResource(R.string.nu_goal_weight), goal, { goal = it }, Modifier.weight(1f), suffix = "kg")
@@ -122,9 +142,11 @@ fun GoalsTab(p: NutritionProfile, d: DerivedTargets, adaptive: TdeeEstimate?, to
                 }
                 if (adaptive == null) Text(stringResource(R.string.nu_adaptive_missing), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
                 val e = edited()
+                if (e == null) Text(stringResource(R.string.nu_goal_range), color = MaterialTheme.colorScheme.error, style = MaterialTheme.typography.bodySmall)
                 Button(enabled = e != null, onClick = { e?.let(onSave) }, modifier = Modifier.fillMaxWidth().padding(top = 8.dp)) { Text(stringResource(R.string.save)) }
             }
         }
+        item { TextButton(onClick = onOpenTools) { Text(stringResource(R.string.nu_tab_tools)) } }
     }
 }
 
@@ -152,7 +174,7 @@ fun activityLabel(a: ActivityLevel) = stringResource(
 @Composable
 private fun TargetsCard(d: DerivedTargets, p: NutritionProfile) {
     val m = d.macros
-    SectionCard(stringResource(R.string.nu_targets)) {
+    NutritionCard(stringResource(R.string.nu_targets)) {
         ResultLine(stringResource(R.string.nu_bmr), "${fmt(d.bmr, 0)} kcal")
         ResultLine(
             stringResource(if (d.tdeeSource == TdeeSource.ADAPTIVE) R.string.nu_tdee_adaptive else R.string.nu_tdee_formula),
@@ -186,7 +208,7 @@ private fun TargetsCard(d: DerivedTargets, p: NutritionProfile) {
 @Composable
 private fun ProjectionCard(d: DerivedTargets, p: NutritionProfile) {
     val proj = d.projection ?: return
-    SectionCard(stringResource(R.string.nu_projection)) {
+    NutritionCard(stringResource(R.string.nu_projection)) {
         ResultLine(stringResource(R.string.nu_proj_hall), "${fmt(proj.intakeKcal, 0)} kcal/d")
         ResultLine(stringResource(R.string.nu_proj_linear), "${fmt(proj.linearIntakeKcal, 0)} kcal/d")
         ResultLine(stringResource(R.string.nu_proj_rate), stringResource(R.string.nu_rate_value, fmt(proj.weeklyRatePercent, 2)))

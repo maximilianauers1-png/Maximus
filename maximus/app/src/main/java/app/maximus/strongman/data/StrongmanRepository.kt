@@ -206,6 +206,8 @@ class StrongmanRepository @Inject constructor(
     // ---- Training log ----
     val sessions: Flow<List<WorkoutSessionEntity>> = dbFlow { dao().observeSessions() }
 
+    fun trainingLogged(day: Long): Flow<Boolean> = dbFlow { dao().observeTrainingLogged(day) }
+
     fun sessionSets(sessionId: Long): Flow<List<SetLogEntity>> = dbFlow { dao().observeSessionSets(sessionId) }
 
     val allSets: Flow<List<AnalyticsSet>> = dbFlow { dao().observeAllSets() }.map { rows ->

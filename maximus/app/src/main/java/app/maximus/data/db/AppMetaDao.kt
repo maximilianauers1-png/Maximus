@@ -10,8 +10,14 @@ interface AppMetaDao {
     @Upsert
     suspend fun upsert(entity: AppMetaEntity)
 
+    @Upsert
+    suspend fun upsertAll(entities: List<AppMetaEntity>)
+
     @Query("SELECT value FROM app_meta WHERE `key` = :key")
     suspend fun get(key: String): String?
+
+    @Query("SELECT * FROM app_meta WHERE `key` LIKE :prefix || '%'")
+    suspend fun readPrefix(prefix: String): List<AppMetaEntity>
 
     @Query("DELETE FROM app_meta WHERE `key` = :key")
     suspend fun delete(key: String)
