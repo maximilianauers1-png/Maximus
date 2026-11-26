@@ -22,7 +22,7 @@ import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import app.maximus.ui.components.SteelRule
+import app.maximus.ui.components.Hairline
 
 /** Signed modifier, e.g. "+3" or "-1". */
 fun sign(v: Int): String = if (v >= 0) "+$v" else "$v"
@@ -42,7 +42,7 @@ fun DndCard(title: String, modifier: Modifier = Modifier, content: @Composable (
     ) {
         Column(modifier = Modifier.padding(horizontal = 16.dp, vertical = 14.dp)) {
             Text(title, style = MaterialTheme.typography.titleLarge, color = MaterialTheme.colorScheme.primary)
-            SteelRule(lozenge = false, modifier = Modifier.padding(top = 2.dp, bottom = 10.dp))
+            Hairline(Modifier.padding(top = 2.dp, bottom = 10.dp))
             content()
         }
     }

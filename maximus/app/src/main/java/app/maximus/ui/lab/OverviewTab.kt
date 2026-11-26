@@ -70,7 +70,7 @@ fun OverviewTab(ctx: LabContext) {
                     Row(Modifier.padding(horizontal = 10.dp, vertical = 8.dp), verticalAlignment = Alignment.CenterVertically) {
                         FlameGlyph(if (p.lastActiveDay >= ctx.today - 1) p.streak else 0)
                         Column(Modifier.padding(start = 6.dp)) {
-                            Text("${if (p.lastActiveDay >= ctx.today - 1) p.streak else 0}", style = MaterialTheme.typography.headlineSmall, color = Palette.Heraldic)
+                            Text("${if (p.lastActiveDay >= ctx.today - 1) p.streak else 0}", style = MaterialTheme.typography.headlineSmall, color = Palette.Warning)
                             Text("Tage Serie", style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
                         }
                     }

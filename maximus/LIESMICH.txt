@@ -1,4 +1,4 @@
-MAXIMUS - Gesamtpaket (Version 0.11.1-p10, Datenbankversion 5)
+MAXIMUS - Gesamtpaket (Version 0.11.2-p10, Datenbankversion 5)
 
 Dieses Paket enthaelt das KOMPLETTE Projekt in einem Stueck. Es ersetzt alle
 frueheren Teilpakete (p2, p1-update, p3-update, ritterbild, p4-update,
@@ -82,7 +82,7 @@ NEU: Quiz im Labor und "Frag Maximus" in allen Bereichen
   Ernaehrungsziele und Protokoll, Charakterbogen, Kapitel). Die Frage landet als Chat
   im Verlauf und kann dort weitergefuehrt werden.
 
-NEU in 0.8: Labor-Ausbau und neues Design
+NEU in 0.8: Labor-Ausbau
 - Kalorik: Vorlesung "P(VDF-TrFE-CFE) und Relaxor-Polymere" mit 8 neuen Kapiteln
   (Struktur und Phasen, Relaxoren, Elektrokalorik im Terpolymer, Messmethoden,
   Kuehlgeraete, Elektrostriktion/Elastokalorik, Multikalorik, Promotionsverteidigung)
@@ -92,22 +92,19 @@ NEU in 0.8: Labor-Ausbau und neues Design
   bis zu LLM-Training, Inferenz, RAG und Agenten). Weitere Kapitel: Optik,
   Nichtgleichgewicht, Streutheorie, Heterostrukturen/QHE, Chaos, Gruppentheorie.
 - D&D: Monster-Editor entfernt; der Encounter-Planer arbeitet jetzt mit Herausforderungsgraden.
-- Design: jedes Modul hat eigene Farben (D&D Landsknecht-Rot/Schwarz/Gold, Strongman
-  Schmiedefeuer, Ernaehrung Kraeutergruen, Labor Plasma), Maximus ist ein Retro-Terminal
-  mit dem Ritter als Gesicht.
 
-Design umschalten: Startseite > Zahnrad (Einstellungen) > "Design".
-- Ritterorden (Standard): D&D und Strongman Schwarz-Rot-Gold, Labor und Ernaehrung
-  Blau-Weiss-Silber, Maximus als Retro-Terminal.
-- Schwarz-Rot-Gold oder Blau-Weiss-Silber: ein Farbschema fuer alle Bereiche
-  (D&D bleibt rot-schwarz, Maximus bleibt Terminal).
-- Klassisch: das urspruengliche Eisen-und-Silber-Design ohne Bereichsfarben.
+NEU in 0.11.2: Startmotiv und Strongman
+- Einheitliches Design in Anthrazit und Kupfer. Das Athletenmotiv ist Standard.
+  Das bisherige Ritterbild ist unter Einstellungen > Startmotiv waehlbar.
+- Strongman ist unten in Training, Rechner, Coach und Arena unterteilt.
+  Im Training finden sich Logbuch, Programme, Werkzeuge und Uebungen.
+- Im Logbuch laesst sich ein passender Satz direkt im Rechner oeffnen. Dort kann
+  man auch den letzten Satz uebernehmen. Die 1RM-Schaetzung laesst sich in das
+  RPE-Zielgewicht uebertragen. Der Rechner zeigt die eingestellte KG-Schrittweite,
+  das Gewicht vor dem Runden und die Nachbarwerte bei plus/minus 0,5 RPE.
+- DOTS, Prilepin und die bearbeitbare RPE-Tabelle stehen unter "Weitere Rechner".
 
 NEU in 0.9: Strongman mit Coach und Arena
-- Strongman hat drei Bereiche (oben waehlbar):
-  Training (Loggen, Programme, Rechner, Werkzeuge, Bibliothek),
-  Coach (Heute, Wettkampf, Systeme, Schwachstellen),
-  Arena (Rang, Vergleich, Ruhm, Progression, Statistik, Rekorde).
 - Arena: Bestleistungen und Wiederholungs-PRs gegen Gym-, Strongman- und
   Powerlifting-Population, wahlweise DOTS (relativ zum Koerpergewicht) oder absolut.
   Raenge vom Knappen bis zur Legende (je I-III), Kraftwert, Verteilungskurve,
@@ -145,7 +142,7 @@ NEU in 0.10: AI-Kurs von Null und AI-Spielwiese (Labor)
 
 NEU in 0.11: Eigener Bereich "AI-Ingenieurwesen" (Hauptmenue)
 - Der AI-Teil ist aus dem Physik- und Mathe-Labor herausgeloest und steht als eigener
-  Eintrag im Hauptmenue (Farbwelt im Konzept "Ritterorden": Gold und Gruenspan).
+  Eintrag im Hauptmenue.
   Bisheriger Fortschritt (gelesene AI-Kapitel, Spiel-Bestwerte) wird beim ersten Oeffnen
   einmalig uebernommen.
 - 13 Lektionen wie das IBM AI Engineering Professional Certificate:

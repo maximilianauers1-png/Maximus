@@ -34,7 +34,6 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.unit.dp
@@ -48,43 +47,24 @@ import app.maximus.lab.domain.Fmt
 import app.maximus.ui.components.Glyph
 import app.maximus.ui.components.GlyphButton
 import app.maximus.ui.components.GlyphIcon
-import app.maximus.ui.theme.Design
-import app.maximus.ui.theme.DesignConcept
-import app.maximus.ui.theme.KnightAvatar
+import app.maximus.ui.theme.MaximusAvatar
 import app.maximus.ui.theme.Palette
 
-/**
- * Focus accents. In the colour concepts only three heraldic tones are used (amber, red, silver-blue);
- * the classic design keeps one colour per focus.
- */
-internal fun focusColor(f: Focus?): Color = if (Design.concept == DesignConcept.KLASSISCH) classicFocusColor(f) else when (f) {
-    Focus.STRONGMAN, Focus.DND -> Color(0xFFE0565C)
-    Focus.SCIENCE, Focus.NUTRITION -> Color(0xFFA9C4EE)
-    Focus.CODE, Focus.GENERAL, null -> Color(0xFFFFB000)
+internal fun focusColor(focus: Focus?): Color = when (focus) {
+    Focus.SCIENCE, Focus.CODE -> Palette.Slate
+    else -> Palette.Copper
 }
 
-private fun classicFocusColor(f: Focus?): Color = when (f) {
-    Focus.STRONGMAN -> Palette.Heraldic
-    Focus.DND -> Color(0xFFB9A3E3)
-    Focus.CODE -> Color(0xFF8FC9A3)
-    Focus.SCIENCE -> Palette.Blued
-    Focus.NUTRITION -> Color(0xFFE6B57E)
-    Focus.GENERAL, null -> Color(0xFFFFB000)
-}
-
-/** The user's input as a terminal line: green phosphor prompt "> " on a dark plate, right-aligned. */
 @Composable
 fun UserBubble(message: ChatMessage, onCopy: (String) -> Unit) {
-    val green = MaterialTheme.colorScheme.secondary
     Box(Modifier.fillMaxWidth(), contentAlignment = Alignment.CenterEnd) {
         Row(
             Modifier.widthIn(max = 330.dp)
                 .background(MaterialTheme.colorScheme.surfaceContainerHigh, RoundedCornerShape(12.dp, 12.dp, 2.dp, 12.dp))
-                .border(1.dp, Brush.linearGradient(listOf(green.copy(alpha = 0.6f), MaterialTheme.colorScheme.outlineVariant)), RoundedCornerShape(12.dp, 12.dp, 2.dp, 12.dp))
+                .border(1.dp, MaterialTheme.colorScheme.outlineVariant, RoundedCornerShape(12.dp, 12.dp, 2.dp, 12.dp))
                 .clickable { onCopy(message.text) }
                 .padding(horizontal = 12.dp, vertical = 9.dp)
         ) {
-            Text("> ", style = MaterialTheme.typography.bodyLarge, color = green)
             SelectionContainer { Text(message.text, style = MaterialTheme.typography.bodyLarge, color = Palette.Linen) }
         }
     }
@@ -137,8 +117,8 @@ fun LiveMessage(live: ChatController.Live, focus: Focus?, onCopy: (String) -> Un
 @Composable
 private fun AssistantHeader(focus: Focus?, note: String?) {
     Row(verticalAlignment = Alignment.CenterVertically) {
-        KnightAvatar(30.dp, border = MaterialTheme.colorScheme.primary)
-        Text("MAXIMUS:", style = MaterialTheme.typography.titleMedium, color = MaterialTheme.colorScheme.primary, modifier = Modifier.padding(start = 8.dp))
+        MaximusAvatar(30.dp, border = MaterialTheme.colorScheme.primary)
+        Text("Maximus", style = MaterialTheme.typography.titleMedium, color = MaterialTheme.colorScheme.primary, modifier = Modifier.padding(start = 8.dp))
         if (focus != null && focus != Focus.GENERAL) FocusBadge(focus, Modifier.padding(start = 8.dp))
         if (note != null) Text(note, style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.outline, modifier = Modifier.padding(start = 8.dp))
     }
@@ -167,7 +147,7 @@ private fun toolGlyphLabel(tool: String): String = when (tool) {
 @Composable
 fun ToolCardView(card: ToolCard, onCopy: (String) -> Unit) {
     var expanded by rememberSaveable(card.title, card.body) { mutableStateOf(card.body.length < 260) }
-    val accent = if (card.ok) MaterialTheme.colorScheme.primary else Palette.Heraldic
+    val accent = if (card.ok) MaterialTheme.colorScheme.primary else Palette.Warning
     Column(
         Modifier.fillMaxWidth()
             .background(MaterialTheme.colorScheme.surfaceContainerLow, RoundedCornerShape(12.dp))

@@ -212,6 +212,14 @@ class StrongmanRepository @Inject constructor(
 
     fun sessionSets(sessionId: Long): Flow<List<SetLogEntity>> = dbFlow { dao().observeSessionSets(sessionId) }
 
+    val latestStrengthSet: Flow<SetLogEntity?> = dbFlow {
+        dao().observeLatestStrengthSet(OneRepMax.MAX_REPS, Double.MAX_VALUE)
+    }
+
+    suspend fun calculatorSet(id: Long): SetLogEntity? = withContext(io) {
+        dao().setLog(id)?.takeIf { it.canEstimateMax }
+    }
+
     val allSets: Flow<List<AnalyticsSet>> = dbFlow { dao().observeAllSets() }.map { rows ->
         rows.map { AnalyticsSet(it.id, it.epochDay, it.exerciseId, it.weightKg, it.reps, it.rpe, it.e1rm, it.isE1rmPr, it.isRepPr) }
     }

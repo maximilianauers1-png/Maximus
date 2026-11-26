@@ -85,7 +85,7 @@ import java.util.Locale
 import kotlinx.coroutines.launch
 
 /** Event colours: steel, blued steel, heraldic red, moss, ochre, pewter. */
-val EVENT_COLORS = listOf(Palette.Steel, Palette.Blued, Palette.Heraldic, Color(0xFF8FB39A), Color(0xFFC9A36B), Palette.Muted)
+val EVENT_COLORS = listOf(Palette.Copper, Palette.Slate, Palette.Warning, Color(0xFF8FB39A), Color(0xFFC9A36B), Palette.Muted)
 
 private val TIME = DateTimeFormatter.ofPattern("HH:mm")
 

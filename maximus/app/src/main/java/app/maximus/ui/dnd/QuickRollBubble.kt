@@ -55,7 +55,6 @@ import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.draw.scale
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.StrokeJoin
@@ -82,7 +81,7 @@ import kotlinx.coroutines.launch
 
 /** Outline of a d20 seen from a vertex: hexagonal silhouette with the central triangle face. */
 @Composable
-fun D20Glyph(modifier: Modifier = Modifier, color: androidx.compose.ui.graphics.Color, strokeDp: Float = 1.6f) {
+fun D20Glyph(modifier: Modifier = Modifier, color: Color, strokeDp: Float = 1.6f) {
     Canvas(modifier) {
         val r = size.minDimension / 2f * 0.92f
         val c = Offset(size.width / 2f, size.height / 2f)
@@ -137,9 +136,8 @@ fun BoxScope.QuickRollBubble(services: AppServices) {
             .size(60.dp)
             .scale(pressScale)
             .shadow(10.dp, CircleShape)
-            // Landsknecht colours: crimson enamel with a saffron rim.
-            .background(Brush.radialGradient(listOf(Color(0xFFE0565C), Color(0xFFB3202A), Color(0xFF4A0B10))), CircleShape)
-            .border(2.dp, Color(0xFFF2C14E), CircleShape)
+            .background(MaterialTheme.colorScheme.primaryContainer, CircleShape)
+            .border(1.dp, MaterialTheme.colorScheme.primary, CircleShape)
             .pointerInput(Unit) {
                 detectDragGestures { change, amount ->
                     change.consume()
@@ -151,8 +149,8 @@ fun BoxScope.QuickRollBubble(services: AppServices) {
             .semantics { contentDescription = if (open) "Close quick dice" else "Open quick dice" },
         contentAlignment = Alignment.Center
     ) {
-        D20Glyph(Modifier.size(36.dp).rotate(turn), color = Color(0xFFF2C14E), strokeDp = 2f)
-        Text("20", style = MaterialTheme.typography.labelSmall.copy(fontWeight = FontWeight.Bold), color = Color(0xFFEDE3CF))
+        D20Glyph(Modifier.size(36.dp).rotate(turn), color = MaterialTheme.colorScheme.primary, strokeDp = 2f)
+        Text("20", style = MaterialTheme.typography.labelSmall.copy(fontWeight = FontWeight.Bold), color = MaterialTheme.colorScheme.onPrimaryContainer)
     }
 }
 

@@ -44,6 +44,7 @@ import androidx.compose.ui.unit.dp
 import app.maximus.R
 import app.maximus.strongman.data.LoggedSetInput
 import app.maximus.strongman.data.SetLogEntity
+import app.maximus.strongman.data.canEstimateMax
 import app.maximus.strongman.data.StrongmanRepository
 import app.maximus.strongman.data.WorkoutSessionEntity
 import app.maximus.strongman.domain.FTable
@@ -52,12 +53,14 @@ import app.maximus.strongman.domain.PlateCalculator
 import app.maximus.strongman.domain.PlateResult
 import app.maximus.strongman.domain.RecordBook
 import app.maximus.strongman.domain.Rpe
+import app.maximus.ui.components.Glyph
+import app.maximus.ui.components.GlyphButton
 import java.time.LocalDate
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
 @Composable
-fun TrainingTab(repository: StrongmanRepository) {
+fun TrainingTab(repository: StrongmanRepository, onUseSet: (Long) -> Unit) {
     val sessions by repository.sessions.collectAsState(initial = emptyList())
     val table by repository.fTable.collectAsState(initial = FTable())
     var selectedId by rememberSaveable { mutableStateOf<Long?>(null) }
@@ -66,7 +69,7 @@ fun TrainingTab(repository: StrongmanRepository) {
 
     val selected = sessions.firstOrNull { it.id == selectedId }
     if (selected != null) {
-        SessionScreen(repository, selected, onClose = { selectedId = null })
+        SessionScreen(repository, selected, onClose = { selectedId = null }, onUseSet = onUseSet)
         return
     }
 
@@ -79,9 +82,9 @@ fun TrainingTab(repository: StrongmanRepository) {
             Card(modifier = Modifier.fillMaxWidth()) {
                 Column(modifier = Modifier.padding(12.dp)) {
                     Row(verticalAlignment = Alignment.CenterVertically) {
-                        TextButton(onClick = { newDay -= 1 }) { Text("−1") }
+                        GlyphButton(Glyph.CHEVRON_LEFT, stringResource(R.string.sm_log_previous_day), { newDay -= 1 })
                         Text(fmtDay(newDay), style = MaterialTheme.typography.titleMedium, modifier = Modifier.weight(1f))
-                        TextButton(onClick = { newDay += 1 }) { Text("+1") }
+                        GlyphButton(Glyph.CHEVRON_RIGHT, stringResource(R.string.sm_log_next_day), { newDay += 1 })
                     }
                     Button(onClick = { scope.launch { selectedId = repository.createSession(newDay) } }, modifier = Modifier.fillMaxWidth()) {
                         Text(stringResource(R.string.sm_session_new))
@@ -109,7 +112,12 @@ fun TrainingTab(repository: StrongmanRepository) {
 }
 
 @Composable
-private fun SessionScreen(repository: StrongmanRepository, session: WorkoutSessionEntity, onClose: () -> Unit) {
+private fun SessionScreen(
+    repository: StrongmanRepository,
+    session: WorkoutSessionEntity,
+    onClose: () -> Unit,
+    onUseSet: (Long) -> Unit
+) {
     val sets by remember(session.id) { repository.sessionSets(session.id) }.collectAsState(initial = emptyList())
     val exercises by repository.exercises.collectAsState(initial = emptyList())
     val table by repository.fTable.collectAsState(initial = FTable())
@@ -241,6 +249,7 @@ private fun SessionScreen(repository: StrongmanRepository, session: WorkoutSessi
             LoggedSetRow(
                 s, byId[s.exerciseId]?.displayName() ?: "#" + s.exerciseId,
                 onEdit = { editing = s },
+                onUseSet = { onUseSet(s.id) },
                 onDelete = { scope.launch { repository.deleteSetLog(s.id, s.exerciseId) } }
             )
         }
@@ -387,7 +396,13 @@ private fun EditSetDialog(set: SetLogEntity, name: String, onDismiss: () -> Unit
 }
 
 @Composable
-private fun LoggedSetRow(s: SetLogEntity, name: String, onEdit: () -> Unit, onDelete: () -> Unit) {
+private fun LoggedSetRow(
+    s: SetLogEntity,
+    name: String,
+    onEdit: () -> Unit,
+    onDelete: () -> Unit,
+    onUseSet: () -> Unit
+) {
     Card(modifier = Modifier.fillMaxWidth()) {
         Column(modifier = Modifier.padding(12.dp)) {
             Row(verticalAlignment = Alignment.CenterVertically) {
@@ -405,6 +420,9 @@ private fun LoggedSetRow(s: SetLogEntity, name: String, onEdit: () -> Unit, onDe
                 }
                 TextButton(onClick = onEdit) { Text(stringResource(R.string.edit)) }
                 TextButton(onClick = onDelete) { Text(stringResource(R.string.delete)) }
+            }
+            if (s.canEstimateMax) {
+                TextButton(onClick = onUseSet) { Text(stringResource(R.string.sm_calc_open_set)) }
             }
             if (s.isE1rmPr || s.isRepPr) {
                 FlowRow(horizontalArrangement = Arrangement.spacedBy(6.dp)) {

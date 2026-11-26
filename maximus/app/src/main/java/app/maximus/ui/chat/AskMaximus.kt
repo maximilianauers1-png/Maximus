@@ -38,9 +38,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.platform.LocalClipboardManager
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.unit.dp
@@ -48,10 +46,7 @@ import app.maximus.chat.data.ChatService
 import app.maximus.chat.domain.ChatController
 import app.maximus.chat.domain.Focus
 import app.maximus.chat.domain.Role
-import app.maximus.ui.theme.Design
-import app.maximus.ui.theme.KnightAvatar
-import app.maximus.ui.theme.ModuleStyle
-import app.maximus.ui.theme.ModuleTheme
+import app.maximus.ui.theme.MaximusAvatar
 import app.maximus.ui.theme.Palette
 import kotlinx.coroutines.launch
 
@@ -69,20 +64,18 @@ data class AskRequest(
     val context: suspend () -> String = { "" }
 )
 
-/** Small steel pill for top bars: opens "Frag Maximus" for the current module. */
 @Composable
 fun AskMaximusButton(onClick: () -> Unit, label: String = "Maximus") {
-    val terminal = Design.concept.palette(ModuleStyle.MAXIMUS)
-    val accent = terminal?.primary ?: MaterialTheme.colorScheme.primary
+    val colors = MaterialTheme.colorScheme
     Row(
         Modifier.padding(end = 6.dp).clip(RoundedCornerShape(50))
-            .background(terminal?.ground ?: MaterialTheme.colorScheme.surfaceContainerHigh)
-            .border(1.dp, Brush.linearGradient(listOf(accent, terminal?.secondary ?: MaterialTheme.colorScheme.outline)), RoundedCornerShape(50))
+            .background(colors.surfaceContainerHigh)
+            .border(1.dp, colors.outlineVariant, RoundedCornerShape(50))
             .clickable(onClick = onClick).padding(start = 3.dp, end = 12.dp, top = 3.dp, bottom = 3.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
-        KnightAvatar(24.dp, phosphor = terminal?.terminal == true)
-        Text(label, style = MaterialTheme.typography.labelLarge.copy(fontFamily = if (terminal != null) FontFamily.Monospace else null), color = accent,
+        MaximusAvatar(24.dp)
+        Text(label, style = MaterialTheme.typography.labelLarge, color = colors.onSurface,
             modifier = Modifier.padding(start = 6.dp))
     }
 }
@@ -126,63 +119,61 @@ fun AskMaximusSheet(service: ChatService, request: AskRequest, onDismiss: () -> 
     }
     DisposableEffect(Unit) { onDispose { controller.onHidden() } }
 
-    ModuleTheme(ModuleStyle.MAXIMUS) {
-        ModalBottomSheet(onDismissRequest = onDismiss, sheetState = sheetState, containerColor = MaterialTheme.colorScheme.surfaceContainerLow) {
-            Column(
-                Modifier.fillMaxWidth().imePadding().verticalScroll(rememberScrollState()).padding(horizontal = 16.dp).padding(bottom = 28.dp),
-                verticalArrangement = Arrangement.spacedBy(12.dp)
-            ) {
-                Row(verticalAlignment = Alignment.CenterVertically) {
-                    KnightAvatar(40.dp, border = MaterialTheme.colorScheme.primary)
-                    Column(Modifier.weight(1f).padding(start = 10.dp)) {
-                        Text("Frag Maximus", style = MaterialTheme.typography.titleLarge)
-                        Text(request.title + " · lokal auf dem Gerät", style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.outline)
-                    }
-                    FocusBadge(request.focus)
+    ModalBottomSheet(onDismissRequest = onDismiss, sheetState = sheetState, containerColor = MaterialTheme.colorScheme.surfaceContainerLow) {
+        Column(
+            Modifier.fillMaxWidth().imePadding().verticalScroll(rememberScrollState()).padding(horizontal = 16.dp).padding(bottom = 28.dp),
+            verticalArrangement = Arrangement.spacedBy(12.dp)
+        ) {
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                MaximusAvatar(40.dp, border = MaterialTheme.colorScheme.primary)
+                Column(Modifier.weight(1f).padding(start = 10.dp)) {
+                    Text("Frag Maximus", style = MaterialTheme.typography.titleLarge)
+                    Text(request.title + " · lokal auf dem Gerät", style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.outline)
                 }
+                FocusBadge(request.focus)
+            }
 
-                val conv = state.conversation?.takeIf { it.id == conversationId }
-                if (conversationId == null) {
-                    OutlinedTextField(
-                        input, { input = it }, modifier = Modifier.fillMaxWidth(), minLines = 2, maxLines = 6,
-                        placeholder = { Text("Deine Frage …") }, shape = RoundedCornerShape(16.dp)
-                    )
-                    if (request.suggestions.isNotEmpty()) {
-                        FlowRow(horizontalArrangement = Arrangement.spacedBy(6.dp), verticalArrangement = Arrangement.spacedBy(6.dp)) {
-                            request.suggestions.forEach { s ->
-                                Text(
-                                    s, style = MaterialTheme.typography.labelMedium, color = focusColor(request.focus),
-                                    modifier = Modifier.clip(RoundedCornerShape(50)).border(1.dp, focusColor(request.focus).copy(alpha = 0.5f), RoundedCornerShape(50))
-                                        .clickable { input = s; ask(s) }.padding(horizontal = 10.dp, vertical = 6.dp)
-                                )
-                            }
+            val conv = state.conversation?.takeIf { it.id == conversationId }
+            if (conversationId == null) {
+                OutlinedTextField(
+                    input, { input = it }, modifier = Modifier.fillMaxWidth(), minLines = 2, maxLines = 6,
+                    placeholder = { Text("Deine Frage …") }, shape = RoundedCornerShape(16.dp)
+                )
+                if (request.suggestions.isNotEmpty()) {
+                    FlowRow(horizontalArrangement = Arrangement.spacedBy(6.dp), verticalArrangement = Arrangement.spacedBy(6.dp)) {
+                        request.suggestions.forEach { s ->
+                            Text(
+                                s, style = MaterialTheme.typography.labelMedium, color = focusColor(request.focus),
+                                modifier = Modifier.clip(RoundedCornerShape(50)).border(1.dp, focusColor(request.focus).copy(alpha = 0.5f), RoundedCornerShape(50))
+                                    .clickable { input = s; ask(s) }.padding(horizontal = 10.dp, vertical = 6.dp)
+                            )
                         }
                     }
-                    if (blocked) Text("Maximus beantwortet gerade noch eine andere Frage. Kurz warten oder im Chat stoppen.",
-                        style = MaterialTheme.typography.bodySmall, color = Palette.Heraldic)
-                    Button(onClick = { ask(input) }, enabled = input.isNotBlank() && !preparing, modifier = Modifier.fillMaxWidth()) {
-                        Text(if (preparing) "Sammle Kontext …" else "Fragen")
-                    }
-                    Text("Maximus bekommt automatisch die passenden Daten aus diesem Bereich mit. Alles bleibt auf dem Gerät.",
-                        style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.outline)
-                } else if (conv != null) {
-                    conv.messages.firstOrNull { it.role == Role.USER }?.let { UserBubble(it, copy) }
-                    val live = state.live
-                    val answer = conv.messages.lastOrNull { it.role == Role.ASSISTANT }
-                    when {
-                        live != null -> LiveMessage(live, request.focus, copy)
-                        answer != null -> AssistantMessage(answer, settings.showStats, isLast = false, onCopy = copy, onRegenerate = {})
-                    }
-                    if (live == null && answer != null) {
-                        Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                            Button(onClick = onOpenChat, modifier = Modifier.weight(1f)) {
-                                Text(if (answer.text == ChatController.NO_MODEL) "Modell einrichten" else "Im Chat weiterfragen")
-                            }
-                            OutlinedButton(onClick = { conversationId = null; input = "" }, modifier = Modifier.weight(1f)) { Text("Neue Frage") }
+                }
+                if (blocked) Text("Maximus beantwortet gerade noch eine andere Frage. Kurz warten oder im Chat stoppen.",
+                    style = MaterialTheme.typography.bodySmall, color = Palette.Warning)
+                Button(onClick = { ask(input) }, enabled = input.isNotBlank() && !preparing, modifier = Modifier.fillMaxWidth()) {
+                    Text(if (preparing) "Sammle Kontext …" else "Fragen")
+                }
+                Text("Maximus bekommt automatisch die passenden Daten aus diesem Bereich mit. Alles bleibt auf dem Gerät.",
+                    style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.outline)
+            } else if (conv != null) {
+                conv.messages.firstOrNull { it.role == Role.USER }?.let { UserBubble(it, copy) }
+                val live = state.live
+                val answer = conv.messages.lastOrNull { it.role == Role.ASSISTANT }
+                when {
+                    live != null -> LiveMessage(live, request.focus, copy)
+                    answer != null -> AssistantMessage(answer, settings.showStats, isLast = false, onCopy = copy, onRegenerate = {})
+                }
+                if (live == null && answer != null) {
+                    Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                        Button(onClick = onOpenChat, modifier = Modifier.weight(1f)) {
+                            Text(if (answer.text == ChatController.NO_MODEL) "Modell einrichten" else "Im Chat weiterfragen")
                         }
-                    } else if (live != null) {
-                        OutlinedButton(onClick = { controller.stop() }, modifier = Modifier.fillMaxWidth()) { Text("Stopp") }
+                        OutlinedButton(onClick = { conversationId = null; input = "" }, modifier = Modifier.weight(1f)) { Text("Neue Frage") }
                     }
+                } else if (live != null) {
+                    OutlinedButton(onClick = { controller.stop() }, modifier = Modifier.fillMaxWidth()) { Text("Stopp") }
                 }
             }
         }

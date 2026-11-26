@@ -1,48 +1,69 @@
 package app.maximus.ui.strongman
 
+import androidx.annotation.StringRes
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.Button
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.FilterChip
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedButton
+import androidx.compose.material3.SegmentedButton
+import androidx.compose.material3.SegmentedButtonDefaults
+import androidx.compose.material3.SingleChoiceSegmentedButtonRow
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableDoubleStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.saveable.rememberSaveableStateHolder
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import app.maximus.R
+import app.maximus.strongman.data.SetLogEntity
 import app.maximus.strongman.data.StrengthSettings
 import app.maximus.strongman.data.StrongmanRepository
 import app.maximus.strongman.domain.Dots
 import app.maximus.strongman.domain.FTable
 import app.maximus.strongman.domain.OneRepMax
+import app.maximus.strongman.domain.OneRmMethod
 import app.maximus.strongman.domain.OneRmResult
 import app.maximus.strongman.domain.Prilepin
 import app.maximus.strongman.domain.PrilepinVerdict
 import app.maximus.strongman.domain.RefusalReason
 import app.maximus.strongman.domain.Rpe
 import app.maximus.strongman.domain.Sex
+import app.maximus.ui.components.Hairline
+import app.maximus.ui.components.PlateCard
+import java.math.BigDecimal
+import java.util.Locale
 import kotlinx.coroutines.launch
 
 @Composable
@@ -54,91 +75,338 @@ fun refusalText(reason: RefusalReason): String = when (reason) {
 }
 
 @Composable
-fun CalculatorTab(repository: StrongmanRepository) {
+fun CalculatorTab(
+    repository: StrongmanRepository,
+    requestedSetId: Long?,
+    onRequestedSetHandled: () -> Unit
+) {
     val table by repository.fTable.collectAsState(initial = FTable())
     val settings by repository.settings.collectAsState(initial = StrengthSettings())
+    val latestSet by repository.latestStrengthSet.collectAsState(initial = null)
+    val exercises by repository.exercises.collectAsState(initial = emptyList())
+    var targetMode by rememberSaveable { mutableStateOf(false) }
+    var weight by rememberSaveable { mutableStateOf("") }
+    var reps by rememberSaveable { mutableStateOf("5") }
+    var rpe by rememberSaveable { mutableStateOf<Double?>(null) }
+    var importedExercise by rememberSaveable { mutableStateOf<Long?>(null) }
+    var missingSet by rememberSaveable { mutableStateOf(false) }
+    var oneRm by rememberSaveable { mutableStateOf("") }
+    var exactOneRm by rememberSaveable { mutableStateOf<Double?>(null) }
+    var targetReps by rememberSaveable { mutableStateOf("5") }
+    var targetRpe by rememberSaveable { mutableDoubleStateOf(8.0) }
+    var showMore by rememberSaveable { mutableStateOf(false) }
+    val extras = rememberSaveableStateHolder()
+    val scroll = rememberScrollState()
+
+    fun importSet(set: SetLogEntity) {
+        weight = fmtKg(set.weightKg).takeIf { parseDecimal(it) == set.weightKg } ?: set.weightKg.toString()
+        reps = set.reps.toString()
+        rpe = set.rpe?.takeIf(Rpe::isValid)
+        importedExercise = set.exerciseId
+        targetMode = false
+        missingSet = false
+    }
+
+    LaunchedEffect(requestedSetId) {
+        if (requestedSetId != null) {
+            val set = repository.calculatorSet(requestedSetId)
+            if (set != null) importSet(set) else missingSet = true
+            scroll.scrollTo(0)
+            onRequestedSetHandled()
+        }
+    }
+    LaunchedEffect(targetMode) { scroll.scrollTo(0) }
+
     Column(
-        modifier = Modifier.fillMaxSize().verticalScroll(rememberScrollState()).padding(16.dp),
+        modifier = Modifier.fillMaxSize().verticalScroll(scroll).padding(16.dp),
         verticalArrangement = Arrangement.spacedBy(12.dp)
     ) {
-        OneRmCard(table)
-        PrescriptionCard(table, settings)
-        DotsCard(settings)
-        PrilepinCard()
-        FTableCard(table, repository)
-    }
-}
-
-@Composable
-private fun OneRmCard(table: FTable) {
-    var w by rememberSaveable { mutableStateOf("100") }
-    var r by rememberSaveable { mutableStateOf("5") }
-    var rpe by rememberSaveable { mutableStateOf("") }
-    SectionCard(stringResource(R.string.sm_calc_1rm)) {
-        Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-            NumberField(stringResource(R.string.sm_weight), w, { w = it }, Modifier.weight(1f), suffix = "kg")
-            NumberField(stringResource(R.string.sm_reps), r, { r = it }, Modifier.weight(1f), integer = true)
-            NumberField(stringResource(R.string.sm_rpe_optional), rpe, { rpe = it }, Modifier.weight(1f))
-        }
-        val wv = parseDecimal(w)
-        val rv = r.trim().toIntOrNull()
-        if (wv != null && rv != null) {
-            when (val d = OneRepMax.estimate(wv, rv)) {
-                is OneRmResult.Estimate -> {
-                    ResultLine(stringResource(R.string.sm_epley), "${fmt(OneRepMax.epley(wv, rv), 2)} kg")
-                    if (rv <= OneRepMax.BRZYCKI_MAX_REPS) ResultLine(stringResource(R.string.sm_brzycki), "${fmt(OneRepMax.brzycki(wv, rv), 2)} kg")
-                    ResultLine(stringResource(R.string.sm_lombardi), "${fmt(OneRepMax.lombardi(wv, rv), 2)} kg")
-                    Text(
-                        stringResource(R.string.sm_default_estimate, fmt(d.kg, 2)),
-                        style = MaterialTheme.typography.titleMedium,
-                        fontWeight = FontWeight.Bold
-                    )
-                }
-                is OneRmResult.Refused -> Text(refusalText(d.reason), color = MaterialTheme.colorScheme.error)
-            }
-            parseDecimal(rpe)?.let { rpeV ->
-                when (val e = table.e1rm(wv, rv, rpeV)) {
-                    is OneRmResult.Estimate -> ResultLine(
-                        stringResource(R.string.sm_e1rm_rpe, fmt(Rpe.rir(rpeV), 1)),
-                        "${fmt(e.kg, 2)} kg"
-                    )
-                    is OneRmResult.Refused -> Text(refusalText(e.reason), color = MaterialTheme.colorScheme.error)
-                }
-            }
-        }
-    }
-}
-
-@Composable
-private fun PrescriptionCard(table: FTable, settings: StrengthSettings) {
-    var oneRm by rememberSaveable { mutableStateOf("200") }
-    var r by rememberSaveable { mutableStateOf("5") }
-    var rpe by rememberSaveable { mutableStateOf("8") }
-    SectionCard(stringResource(R.string.sm_calc_prescription)) {
-        Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-            NumberField(stringResource(R.string.sm_one_rm), oneRm, { oneRm = it }, Modifier.weight(1f), suffix = "kg")
-            NumberField(stringResource(R.string.sm_reps), r, { r = it }, Modifier.weight(1f), integer = true)
-            NumberField(stringResource(R.string.sm_rpe), rpe, { rpe = it }, Modifier.weight(1f))
-        }
-        val o = parseDecimal(oneRm)
-        val rv = r.trim().toIntOrNull()
-        val rpeV = parseDecimal(rpe)
-        if (o != null && rv != null && rpeV != null) {
-            if (!Rpe.isValid(rpeV)) {
-                Text(stringResource(R.string.sm_refuse_rpe), color = MaterialTheme.colorScheme.error)
-            } else if (rv !in 1..OneRepMax.MAX_REPS) {
-                Text(stringResource(R.string.sm_refuse_reps_high), color = MaterialTheme.colorScheme.error)
-            } else {
-                val f = table.fraction(rv, rpeV)
-                ResultLine(stringResource(R.string.sm_fraction), "${fmt(f * 100, 2)} %")
-                Text(
-                    stringResource(R.string.sm_prescribed_load, fmtKg(table.prescribe(o, rv, rpeV, settings.incrementKg)), fmtKg(settings.incrementKg)),
-                    style = MaterialTheme.typography.titleMedium,
-                    fontWeight = FontWeight.Bold
+        SingleChoiceSegmentedButtonRow(Modifier.fillMaxWidth()) {
+            listOf(R.string.sm_calc_mode_estimate, R.string.sm_calc_mode_target).forEachIndexed { index, label ->
+                val target = index == 1
+                SegmentedButton(
+                    selected = targetMode == target,
+                    onClick = { targetMode = target },
+                    shape = SegmentedButtonDefaults.itemShape(index, count = 2),
+                    label = { Text(stringResource(label)) }
                 )
             }
         }
+        if (!targetMode) {
+            if (missingSet) {
+                Text(stringResource(R.string.sm_calc_set_missing), color = MaterialTheme.colorScheme.error)
+            }
+            EstimatePanel(
+                table = table, weight = weight, reps = reps, rpe = rpe,
+                exercise = exercises.firstOrNull { it.id == importedExercise }?.displayName(),
+                onWeightChange = { weight = it }, onRepsChange = { reps = it }, onRpeChange = { rpe = it },
+                onUseLatest = latestSet?.let { set -> { importSet(set) } },
+                onUseEstimate = {
+                    exactOneRm = it
+                    oneRm = loadKg(it, 0.01)
+                    targetMode = true
+                }
+            )
+        } else {
+            TargetPanel(
+                table = table, increment = settings.incrementKg, oneRm = oneRm,
+                exactOneRm = exactOneRm, reps = targetReps, rpe = targetRpe,
+                onOneRmChange = { oneRm = it; exactOneRm = null },
+                onRepsChange = { targetReps = it }, onRpeChange = { targetRpe = it }
+            )
+        }
+
+        OutlinedButton(onClick = { showMore = !showMore }, modifier = Modifier.fillMaxWidth()) {
+            Text(stringResource(if (showMore) R.string.sm_calc_hide_extra else R.string.sm_calc_show_extra))
+        }
+        if (showMore) {
+            extras.SaveableStateProvider("additional-calculators") {
+                DotsCard(settings)
+                PrilepinCard()
+                FTableCard(table, repository)
+            }
+        }
     }
+}
+
+@Composable
+private fun EstimatePanel(
+    table: FTable,
+    weight: String,
+    reps: String,
+    rpe: Double?,
+    exercise: String?,
+    onWeightChange: (String) -> Unit,
+    onRepsChange: (String) -> Unit,
+    onRpeChange: (Double?) -> Unit,
+    onUseLatest: (() -> Unit)?,
+    onUseEstimate: (Double) -> Unit
+) {
+    val load = parseDecimal(weight)
+    val count = reps.trim().toIntOrNull()
+    val result = if (load != null && count != null) {
+        if (rpe == null) OneRepMax.estimate(load, count) else table.e1rm(load, count, rpe)
+    } else {
+        null
+    }
+    var showMethods by rememberSaveable { mutableStateOf(false) }
+
+    SectionCard(stringResource(R.string.sm_calc_work_set)) {
+        if (exercise != null) Text(exercise, style = MaterialTheme.typography.titleSmall)
+        if (onUseLatest != null) {
+            TextButton(onClick = onUseLatest) { Text(stringResource(R.string.sm_calc_use_latest)) }
+        }
+        LoadAndReps(weight, reps, R.string.sm_weight, onWeightChange, onRepsChange)
+        RpeSelector(rpe, onRpeChange, optional = true)
+    }
+    when (result) {
+        is OneRmResult.Estimate -> {
+            if (!result.kg.isFinite()) {
+                CalculatorError(R.string.sm_calc_number_range)
+            } else {
+                val method = when (result.method) {
+                    OneRmMethod.RPE_TABLE -> R.string.sm_calc_method_rpe
+                    OneRmMethod.MEAN_EPLEY_BRZYCKI -> R.string.sm_calc_method_mean
+                    else -> R.string.sm_epley
+                }
+                LoadResult(R.string.sm_calc_e1rm, result.kg, stringResource(method)) {
+                    Button(onClick = { onUseEstimate(result.kg) }, modifier = Modifier.fillMaxWidth()) {
+                        Text(stringResource(R.string.sm_calc_use_estimate))
+                    }
+                }
+                if (load != null && count != null) {
+                    TextButton(onClick = { showMethods = !showMethods }) {
+                        Text(stringResource(if (showMethods) R.string.sm_calc_hide_methods else R.string.sm_calc_show_methods))
+                    }
+                    if (showMethods) {
+                        SectionCard(stringResource(R.string.sm_calc_show_methods)) {
+                            ResultLine(stringResource(R.string.sm_epley), "${fmtKg(OneRepMax.epley(load, count))} kg")
+                            if (count <= OneRepMax.BRZYCKI_MAX_REPS) {
+                                ResultLine(stringResource(R.string.sm_brzycki), "${fmtKg(OneRepMax.brzycki(load, count))} kg")
+                            }
+                            ResultLine(stringResource(R.string.sm_lombardi), "${fmtKg(OneRepMax.lombardi(load, count))} kg")
+                        }
+                    }
+                }
+            }
+        }
+        is OneRmResult.Refused -> Text(refusalText(result.reason), color = MaterialTheme.colorScheme.error)
+        null -> if (weight.isBlank()) CalculatorHint(R.string.sm_calc_estimate_hint)
+    }
+}
+
+@Composable
+private fun TargetPanel(
+    table: FTable,
+    increment: Double,
+    oneRm: String,
+    exactOneRm: Double?,
+    reps: String,
+    rpe: Double,
+    onOneRmChange: (String) -> Unit,
+    onRepsChange: (String) -> Unit,
+    onRpeChange: (Double) -> Unit
+) {
+    SectionCard(stringResource(R.string.sm_calc_target_set)) {
+        LoadAndReps(oneRm, reps, R.string.sm_one_rm, onOneRmChange, onRepsChange)
+        RpeSelector(rpe, { if (it != null) onRpeChange(it) })
+    }
+    val load = exactOneRm ?: parseDecimal(oneRm)
+    val count = reps.trim().toIntOrNull()
+    when {
+        oneRm.isBlank() -> CalculatorHint(R.string.sm_calc_target_hint)
+        load == null || count == null -> Unit
+        load <= 0 -> CalculatorError(R.string.sm_refuse_load)
+        count < 1 -> CalculatorError(R.string.sm_refuse_reps_low)
+        count > OneRepMax.MAX_REPS -> CalculatorError(R.string.sm_refuse_reps_high)
+        else -> {
+            val fraction = table.fraction(count, rpe)
+            val rounded = table.prescribe(load, count, rpe, increment)
+            if (!rounded.isFinite()) {
+                CalculatorError(R.string.sm_calc_number_range)
+                return
+            }
+            val step = loadKg(increment, increment)
+            LoadResult(
+                title = R.string.sm_calc_target_load,
+                kg = rounded.takeIf { it > 0.0 },
+                subtitle = stringResource(R.string.sm_calc_rounding, step),
+                increment = increment
+            ) {
+                ResultLine(
+                    stringResource(R.string.sm_calc_raw_load),
+                    stringResource(R.string.sm_calc_kg, loadKg(load * fraction, increment))
+                )
+                ResultLine(stringResource(R.string.sm_fraction), "${fmt(fraction * 100, 1)} %")
+            }
+            val neighbors = listOf(rpe - 0.5, rpe + 0.5).filter(Rpe::isValid)
+            SectionCard(stringResource(R.string.sm_calc_neighbor_rpe)) {
+                neighbors.forEach { candidate ->
+                    val neighbor = table.prescribe(load, count, candidate, increment)
+                    if (neighbor.isFinite()) {
+                        ResultLine(
+                            stringResource(R.string.sm_calc_rpe_value, fmtKg(candidate)),
+                            if (neighbor > 0.0) stringResource(R.string.sm_calc_kg, loadKg(neighbor, increment))
+                            else stringResource(R.string.sm_calc_below_step)
+                        )
+                    }
+                }
+            }
+        }
+    }
+}
+
+@Composable
+private fun LoadAndReps(
+    weight: String,
+    reps: String,
+    @StringRes label: Int,
+    onWeightChange: (String) -> Unit,
+    onRepsChange: (String) -> Unit
+) {
+    Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+        NumberField(stringResource(label), weight, onWeightChange, Modifier.weight(1f), suffix = "kg")
+        NumberField(stringResource(R.string.sm_reps), reps, onRepsChange, Modifier.weight(1f), integer = true)
+    }
+    FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+        for (quick in listOf(1, 3, 5, 8, 10)) {
+            val description = stringResource(R.string.sm_calc_quick_reps, quick)
+            FilterChip(
+                selected = reps.trim().toIntOrNull() == quick,
+                onClick = { onRepsChange(quick.toString()) },
+                label = { Text(quick.toString()) },
+                modifier = Modifier.semantics {
+                    contentDescription = description
+                }
+            )
+        }
+    }
+}
+
+@Composable
+private fun RpeSelector(rpe: Double?, onChange: (Double?) -> Unit, optional: Boolean = false) {
+    var expanded by remember { mutableStateOf(false) }
+    Row(
+        Modifier.fillMaxWidth().padding(top = 4.dp),
+        horizontalArrangement = Arrangement.SpaceBetween,
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Text(stringResource(if (optional) R.string.sm_rpe_optional else R.string.sm_rpe), style = MaterialTheme.typography.titleSmall)
+        if (rpe != null) {
+            Text(
+                stringResource(R.string.sm_calc_rir, fmtKg(Rpe.rir(rpe))),
+                style = MaterialTheme.typography.labelMedium,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+        }
+    }
+    FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalArrangement = Arrangement.Center) {
+        if (optional) {
+            FilterChip(rpe == null, onClick = { onChange(null) }, label = { Text(stringResource(R.string.sm_calc_no_rpe)) })
+        }
+        val common = listOf(7.0, 8.0, 9.0, 10.0)
+        common.forEach { choice ->
+            FilterChip(rpe == choice, onClick = { onChange(choice) }, label = { Text(fmtKg(choice)) })
+        }
+        Box {
+            FilterChip(
+                selected = rpe != null && rpe !in common,
+                onClick = { expanded = true },
+                label = { Text(if (rpe != null && rpe !in common) fmtKg(rpe) else stringResource(R.string.sm_calc_all_rpe)) }
+            )
+            DropdownMenu(expanded = expanded, onDismissRequest = { expanded = false }) {
+                Rpe.values.forEach { choice ->
+                    DropdownMenuItem(
+                        text = { Text(stringResource(R.string.sm_calc_rpe_value, fmtKg(choice))) },
+                        onClick = { onChange(choice); expanded = false }
+                    )
+                }
+            }
+        }
+    }
+}
+
+@Composable
+private fun LoadResult(
+    @StringRes title: Int,
+    kg: Double?,
+    subtitle: String,
+    increment: Double = 0.01,
+    content: @Composable () -> Unit
+) {
+    PlateCard(Modifier.fillMaxWidth()) {
+        Column(
+            Modifier.padding(18.dp),
+            verticalArrangement = Arrangement.spacedBy(8.dp)
+        ) {
+            Text(stringResource(title), style = MaterialTheme.typography.titleMedium)
+            Text(
+                if (kg == null) stringResource(R.string.sm_calc_below_step) else stringResource(R.string.sm_calc_kg, loadKg(kg, increment)),
+                style = if (kg == null) MaterialTheme.typography.titleLarge
+                else MaterialTheme.typography.displaySmall.copy(fontFeatureSettings = "tnum"),
+                color = MaterialTheme.colorScheme.primary
+            )
+            Text(subtitle, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+            Hairline()
+            content()
+        }
+    }
+}
+
+private fun loadKg(kg: Double, increment: Double): String {
+    val decimals = BigDecimal.valueOf(increment).stripTrailingZeros().scale().coerceIn(2, 10)
+    if (kg > 0 && (kg < 1e-10 || kg >= 1e9)) return String.format(Locale.getDefault(), "%.4g", kg)
+    return fmt(kg, decimals).trimEnd('0').trimEnd(',', '.')
+}
+
+@Composable
+private fun CalculatorHint(@StringRes message: Int) {
+    Text(stringResource(message), style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
+}
+
+@Composable
+private fun CalculatorError(@StringRes message: Int) {
+    Text(stringResource(message), color = MaterialTheme.colorScheme.error)
 }
 
 @Composable
@@ -211,7 +479,7 @@ private fun FTableCard(table: FTable, repository: StrongmanRepository) {
                 Box(Modifier.width(40.dp)) { Text(stringResource(R.string.sm_reps_short), style = MaterialTheme.typography.labelSmall) }
                 rpes.forEach { rpe -> Box(Modifier.width(56.dp), contentAlignment = Alignment.Center) { Text(fmt(rpe, 1), style = MaterialTheme.typography.labelSmall) } }
             }
-            for (reps in 1..12) {
+            for (reps in 1..OneRepMax.MAX_REPS) {
                 Row {
                     Box(Modifier.width(40.dp).padding(vertical = 6.dp)) { Text("$reps", style = MaterialTheme.typography.labelMedium) }
                     rpes.forEach { rpe ->

@@ -35,7 +35,7 @@ data class StrengthSettings(
         fun fromMap(map: Map<String, String>): StrengthSettings = StrengthSettings(
             sex = if (map[KEY_SEX] == Sex.FEMALE.name) Sex.FEMALE else Sex.MALE,
             bodyweightKg = map[KEY_BODYWEIGHT]?.toDoubleOrNull(),
-            incrementKg = map[KEY_INCREMENT]?.toDoubleOrNull()?.takeIf { it > 0.0 } ?: 2.5,
+            incrementKg = map[KEY_INCREMENT]?.toDoubleOrNull()?.takeIf { it.isFinite() && it > 0.0 } ?: 2.5,
             barKg = map[KEY_BAR]?.toDoubleOrNull()?.takeIf { it >= 0.0 } ?: 20.0,
             plates = map[KEY_PLATES]?.let(::decodePlates)?.takeIf { it.isNotEmpty() } ?: DEFAULT_PLATES
         )

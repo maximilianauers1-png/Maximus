@@ -119,6 +119,14 @@ interface StrongmanDao {
     @Query("SELECT * FROM set_log ORDER BY epochDay, id")
     fun observeAllSets(): Flow<List<SetLogEntity>>
 
+    @Query(
+        """SELECT * FROM set_log
+           WHERE weightKg > 0 AND weightKg <= :maxWeight AND reps BETWEEN 1 AND :maxReps
+                 AND distanceM IS NULL AND heightCm IS NULL AND timeS IS NULL
+           ORDER BY epochDay DESC, id DESC LIMIT 1"""
+    )
+    fun observeLatestStrengthSet(maxReps: Int, maxWeight: Double): Flow<SetLogEntity?>
+
     @Query("SELECT e1rm FROM set_log WHERE exerciseId = :exerciseId AND e1rm IS NOT NULL ORDER BY epochDay DESC, id DESC LIMIT 1")
     suspend fun latestE1rm(exerciseId: Long): Double?
 

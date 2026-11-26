@@ -61,7 +61,7 @@ import app.maximus.core.crypto.PasswordGenerator
 import app.maximus.core.crypto.PasswordPolicy
 import app.maximus.core.crypto.Totp
 import app.maximus.core.crypto.VaultSecret
-import app.maximus.ui.components.SteelRule
+import app.maximus.ui.components.Hairline
 import app.maximus.ui.components.EmptyState
 import app.maximus.ui.components.Glyph
 import app.maximus.ui.components.GlyphButton
@@ -150,7 +150,7 @@ private fun VaultGate(title: String, text: String, action: String, onAction: () 
         GlyphIcon(Glyph.LOCK, tint = MaterialTheme.colorScheme.primary, size = 56.dp)
         Spacer(Modifier.height(16.dp))
         Text(title, style = MaterialTheme.typography.headlineSmall, textAlign = TextAlign.Center)
-        SteelRule(modifier = Modifier.padding(vertical = 12.dp).size(width = 160.dp, height = 9.dp))
+        Hairline(modifier = Modifier.padding(vertical = 12.dp).size(width = 160.dp, height = 9.dp))
         Text(text, style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant, textAlign = TextAlign.Center)
         Spacer(Modifier.height(24.dp))
         Button(onClick = onAction) { Text(action) }

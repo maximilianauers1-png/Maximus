@@ -4,6 +4,7 @@ import androidx.room.Entity
 import androidx.room.ForeignKey
 import androidx.room.Index
 import androidx.room.PrimaryKey
+import app.maximus.strongman.domain.OneRepMax
 
 @Entity(tableName = "exercise", indices = [Index(value = ["seedKey"], unique = true)])
 data class ExerciseEntity(
@@ -105,6 +106,10 @@ data class SetLogEntity(
     val isE1rmPr: Boolean,
     val isRepPr: Boolean
 )
+
+internal val SetLogEntity.canEstimateMax: Boolean
+    get() = weightKg.isFinite() && weightKg > 0.0 && reps in 1..OneRepMax.MAX_REPS &&
+        distanceM == null && heightCm == null && timeS == null
 
 @Entity(tableName = "f_table_override", primaryKeys = ["reps", "rpeTenths"])
 data class FTableOverrideEntity(

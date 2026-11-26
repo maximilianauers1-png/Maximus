@@ -126,11 +126,11 @@ fun KnightMascot(modifier: Modifier = Modifier, description: String? = null) {
                 val b = path.getBounds()
                 when (role) {
                     KnightArt.Role.STEEL -> {
-                        drawPath(path, Brush.linearGradient(listOf(Palette.SteelLight, Color(0xFF9AA3AC), Color(0xFF4E555D)), b.topLeft, b.bottomRight))
+                        drawPath(path, Brush.linearGradient(listOf(Color(0xFFE3E8EC), Color(0xFF9AA3AC), Color(0xFF4E555D)), b.topLeft, b.bottomRight))
                         drawPath(path, outline, style = line)
                     }
                     KnightArt.Role.BLADE -> {
-                        drawPath(path, Brush.horizontalGradient(listOf(Color(0xFFF2F5F7), Color(0xFFB6BEC6), Palette.SteelDeep), b.left, b.right))
+                        drawPath(path, Brush.horizontalGradient(listOf(Color(0xFFF2F5F7), Color(0xFFB6BEC6), Palette.Muted), b.left, b.right))
                         drawPath(path, outline, style = line)
                     }
                     KnightArt.Role.DARK -> { drawPath(path, recess); drawPath(path, outline, style = line) }

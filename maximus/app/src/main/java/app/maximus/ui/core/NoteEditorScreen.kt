@@ -53,7 +53,7 @@ import app.maximus.R
 import app.maximus.core.app.AppServices
 import app.maximus.notes.domain.MarkdownLite
 import app.maximus.notes.domain.MdBlock
-import app.maximus.ui.components.SteelRule
+import app.maximus.ui.components.Hairline
 import app.maximus.ui.components.Glyph
 import app.maximus.ui.components.GlyphButton
 import app.maximus.ui.components.MaximusTopBar
@@ -128,7 +128,7 @@ fun NoteEditorScreen(services: AppServices, noteId: Long, onBack: () -> Unit) {
                 Column(modifier = Modifier.weight(1f).verticalScroll(rememberScrollState())) {
                     if (title.isNotBlank()) {
                         Text(title, style = MaterialTheme.typography.headlineMedium)
-                        SteelRule(lozenge = false, modifier = Modifier.padding(vertical = 8.dp))
+                        Hairline(Modifier.padding(vertical = 8.dp))
                     }
                     MarkdownView(body) { line -> body = MarkdownLite.toggleTask(body, line) }
                     Spacer(Modifier.height(24.dp))
@@ -228,7 +228,7 @@ fun MarkdownView(source: String, onToggleTask: (Int) -> Unit) {
                     color = cs.secondary,
                     modifier = Modifier.fillMaxWidth().background(cs.surfaceContainerHigh, MaterialTheme.shapes.small).padding(10.dp)
                 )
-                is MdBlock.Rule -> SteelRule(modifier = Modifier.padding(vertical = 6.dp))
+                is MdBlock.Rule -> Hairline(modifier = Modifier.padding(vertical = 6.dp))
                 is MdBlock.Blank -> Spacer(Modifier.height(4.dp))
             }
         }

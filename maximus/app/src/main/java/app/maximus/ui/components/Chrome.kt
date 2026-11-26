@@ -7,12 +7,12 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -22,7 +22,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.StrokeCap
@@ -35,30 +34,14 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import app.maximus.R
-import app.maximus.ui.theme.LocalModuleStyle
-import app.maximus.ui.theme.ModuleStripe
-import app.maximus.ui.theme.Palette
 
-/** Hairline of polished steel that fades out at both ends, with a small lozenge at the centre. */
 @Composable
-fun SteelRule(modifier: Modifier = Modifier, lozenge: Boolean = true) {
-    Canvas(modifier = modifier.fillMaxWidth().height(9.dp)) {
-        val y = size.height / 2
-        val brush = Brush.horizontalGradient(
-            0f to Color.Transparent, 0.35f to Palette.SteelDeep, 0.5f to Palette.Steel, 0.65f to Palette.SteelDeep, 1f to Color.Transparent
-        )
-        drawLine(brush, Offset(0f, y), Offset(size.width, y), strokeWidth = 1.dp.toPx())
-        if (lozenge) {
-            val r = 3.5.dp.toPx(); val cx = size.width / 2
-            val p = Path().apply { moveTo(cx, y - r); lineTo(cx + r, y); lineTo(cx, y + r); lineTo(cx - r, y); close() }
-            drawPath(p, Palette.Ground)
-            drawPath(p, Palette.Steel, style = Stroke(width = 1.2.dp.toPx()))
-        }
-    }
+fun Hairline(modifier: Modifier = Modifier) {
+    HorizontalDivider(modifier, color = MaterialTheme.colorScheme.outlineVariant)
 }
 
 enum class Glyph { BACK, GEAR, PULSE, LOCK, PLUS, CHEVRON_LEFT, CHEVRON_RIGHT, STAR, STAR_FILLED, EYE, COPY, SHIELD, SEND, STOP, HISTORY, TRASH, REFRESH, PIN, CHIP,
-    TODAY, CALENDAR, BOWL, BOOK, BAG, CHECK
+    TODAY, CALENDAR, BOWL, BOOK, BAG, CHECK, BARBELL, CALCULATOR, FLASK, DICE
 }
 
 /** Small line icons drawn on a 24-unit grid (no icon library needed). */
@@ -111,6 +94,31 @@ fun GlyphIcon(glyph: Glyph, modifier: Modifier = Modifier, tint: Color = Materia
                 }, tint, style = stroke)
             }
             Glyph.CHECK -> drawPath(p(4f, 12f, 9f, 17f, 20f, 6f), tint, style = stroke)
+            Glyph.BARBELL -> {
+                drawPath(p(2f, 12f, 22f, 12f), tint, style = stroke)
+                for (x in listOf(5f, 8f, 16f, 19f)) drawPath(p(x, 7f, x, 17f), tint, style = stroke)
+            }
+            Glyph.CALCULATOR -> {
+                drawPath(p(5f, 3f, 19f, 3f, 19f, 21f, 5f, 21f, closed = true), tint, style = stroke)
+                drawPath(p(8f, 8f, 16f, 8f), tint, style = stroke)
+                for (x in listOf(9f, 15f)) for (y in listOf(13f, 17f)) {
+                    drawCircle(tint, 0.9f * u, Offset(x * u, y * u))
+                }
+            }
+            Glyph.FLASK -> {
+                drawPath(p(9f, 3f, 15f, 3f), tint, style = stroke)
+                drawPath(p(10f, 3f, 10f, 10f, 4f, 20f, 20f, 20f, 14f, 10f, 14f, 3f), tint, style = stroke)
+                drawPath(p(7f, 15f, 17f, 15f), tint, style = stroke)
+            }
+            Glyph.DICE -> {
+                drawRoundRect(
+                    tint, Offset(4f * u, 4f * u), androidx.compose.ui.geometry.Size(16f * u, 16f * u),
+                    androidx.compose.ui.geometry.CornerRadius(3f * u), style = stroke
+                )
+                for (point in listOf(8f to 8f, 12f to 12f, 16f to 16f)) {
+                    drawCircle(tint, 1f * u, Offset(point.first * u, point.second * u))
+                }
+            }
             Glyph.GEAR -> {
                 drawCircle(tint, radius = 3.2f * u, center = Offset(12f * u, 12f * u), style = stroke)
                 for (k in 0 until 8) {
@@ -204,7 +212,6 @@ fun GlyphButton(glyph: Glyph, description: String, onClick: () -> Unit, tint: Co
     }
 }
 
-/** App-wide top bar: serif title, drawn back chevron, steel hairline underneath. */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun MaximusTopBar(
@@ -213,13 +220,12 @@ fun MaximusTopBar(
     onTitleClick: (() -> Unit)? = null,
     actions: @Composable RowScope.() -> Unit = {}
 ) {
-    val module = LocalModuleStyle.current
     Column {
         TopAppBar(
             title = {
                 Text(
                     title,
-                    style = if (module != null) MaterialTheme.typography.titleLarge.copy(brush = module.accentBrush) else MaterialTheme.typography.titleLarge,
+                    style = MaterialTheme.typography.titleLarge,
                     maxLines = 1, overflow = TextOverflow.Ellipsis,
                     modifier = if (onTitleClick != null) Modifier.clickable(onClick = onTitleClick) else Modifier
                 )
@@ -234,19 +240,15 @@ fun MaximusTopBar(
                 titleContentColor = MaterialTheme.colorScheme.onBackground
             )
         )
-        if (module != null) ModuleStripe(module) else SteelRule(lozenge = false)
+        Hairline()
     }
 }
 
-/** Card with a hairline border: the "engraved plate" used for grouped content. */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun PlateCard(modifier: Modifier = Modifier, onClick: (() -> Unit)? = null, content: @Composable () -> Unit) {
     val colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceContainerLow)
-    val module = LocalModuleStyle.current
-    // Inside a module the engraved edge picks up the module accent at the upper left and fades out.
-    val border = if (module != null) BorderStroke(1.dp, Brush.linearGradient(listOf(module.primary.copy(alpha = 0.55f), module.hairline, module.hairline)))
-    else BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant)
+    val border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant)
     if (onClick != null) {
         Card(onClick = onClick, modifier = modifier.fillMaxWidth(), colors = colors, border = border) { content() }
     } else {

@@ -12,7 +12,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextAlign
-import app.maximus.ui.components.SteelRule
+import app.maximus.ui.components.Hairline
 import app.maximus.ui.components.PlateCard
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.text.input.KeyboardType
@@ -23,7 +23,7 @@ import java.time.format.DateTimeFormatter
 import java.util.Locale
 
 /** Accepts both decimal comma and decimal point. */
-fun parseDecimal(text: String): Double? = text.trim().replace(',', '.').toDoubleOrNull()
+fun parseDecimal(text: String): Double? = text.trim().replace(',', '.').toDoubleOrNull()?.takeIf(Double::isFinite)
 
 fun fmt(value: Double, decimals: Int = 1): String = String.format(Locale.getDefault(), "%.${decimals}f", value)
 
@@ -65,7 +65,7 @@ fun SectionCard(title: String, modifier: Modifier = Modifier, content: @Composab
     PlateCard(modifier = modifier) {
         Column(modifier = Modifier.padding(horizontal = 18.dp, vertical = 16.dp)) {
             Text(title, style = MaterialTheme.typography.titleLarge, color = MaterialTheme.colorScheme.primary)
-            SteelRule(lozenge = false, modifier = Modifier.padding(top = 4.dp, bottom = 10.dp))
+            Hairline(Modifier.padding(top = 4.dp, bottom = 10.dp))
             content()
         }
     }

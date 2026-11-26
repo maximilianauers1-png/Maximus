@@ -129,7 +129,7 @@ fun ModelScreen(service: ChatService, onBack: () -> Unit) {
                                         refresh++
                                     }
                                 } else armedDelete = m.path
-                            }, tint = if (armedDelete == m.path) Palette.Heraldic else MaterialTheme.colorScheme.outline)
+                            }, tint = if (armedDelete == m.path) Palette.Warning else MaterialTheme.colorScheme.outline)
                         }
                     }
                     importProgress?.let { p ->
@@ -162,7 +162,7 @@ fun ModelScreen(service: ChatService, onBack: () -> Unit) {
                             }
                             if (p.recommended) Text("Empfehlung für das Galaxy A55", style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.primary)
                             Text(p.strengths, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
-                            if (p.approxGb * 1e9 > memory.totalMem * 0.5) Text("Achtung: belegt mehr als die Hälfte des RAM.", style = MaterialTheme.typography.labelSmall, color = Palette.Heraldic)
+                            if (p.approxGb * 1e9 > memory.totalMem * 0.5) Text("Achtung: belegt mehr als die Hälfte des RAM.", style = MaterialTheme.typography.labelSmall, color = Palette.Warning)
                             Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                                 OutlinedButton(onClick = { clipboard.setText(AnnotatedString("https://" + p.source)); message = "Link kopiert" }) { Text("Link kopieren") }
                                 OutlinedButton(onClick = {

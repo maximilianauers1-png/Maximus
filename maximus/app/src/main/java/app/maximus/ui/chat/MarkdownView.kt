@@ -38,7 +38,7 @@ import app.maximus.chat.domain.Span
 import app.maximus.chat.domain.SpanStyle
 import app.maximus.ui.components.Glyph
 import app.maximus.ui.components.GlyphButton
-import app.maximus.ui.components.SteelRule
+import app.maximus.ui.components.Hairline
 import app.maximus.ui.theme.Palette
 
 /** Colours for code and maths, tuned to the dark iron palette (all ≥ 4.5:1 on the code background). */
@@ -104,7 +104,7 @@ fun MarkdownView(blocks: List<MdBlock>, onCopy: (String) -> Unit, modifier: Modi
                 }
                 is MdBlock.Math -> MathBlock(b.text)
                 is MdBlock.Table -> TableBlock(b, codeColor)
-                MdBlock.Rule -> SteelRule()
+                MdBlock.Rule -> Hairline()
             }
         }
     }
