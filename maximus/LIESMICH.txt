@@ -1,22 +1,18 @@
-MAXIMUS - Gesamtpaket (Version 0.5.1-p4b, Datenbankversion 5)
+MAXIMUS – Android Studio (Version 0.5.1-p4b, Datenbankversion 5)
 
-Dieses Paket enthaelt das KOMPLETTE Projekt in einem Stueck. Es ersetzt alle
-frueheren Teilpakete (p2, p1-update, p3-update, ritterbild, p4-update,
-dnd-update und die Einzelkorrekturen fix1 bis fix5). Nichts davon wird
-zusaetzlich gebraucht.
+1. Das Projekt aus GitHub in einen kurzen Pfad klonen, zum Beispiel C:\mx.
+2. In Android Studio mit File > Open den Unterordner maximus öffnen.
+   Dort liegt settings.gradle.kts.
+3. Mit einer Android-Studio-Version für AGP 9.4 synchronisieren. Das Projekt
+   verwendet Gradle 9.8.0 und JDK 25. Bei Bedarf im SDK Manager Android SDK
+   Platform 37.0 und Android SDK Build-Tools 36.0.0 installieren.
+4. Auf dem Handy USB-Debugging einschalten, das Gerät anschließen und die
+   Debugging-Anfrage bestätigen. In Android Studio das Gerät und die
+   Konfiguration app wählen und Run drücken. Die App benötigt Android 10
+   oder neuer.
 
-So geht es:
-1. Android Studio schliessen.
-2. Einen NEUEN, LEEREN Ordner anlegen, zum Beispiel C:\Users\maxim\maximus-neu
-   und das ZIP dort hinein entpacken. Es entsteht der Unterordner "maximus".
-   Wichtig: NICHT in einen alten Projektordner entpacken, damit keine
-   uebriggebliebenen Dateien stoeren.
-3. Optional: im Ordner "maximus" das Skript PRUEFEN.ps1 ausfuehren. Es muss
-   "Alles vorhanden" melden.
-4. Android Studio: File > Open > den Ordner "maximus" waehlen (der, in dem
-   settings.gradle.kts direkt liegt).
-5. File > Sync Project with Gradle Files, dann Run.
-
-Hinweis zu Daten: Die App nicht deinstallieren. Wenn schon eine aeltere
-Version auf dem Handy ist, installiert Run darueber und die Datenbank wird
-automatisch bis Version 5 migriert. Auf einem frischen Handy beginnt alles leer.
+Hinweis zu Daten: Für ein Update benötigt Android denselben Signaturschlüssel
+wie bei der vorhandenen Installation. Verwende bei einer alten Debug-Version
+möglichst denselben Rechner mit dem ursprünglichen Debug-Keystore. Falls
+Android die Signatur ablehnt, sichere deine Daten vor einer Neuinstallation
+unter Einstellungen > Datensicherung > Sichern.

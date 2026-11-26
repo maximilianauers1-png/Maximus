@@ -1,5 +1,9 @@
+DATEILISTE-KOMPLETT.txt
+LIESMICH.txt
+PRUEFEN.ps1
 app/build.gradle.kts
 app/proguard-rules.pro
+app/schemas/app.maximus.data.db.MaximusDatabase/5.json
 app/src/androidTest/java/app/maximus/DatabaseEncryptionTest.kt
 app/src/androidTest/java/app/maximus/KeystoreAeadTest.kt
 app/src/androidTest/java/app/maximus/ManifestPolicyTest.kt
@@ -92,9 +96,13 @@ app/src/main/java/app/maximus/ui/dnd/SheetScreen.kt
 app/src/main/java/app/maximus/ui/navigation/MaximusNavHost.kt
 app/src/main/java/app/maximus/ui/nutrition/GoalsTab.kt
 app/src/main/java/app/maximus/ui/nutrition/JournalTab.kt
+app/src/main/java/app/maximus/ui/nutrition/NutritionComponents.kt
 app/src/main/java/app/maximus/ui/nutrition/NutritionHubScreen.kt
 app/src/main/java/app/maximus/ui/nutrition/PlanTab.kt
+app/src/main/java/app/maximus/ui/nutrition/PrepTab.kt
 app/src/main/java/app/maximus/ui/nutrition/RecipesTab.kt
+app/src/main/java/app/maximus/ui/nutrition/ShoppingTab.kt
+app/src/main/java/app/maximus/ui/nutrition/TodayTab.kt
 app/src/main/java/app/maximus/ui/nutrition/ToolsTab.kt
 app/src/main/java/app/maximus/ui/screens/DiagnosticsScreen.kt
 app/src/main/java/app/maximus/ui/screens/HomeScreen.kt
@@ -116,6 +124,7 @@ app/src/main/java/app/maximus/vault/data/VaultEntities.kt
 app/src/main/java/app/maximus/vault/data/VaultRepository.kt
 app/src/main/java/app/maximus/vault/data/VaultSession.kt
 app/src/main/res/drawable-nodpi/knight_hero.webp
+app/src/main/res/drawable-nodpi/nutrition_hero.webp
 app/src/main/res/drawable/ic_launcher.xml
 app/src/main/res/font/grenze_extrabold.ttf
 app/src/main/res/font/grenze_medium.ttf
@@ -123,8 +132,10 @@ app/src/main/res/font/grenze_semibold.ttf
 app/src/main/res/font/inter_medium.ttf
 app/src/main/res/font/inter_regular.ttf
 app/src/main/res/font/inter_semibold.ttf
+app/src/main/res/values-en/nutrition_workflow.xml
 app/src/main/res/values-en/strings.xml
 app/src/main/res/values/colors.xml
+app/src/main/res/values/nutrition_workflow.xml
 app/src/main/res/values/strings.xml
 app/src/main/res/values/themes.xml
 app/src/main/res/xml/data_extraction_rules.xml
@@ -155,6 +166,10 @@ docs/licenses/OFL-GrenzeGotisch.txt
 docs/licenses/OFL-Inter.txt
 docs/licenses/SRD-5.1-CC-BY-4.0.txt
 gradle.properties
+gradle/gradle-daemon-jvm.properties
 gradle/libs.versions.toml
+gradle/wrapper/gradle-wrapper.jar
 gradle/wrapper/gradle-wrapper.properties
+gradlew
+gradlew.bat
 settings.gradle.kts
